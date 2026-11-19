@@ -1,0 +1,106 @@
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
+
+const listen = (channel) => (callback) => ipcRenderer.on(channel, (_event, payload) => callback(payload));
+
+contextBridge.exposeInMainWorld('panel', {
+  settings: () => ipcRenderer.invoke('panel:settings'),
+  packs: () => ipcRenderer.invoke('packs:list'),
+  life: () => ipcRenderer.invoke('life:get'),
+  data: {
+    get: (name, fallback) => ipcRenderer.invoke('data:get', name, fallback),
+    set: (name, value) => ipcRenderer.invoke('data:set', name, value),
+  },
+  timer: {
+    get: () => ipcRenderer.invoke('timer:get'),
+    act: (action, args) => ipcRenderer.invoke('timer:act', action, args),
+  },
+  clipboard: {
+    list: (query) => ipcRenderer.invoke('clipboard:list', query),
+    act: (action, id) => ipcRenderer.invoke('clipboard:act', action, id),
+    currentText: () => ipcRenderer.invoke('clipboard:current-text'),
+  },
+  units: {
+    meta: () => ipcRenderer.invoke('units:meta'),
+    convert: (category, value, from, to) => ipcRenderer.invoke('units:convert', category, value, from, to),
+  },
+  currency: {
+    meta: () => ipcRenderer.invoke('currency:meta'),
+    convert: (amount, from, to) => ipcRenderer.invoke('currency:convert', amount, from, to),
+  },
+  // The real place of a dropped or chosen file on this computer ('' if it has none).
+  pathFor: (file) => { try { return webUtils.getPathForFile(file); } catch { return ''; } },
+  screenTime: {
+    get: () => ipcRenderer.invoke('screentime:get'),
+    set: (input) => ipcRenderer.invoke('screentime:set', input),
+    clear: () => ipcRenderer.invoke('screentime:clear'),
+  },
+  converter: {
+    save: (input) => ipcRenderer.invoke('converter:save', input),
+    doc: (input) => ipcRenderer.invoke('converter:doc', input),
+    pdf: (input) => ipcRenderer.invoke('converter:pdf', input),
+    reveal: (file) => ipcRenderer.invoke('converter:reveal', file),
+  },
+  shelf: {
+    list: () => ipcRenderer.invoke('shelf:list'),
+    create: (name) => ipcRenderer.invoke('shelf:create', name),
+    rename: (shelfId, name) => ipcRenderer.invoke('shelf:rename', shelfId, name),
+    delete: (shelfId) => ipcRenderer.invoke('shelf:delete', shelfId),
+    add: (shelfId, paths) => ipcRenderer.invoke('shelf:add', shelfId, paths),
+    remove: (shelfId, fileId) => ipcRenderer.invoke('shelf:remove', shelfId, fileId),
+    clear: (shelfId) => ipcRenderer.invoke('shelf:clear', shelfId),
+    open: (shelfId, fileId) => ipcRenderer.invoke('shelf:open', shelfId, fileId),
+    reveal: (shelfId, fileId) => ipcRenderer.invoke('shelf:reveal', shelfId, fileId),
+    copyAll: (shelfId) => ipcRenderer.invoke('shelf:copy-all', shelfId),
+    startDrag: (shelfId, fileId) => ipcRenderer.send('shelf:drag', shelfId, fileId),
+  },
+  calendar: {
+    list: (from, to) => ipcRenderer.invoke('calendar:list', from, to),
+    add: (input) => ipcRenderer.invoke('calendar:add', input),
+    remove: (id) => ipcRenderer.invoke('calendar:remove', id),
+    feeds: () => ipcRenderer.invoke('calendar:feeds'),
+    addFeed: (input) => ipcRenderer.invoke('calendar:add-feed', input),
+    removeFeed: (id) => ipcRenderer.invoke('calendar:remove-feed', id),
+    refresh: () => ipcRenderer.invoke('calendar:refresh'),
+  },
+  weather: {
+    search: (query) => ipcRenderer.invoke('weather:search', query),
+    choose: (place) => ipcRenderer.invoke('weather:choose', place),
+    setUnit: (unit) => ipcRenderer.invoke('weather:unit', unit),
+    get: (force) => ipcRenderer.invoke('weather:get', force),
+  },
+  phone: {
+    get: () => ipcRenderer.invoke('phone:get'),
+    start: () => ipcRenderer.invoke('phone:start'),
+    stop: () => ipcRenderer.invoke('phone:stop'),
+    open: () => ipcRenderer.invoke('phone:open'),
+  },
+  assistant: {
+    get: () => ipcRenderer.invoke('assistant:get'),
+    plan: (text) => ipcRenderer.invoke('assistant:plan', text),
+    run: () => ipcRenderer.invoke('assistant:run'),
+    cancel: () => ipcRenderer.invoke('assistant:cancel'),
+    undo: () => ipcRenderer.invoke('assistant:undo'),
+    stop: () => ipcRenderer.send('assistant:stop'),
+  },
+  media: (command) => ipcRenderer.invoke('media:control', command),
+  message: {
+    show: (input) => ipcRenderer.invoke('message:show', input),
+    clear: () => ipcRenderer.invoke('message:clear'),
+  },
+  copyText: (text) => ipcRenderer.invoke('copy-text', text),
+  openUrl: (url) => ipcRenderer.invoke('open-url', url),
+  hide: () => ipcRenderer.send('panel:hide'),
+  setEditing: (isEditing) => ipcRenderer.send('panel:editing', isEditing),
+  onShown: listen('panel:shown'),
+  onHiding: listen('panel:hiding'),
+  onSettings: listen('panel:settings'),
+  onTimer: listen('timer'),
+  onStats: listen('system:stats'),
+  onClipboard: listen('clipboard:changed'),
+  onMusic: listen('music'),
+  onCapture: listen('panel:capture'),
+  onCommand: listen('panel:command'),
+  runCommand: (text) => ipcRenderer.send('command:run', text),
+  onAssistant: listen('assistant:update'),
+  onPhone: listen('phone:update'),
+});

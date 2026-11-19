@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'">
+  <title>Notch settings</title>
+  <link rel="stylesheet" href="looks.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body data-mode="light">
+  <div class="hero-mark" id="heroMark" aria-hidden="true"></div>
+  <form id="form" class="app">
+    <aside class="rail">
+      <div class="brand">
+        <div class="portrait" id="portrait" aria-hidden="true"></div>
+        <h1>Notch</h1>
+        <p id="lookName">Classic look</p>
+      </div>
+      <nav id="nav" class="nav" aria-label="Settings sections">
+        <span class="nav-ink" aria-hidden="true"></span>
+        <button type="button" data-pane="general" aria-current="page">General</button>
+        <button type="button" data-pane="voice">Voice</button>
+        <button type="button" data-pane="notch">Notch</button>
+        <button type="button" data-pane="panel">Panel</button>
+        <button type="button" data-pane="look">Look</button>
+      </nav>
+      <div class="rail-foot">
+        <div class="mode" role="radiogroup" aria-label="Light or dark">
+          <span class="mode-thumb" aria-hidden="true"></span>
+          <button type="button" role="radio" data-mode="light" aria-checked="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light
+          </button>
+          <button type="button" role="radio" data-mode="dark" aria-checked="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>Dark
+          </button>
+        </div>
+        <button type="button" id="quit" class="quit">Quit Notch</button>
+      </div>
+    </aside>
+
+    <main class="stage">
+      <header class="stage-head">
+        <h2 id="stage-title"></h2>
+        <p id="stage-sub"></p>
+      </header>
+      <div class="panes">
+        <section class="pane" id="pane-general" data-title="General" data-sub="When the notch wakes up, and when it rests.">
+          <label class="toggle">
+            <span><b>Start with Windows</b><small>Batman wakes up when you sign in.</small></span>
+            <input type="checkbox" id="autostart">
+          </label>
+          <label class="toggle">
+            <span><b>Stay hidden until I call him</b><small>The notch is out of sight and wakes only when you say “Hey Batman”, press the hotkey, or use the tray menu. He hides again a few seconds after he is done.</small></span>
+            <input type="checkbox" id="hideUntilCalled">
+          </label>
+          <label class="toggle">
+            <span><b>Character reacts</b><small>Your hero cheers when a timer ends and looks worried when the battery is low and not charging.</small></span>
+            <input type="checkbox" id="reactiveHero">
+          </label>
+          <label class="toggle">
+            <span><b>Still pop up for alerts while hidden</b><small>WhatsApp messages and Claude Code alerts (needs you, done, error) show for a moment, then hide again.</small></span>
+            <input type="checkbox" id="alertsWhileHidden">
+          </label>
+          <label class="field">
+            <b>Fall asleep after (minutes)</b>
+            <small>0 means never.</small>
+            <input type="number" id="sleepMinutes" min="0" max="120">
+          </label>
+        </section>
+
+        <section class="pane" id="pane-voice" data-title="Voice" data-sub="Talk to the notch. It listens offline." hidden>
+          <label class="toggle">
+            <span><b>Say “Hey Batman” to talk</b><small>The microphone listens for that phrase only. It uses Windows offline speech, so nothing is recorded or sent anywhere.</small></span>
+            <input type="checkbox" id="wakeWord">
+          </label>
+          <label class="field">
+            <b>“Hey Batman” sensitivity</b>
+            <small>1 = only very clear speech wakes him. 5 = wakes easily. If he ignores you, raise it.</small>
+            <input type="range" id="wakeSensitivity" min="1" max="5" step="1">
+          </label>
+          <label class="field">
+            <b>Voice hotkey</b>
+            <small>Press it, then speak. Example: Control+Alt+Space</small>
+            <input id="voiceHotkey" autocomplete="off">
+          </label>
+          <label class="toggle">
+            <span><b>Talk back</b><small>Batman says his answer out loud, like “Opening Chrome”. Uses the Windows voice, offline.</small></span>
+            <input type="checkbox" id="talkBack">
+          </label>
+          <label class="toggle">
+            <span><b>Answer my questions with Claude</b><small>Anything that is not a command goes to Claude, and he speaks the answer. Your question is sent to Anthropic. It uses your own Claude account.</small></span>
+            <input type="checkbox" id="askClaude">
+          </label>
+          <label class="toggle">
+            <span><b>Let voice control the computer</b><small>Brightness, Wi-Fi, Bluetooth, screenshots, window snapping, battery, typing into the open app, and sleep, restart and shut down. Sleep, restart, shut down and Wi-Fi off always ask “yes or no” first, and shut down and restart wait 30 seconds so you can say “cancel shutdown”.</small></span>
+            <input type="checkbox" id="pcControl">
+          </label>
+          <label class="toggle">
+            <span><b>Let Claude do file tasks for me</b><small>Say “task sort my downloads” or use the Assistant tab. Claude sees file and folder names, never what is inside files. Nothing happens until you press Run, and it only works in Downloads, Documents, Desktop, Pictures, Music and Videos. Moves, renames and copies can be undone. Deleted files go to the Recycle Bin.</small></span>
+            <input type="checkbox" id="assistantTasks">
+          </label>
+          <div class="field wide">
+            <b>Microphone check</b>
+            <small>Press the button and say “Hey Batman”. The bar moves with your voice. If it never moves, Windows is not hearing your microphone.</small>
+            <div class="mic-row">
+              <button type="button" id="micTest">Test microphone</button>
+              <meter id="micLevel" min="0" max="100" value="0"></meter>
+            </div>
+            <p id="micHeard" role="status"></p>
+          </div>
+          <div class="field wide">
+            <label for="routines"><b>Routines</b></label>
+            <small>One routine per line: a name, a colon, then commands separated by semicolons. Say “run good morning” to start it. Only safe commands work here: no shutdown, restart, sleep, typing, lock or Wi-Fi off.</small>
+            <textarea id="routines" rows="4" maxlength="2000" spellcheck="false" placeholder="good morning: what is the date; battery; open chrome"></textarea>
+          </div>
+          <div class="field wide">
+            <b>Things you can say</b>
+            <ul class="say">
+              <li>“open Chrome”, “open Notepad”, “open Settings”</li>
+              <li>“open WhatsApp”, “open YouTube”, “open Gmail”</li>
+              <li>“search for cute cats”</li>
+              <li>“volume up”, “volume down”, “mute”</li>
+              <li>“pause”, “play”, “next”, “previous”</li>
+              <li>“lock the screen”</li>
+              <li>“brightness up”, “brightness down”, “take a screenshot”, “battery”</li>
+              <li>“wifi off”, “bluetooth on”, “snap left”, “maximize”, “show desktop”</li>
+              <li>“open downloads”, “open documents”, “type hello there”</li>
+              <li>“sleep”, “restart”, “shut down”, “cancel shutdown”</li>
+              <li>“run good morning” (your own routines, above)</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-notch" data-title="Notch" data-sub="What shows on the notch itself." hidden>
+          <label class="toggle">
+            <span><b>Show the time in the notch</b><small>The clock on the right of the notch. It follows your Windows 12 or 24 hour setting.</small></span>
+            <input type="checkbox" id="showTimeInNotch">
+          </label>
+          <label class="toggle">
+            <span><b>Show the battery in the notch</b><small>The battery level next to the time. It shows a bolt while charging and turns red when low.</small></span>
+            <input type="checkbox" id="showBatteryInNotch">
+          </label>
+          <label class="toggle">
+            <span><b>Show a running timer in the notch</b><small>While a timer runs, the notch stays visible with the minutes left.</small></span>
+            <input type="checkbox" id="showTimerInNotch">
+          </label>
+          <label class="toggle">
+            <span><b>Dance when music plays</b><small>Works with Spotify, YouTube, and any app with media keys.</small></span>
+            <input type="checkbox" id="danceOnMusic">
+          </label>
+          <label class="toggle">
+            <span><b>Announce new songs</b><small>When a new song starts, the notch shows its name and album art for a few seconds. Play, pause and skip show when you hover over it.</small></span>
+            <input type="checkbox" id="showMusicActivity">
+          </label>
+          <label class="toggle">
+            <span><b>Volume bar</b><small>A level bar in the notch when the volume changes.</small></span>
+            <input type="checkbox" id="showVolumeBar">
+          </label>
+          <label class="toggle">
+            <span><b>“Copied” tick</b><small>A small ✓ in the notch when you copy something.</small></span>
+            <input type="checkbox" id="showCopiedTick">
+          </label>
+          <label class="toggle">
+            <span><b>Step aside for full-screen apps</b><small>While a game or full-screen video is running, the notch hides completely and the panel will not open by hovering.</small></span>
+            <input type="checkbox" id="stepAside">
+          </label>
+          <div class="field">
+            <b>Edge light</b>
+            <small>A thin line of light around the notch. “Music” takes its color from the album art.</small>
+            <div class="two">
+              <select id="edgeLight" aria-label="Edge light style">
+                <option value="off">Off</option>
+                <option value="solid">Solid</option>
+                <option value="pulse">Pulsing</option>
+                <option value="music">Music (album art color)</option>
+              </select>
+              <input type="color" id="edgeColor" aria-label="Edge light color">
+            </div>
+          </div>
+          <label class="field">
+            <b>Show messages from</b>
+            <small>A word to look for in popups, like whatsapp. Empty shows every app.</small>
+            <input id="notifyKeyword" maxlength="40" autocomplete="off">
+          </label>
+          <div class="field wide">
+            <b>Try it</b>
+            <small>Sends a test message to the notch.</small>
+            <div><button type="button" id="test">Send test message</button></div>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-panel" data-title="Panel" data-sub="The drop-down panel of tools." hidden>
+          <label class="toggle">
+            <span><b>Open the panel by hovering</b><small>Rest the mouse at the top-center edge of the screen and the panel of tools slides down.</small></span>
+            <input type="checkbox" id="hoverOpen">
+          </label>
+          <label class="field">
+            <b>Panel hotkey</b>
+            <small>Opens and closes the panel of tools. Example: Control+Alt+N</small>
+            <input id="panelHotkey" autocomplete="off">
+          </label>
+          <label class="field">
+            <b>Quick note hotkey</b>
+            <small>Opens the panel on a new note, ready to type. Example: Control+Alt+K</small>
+            <input id="captureHotkey" autocomplete="off">
+          </label>
+          <label class="field">
+            <b>Type-a-command hotkey</b>
+            <small>Opens a box where you type what you would have said, like "open downloads". Example: Control+Alt+J</small>
+            <input id="commandHotkey" autocomplete="off">
+          </label>
+          <div class="field wide">
+            <b>Tools in the panel</b>
+            <small>Tick the ones you want. Use the arrows to change the order.</small>
+            <div id="modules" class="modules"></div>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-look" data-title="Look" data-sub="Pick a character. The whole app takes on their colors." hidden>
+          <div class="field wide">
+            <b>Character</b>
+            <small>This window changes right away so you can preview. Press Save to also change the panel, the notch (its icon, edge line and glow) and the tray icon. The edge light color follows the look, and you can still change it.</small>
+            <div id="looks" class="looks" role="radiogroup" aria-label="Character look"></div>
+            <p id="packsNote">Want more characters? Drop a pack file (.json) in the packs folder, then reopen this window.</p>
+            <button type="button" id="openPacks">Open packs folder</button>
+            <select id="theme" hidden aria-hidden="true"></select>
+            <input type="hidden" id="colorMode" value="light">
+          </div>
+        </section>
+      </div>
+
+      <footer class="bar">
+        <p id="status" role="status">All changes are saved.</p>
+        <button type="submit" class="primary">Save</button>
+      </footer>
+    </main>
+  </form>
+  <script src="heroes.js"></script>
+  <script src="packs.js"></script>
+  <script src="settings.js"></script>
+  <script src="settings-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+:root {
+  --pill-w: 250px;
+  --pill-w-open: 400px;
+  --pill-w-music: 290px;
+  --cowl: #475569;
+  --jaw: #e8c39e;
+  --glove: #64748b;
+  --eye: #f8fafc;
+  --accent: #facc15; /* voice glow, volume bar, battery bolt, focus rings */
+  --ring: transparent; /* a thin line along the notch edge, only for character looks */
+  --ease: cubic-bezier(.2, .9, .3, 1.2);
+}
+/* The look you pick in settings. The notch stays black, but its face, edge line and glow wear the look's colors (palettes only). */
+body[data-theme="classic"] { --accent: #3c85e9; --ring: #0b66e4; }
+body[data-theme="ember"] { --accent: #fb923c; --ring: #fb923c; }
+body[data-theme="vivid"] { --accent: #a78bfa; --ring: #a78bfa; }
+body[data-theme="ironman"] { --cowl: #b91c1c; --jaw: #f5b301; --glove: #f5b301; --eye: #fff3b0; --accent: #f5b301; --ring: #f5b301; }
+body[data-theme="captain"] { --cowl: #1d4ed8; --jaw: #e5e7eb; --glove: #dc2626; --eye: #ffffff; --accent: #4f8cff; --ring: #4f8cff; }
+body[data-theme="spiderman"] { --cowl: #dc2626; --jaw: #1d4ed8; --glove: #1d4ed8; --eye: #ffffff; --accent: #ff2d3d; --ring: #ff2d3d; }
+body[data-theme="strange"] { --cowl: #1e40af; --jaw: #e8c39e; --glove: #ff8a1f; --eye: #ffd9a8; --accent: #ff8a1f; --ring: #ff8a1f; }
+body[data-theme="doom"] { --cowl: #166534; --jaw: #94a3b8; --glove: #166534; --eye: #bbf7d0; --accent: #8fd19e; --ring: #8fd19e; }
+body[data-theme="blackpanther"] { --cowl: #2e1065; --jaw: #c4b5fd; --glove: #7c3aed; --eye: #ffffff; --accent: #b794f6; --ring: #b794f6; }
+body[data-theme="hulk"] { --cowl: #16a34a; --jaw: #15803d; --glove: #22c55e; --eye: #ecfccb; --accent: #84ff3d; --ring: #84ff3d; }
+body[data-theme="thor"] { --cowl: #64748b; --jaw: #e2e8f0; --glove: #38bdf8; --eye: #bae6fd; --accent: #38bdf8; --ring: #38bdf8; }
+body[data-theme="wolverine"] { --cowl: #1d4ed8; --jaw: #facc15; --glove: #facc15; --eye: #ffffff; --accent: #fbbf24; --ring: #fbbf24; }
+* { box-sizing: border-box; margin: 0; }
+html, body { background: transparent; overflow: hidden; font: 12px/1.3 "Segoe UI", system-ui, sans-serif; color: #f1f5f9; user-select: none; }
+
+.pill {
+  position: relative; margin: 0 auto; width: var(--pill-w); min-height: 38px;
+  background: #000; border-radius: 0 0 22px 22px; padding: 0 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .45), inset 0 -2px 0 var(--ring), 0 0 14px -4px var(--ring);
+  transition: width .35s var(--ease), min-height .35s var(--ease), transform .45s var(--ease), opacity .3s;
+  overflow: hidden;
+}
+/* asleep: he slides up out of sight and every animation stops */
+body.dormant .pill { transform: translateY(-110%); opacity: 0; pointer-events: none; }
+body.dormant *, body.dormant *::before, body.dormant *::after { animation-play-state: paused !important; }
+.row { display: flex; align-items: center; gap: 10px; height: 38px; }
+.text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; color: #cbd5e1; }
+.bang { display: none; width: 15px; height: 15px; border-radius: 50%; background: #ef4444; color: #fff; font: 700 10px/15px system-ui; text-align: center; animation: pulse .8s infinite; }
+.cancel {
+  display: none; flex: none; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%;
+  background: #2a2f3a; color: #cbd5e1; font: 12px/22px system-ui; text-align: center; cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.cancel:hover { background: #ef4444; color: #fff; transform: scale(1.1); }
+.cancel:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body[data-state="listening"] .cancel,
+body[data-state="asking"] .cancel,
+body[data-state="speaking"] .cancel { display: block; }
+.card { display: none; flex-direction: column; padding: 2px 0 12px 38px; gap: 2px; }
+.card strong { color: #86efac; }
+.card span { color: #e2e8f0; overflow-wrap: anywhere; }
+
+/* a song is playing: a little wider, to fit the album art and the title */
+body[data-music="playing"] .pill { width: var(--pill-w-music); }
+
+/* open the pill for long text, notifications, needs-you */
+body[data-state="needs"] .pill,
+body[data-state="working"] .pill,
+body[data-state="error"] .pill,
+body[data-state="done"] .pill,
+body[data-state="dance"] .pill,
+body[data-state="listening"] .pill,
+body[data-state="asking"] .pill,
+body[data-state="speaking"] .pill,
+body.card .pill,
+.pill:hover { width: var(--pill-w-open); }
+body.card .card { display: flex; }
+body.card .pill { min-height: 78px; }
+body[data-state="needs"] .bang { display: block; }
+
+/* the Batman face */
+.peng {
+  all: unset; cursor: pointer; position: relative; flex: none;
+  width: 24px; height: 24px; background: var(--cowl); border-radius: 38% 38% 46% 46%;
+  box-shadow: 0 0 calc(var(--level, 0) * .25px) calc(var(--level, 0) * .06px) var(--accent); /* glows with your voice while he listens */
+  display: flex; gap: 5px; align-items: center; justify-content: center;
+  animation: float 3s ease-in-out infinite;
+}
+/* pointed ears */
+.peng::before, .peng::after { content: ""; position: absolute; top: -6px; border: 5px solid transparent; border-top: 0; border-bottom: 8px solid var(--cowl); }
+.peng::before { left: 1px; }
+.peng::after { right: 1px; }
+.eye { width: 5px; height: 3px; background: var(--eye); border-radius: 1px; position: relative; top: -3px; z-index: 1; box-shadow: 0 0 4px var(--eye); animation: blink 4s infinite; }
+.beak { position: absolute; bottom: 0; width: 12px; height: 8px; background: var(--jaw); border-radius: 0 0 8px 8px; }
+.fl { position: absolute; top: 9px; width: 5px; height: 10px; border-radius: 50%; background: var(--glove); transform-origin: top center; }
+.fl.l { left: -3px; transform: rotate(14deg); }
+.fl.r { right: -3px; transform: rotate(-14deg); }
+
+/* Character looks: my own simple drawings in each hero's colors (not official artwork). They replace the Batman face. */
+.hero { display: none; position: absolute; left: -2px; top: -2px; width: 28px; height: 28px; pointer-events: none; overflow: visible; }
+.hero g { display: none; }
+body.has-hero .hero { display: block; }
+body.has-hero .peng { background: transparent; }
+body.has-hero .peng::before, body.has-hero .peng::after, body.has-hero .fl, body.has-hero .beak { display: none; }
+/* the two eyes sit over each drawing's eye spots: size, spacing and tilt per hero */
+body[data-theme="ironman"] .peng { gap: 2.2px; }
+body[data-theme="ironman"] .eye { width: 5px; height: 1.8px; top: .4px; border-radius: 50%; }
+body[data-theme="ironman"] .eye:nth-of-type(1) { rotate: 14deg; }
+body[data-theme="ironman"] .eye:nth-of-type(2) { rotate: -14deg; }
+body[data-theme="wolverine"] .peng { gap: 4.2px; }
+body[data-theme="wolverine"] .eye { width: 3.4px; height: 1.4px; top: .6px; border-radius: 40%; }
+body[data-theme="wolverine"] .eye:nth-of-type(1) { rotate: 18deg; }
+body[data-theme="wolverine"] .eye:nth-of-type(2) { rotate: -18deg; }
+body[data-theme="strange"] .peng { gap: 3.4px; }
+body[data-theme="strange"] .eye { width: 2.4px; height: 1.4px; top: -2px; background: #2563eb; box-shadow: 0 0 3px #ff8a1f; }
+body[data-theme="thor"] .peng { gap: 3.4px; }
+body[data-theme="thor"] .eye { width: 2.4px; height: 1.5px; top: -.2px; background: #2563eb; box-shadow: 0 0 3px #38bdf8; }
+body[data-theme="spiderman"] .peng { gap: 3.6px; }
+body[data-theme="spiderman"] .eye { width: 5.4px; height: 3.2px; top: -1.6px; border-radius: 50%; box-shadow: none; }
+body[data-theme="spiderman"] .eye:nth-of-type(1) { rotate: 30deg; }
+body[data-theme="spiderman"] .eye:nth-of-type(2) { rotate: -30deg; }
+body[data-theme="hulk"] .peng { gap: 5px; }
+body[data-theme="hulk"] .eye { width: 2.8px; height: 1.6px; top: -1.4px; box-shadow: none; }
+body[data-theme="doom"] .peng { gap: 3.6px; }
+body[data-theme="doom"] .eye { width: 2.6px; height: 1.4px; top: -1.1px; background: #67e8f9; box-shadow: 0 0 3px #67e8f9; }
+body[data-theme="blackpanther"] .eye { width: 5px; height: 2.2px; border-radius: 40%; }
+body[data-theme="blackpanther"] .eye:nth-of-type(1) { rotate: 14deg; }
+body[data-theme="blackpanther"] .eye:nth-of-type(2) { rotate: -14deg; }
+
+/* states */
+body[data-state="thinking"] .peng,
+body[data-state="listening"] .peng { animation: tilt 1.6s ease-in-out infinite; }
+/* asking Claude: he thinks hard, eyes scanning, dots counting up after the text */
+body[data-state="asking"] .peng { animation: tilt 1.4s ease-in-out infinite; }
+body[data-state="asking"] .eye { animation: look .9s ease-in-out infinite; }
+body[data-state="asking"] .text::after { content: "..."; display: inline-block; width: 0; overflow: hidden; vertical-align: bottom; animation: dots 1.2s steps(4) infinite; }
+/* speaking: jaw moves, eyes pulse, head nods along */
+body[data-state="speaking"] .peng { animation: nod .55s ease-in-out infinite; }
+body[data-state="speaking"] .beak { transform-origin: top center; animation: talk .26s ease-in-out infinite alternate; }
+body[data-state="speaking"] .eye { animation: eyeGlow .5s ease-in-out infinite alternate; }
+body[data-state="working"] .peng { animation: waddle .35s ease-in-out infinite; }
+body[data-state="working"] .eye { animation: look .7s infinite; }
+body[data-state="needs"] .peng { animation: hop .4s ease-in-out infinite; }
+body[data-state="needs"] .fl.r { animation: flap .3s ease-in-out infinite; }
+body[data-state="done"] .peng { animation: cheer .5s ease-in-out 3; }
+body[data-state="done"] .fl { animation: cheerArms .5s ease-in-out 3; }
+body[data-state="error"] .peng { animation: fall 5s ease-in-out forwards; }
+body[data-state="dance"] .peng { animation: dance .5s ease-in-out infinite; }
+body[data-state="sleep"] .eye { animation: none; transform: scaleY(.15); }
+body[data-state="sleep"] .peng { animation: breathe 3s ease-in-out infinite; }
+body.wave .fl.r { animation: flap .35s ease-in-out infinite; }
+body.hop .peng { animation: hop .3s ease-in-out 2; }
+body.slide .peng { animation: slide 2.4s ease-in-out; }
+
+.zzz { display: none; position: absolute; top: 4px; left: 40px; color: #94a3b8; font-size: 10px; animation: float 2s infinite; }
+body[data-state="sleep"] .zzz { display: block; }
+
+.confetti { display: none; position: absolute; inset: 0; pointer-events: none; }
+body[data-state="done"] .confetti { display: block; }
+.confetti b { position: absolute; left: 18px; top: 14px; width: 4px; height: 4px; border-radius: 1px; animation: burst 1s ease-out 3; }
+.confetti b:nth-child(1) { background: #f472b6; --dx: -14px; --dy: -14px; }
+.confetti b:nth-child(2) { background: #facc15; --dx: 4px; --dy: -18px; }
+.confetti b:nth-child(3) { background: #34d399; --dx: 16px; --dy: -10px; }
+.confetti b:nth-child(4) { background: #60a5fa; --dx: -8px; --dy: -22px; }
+.confetti b:nth-child(5) { background: #fb923c; --dx: 22px; --dy: -16px; }
+.confetti b:nth-child(6) { background: #a78bfa; --dx: 10px; --dy: -24px; }
+
+@keyframes float { 50% { transform: translateY(-2px); } }
+@keyframes dots { to { width: 1.2em; } }
+@keyframes nod { 50% { transform: translateY(-1.5px) rotate(2deg); } }
+@keyframes talk { from { transform: scaleY(1); } to { transform: scaleY(1.9); } }
+@keyframes eyeGlow { from { box-shadow: 0 0 2px #fff; } to { box-shadow: 0 0 9px var(--accent); } }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes look { 0%, 100% { transform: translateX(-1.5px); } 50% { transform: translateX(1.5px); } }
+@keyframes waddle { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes tilt { 0%, 100% { transform: rotate(-10deg) translateY(-1px); } 50% { transform: rotate(4deg); } }
+@keyframes hop { 50% { transform: translateY(-7px); } }
+@keyframes flap { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(-70deg); } }
+@keyframes cheer { 50% { transform: translateY(-9px) scale(1.08); } }
+@keyframes cheerArms { 50% { transform: rotate(-80deg); } }
+@keyframes fall { 0%, 10% { transform: rotate(0); } 25%, 70% { transform: rotate(80deg) translateX(3px); } 100% { transform: rotate(0); } }
+@keyframes dance { 0%, 100% { transform: rotate(-12deg) translateY(0); } 50% { transform: rotate(12deg) translateY(-4px); } }
+@keyframes breathe { 50% { transform: scale(1.04, .97); } }
+@keyframes slide { 0% { transform: translateX(0) rotate(0); } 15% { transform: translateX(0) rotate(90deg); } 85% { transform: translateX(120px) rotate(90deg); } 100% { transform: translateX(120px) rotate(0); } }
+@keyframes pulse { 50% { opacity: .35; } }
+@keyframes burst { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+
+/* live activities: album art, volume bar, media buttons, your message, the edge light */
+body[data-activity] .pill, body.has-message .pill { width: var(--pill-w-open); }
+.chips { display: flex; align-items: center; gap: 10px; flex: none; color: #cbd5e1; font-size: 12px; font-variant-numeric: tabular-nums; }
+.chips[hidden], .chip[hidden] { display: none; }
+.chip { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.battery-icon { width: 20px; height: 20px; display: block; }
+.battery-bolt { display: none; }
+.chip.charging .battery-bolt { display: block; }
+.chip.low { color: #f87171; }
+/* a song or an activity needs the room: the chips step back, and return when you hover */
+body[data-activity] .chips, body[data-music="playing"] .chips { display: none; }
+body[data-music="playing"] .pill:hover .chips { display: flex; }
+.art { width: 28px; height: 28px; border-radius: 7px; object-fit: cover; flex: none; }
+.art[hidden] { display: none; }
+.vol { display: none; width: 64px; height: 6px; border-radius: 3px; background: #23262d; overflow: hidden; flex: none; }
+.vol i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--accent); transition: width .15s; }
+body[data-activity="volume"] .vol { display: block; }
+.media-controls { display: none; gap: 2px; flex: none; }
+body[data-music="playing"] .pill:hover .media-controls { display: flex; }
+.media-btn { all: unset; box-sizing: border-box; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 6px; color: #cbd5e1; cursor: pointer; }
+.media-btn:hover { background: #2a2f3a; color: #fff; }
+.media-btn:focus-visible { outline: 2px solid var(--accent); }
+.battery-bolt { fill: var(--accent); }
+.media-btn svg { width: 14px; height: 14px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.text.pulse { animation: msgPulse 1.6s ease-in-out infinite; }
+.text.scroll { text-overflow: clip; animation: marquee 9s linear infinite; }
+.pill::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .4s;
+  border: 1.5px solid var(--edge, #facc15); border-top: 0; box-shadow: inset 0 -6px 14px -8px var(--edge, #facc15);
+}
+body[data-edge="solid"] .pill::after, body[data-edge="music"] .pill::after { opacity: .95; }
+body[data-edge="pulse"] .pill::after { animation: edgePulse 2.4s ease-in-out infinite; }
+@keyframes msgPulse { 50% { opacity: .45; } }
+@keyframes marquee { from { text-indent: 100%; } to { text-indent: -100%; } }
+@keyframes edgePulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .text.pulse, .text.scroll, .pill::after { animation: none !important; }
+  .peng, .eye, .beak, .fl, .confetti b, .bang, .zzz, .text::after { animation: none !important; }
+  .pill { transition: none; }
+}
+
+/* Worried: low battery, not charging, while idle. Uses the separate "scale" and "translate" properties so it never fights the blink. */
+@keyframes shiver { 0%, 100% { translate: -.5px 0; } 50% { translate: .5px 0; } }
+body.worried[data-state="idle"] .peng { animation: shiver .22s linear infinite; }
+body.worried[data-state="idle"] .eye { scale: 1.25 1.9; }
+@media (prefers-reduced-motion: reduce) { body.worried[data-state="idle"] .peng { animation: none; } }

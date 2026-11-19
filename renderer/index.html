@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src data:">
+  <title>Notch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-state="idle">
+  <main id="pill" class="pill">
+    <div class="row">
+      <button id="peng" class="peng" aria-label="Batman: click to talk">
+        <s class="fl l"></s><s class="fl r"></s>
+        <u class="beak"></u>
+        <svg class="hero" viewBox="-2 -2 28 28" aria-hidden="true"></svg>
+        <i class="eye"></i><i class="eye"></i>
+      </button>
+      <span id="text" class="text">Claude is ready</span>
+      <span id="vol" class="vol" aria-hidden="true"><i></i></span>
+      <img id="art" class="art" alt="Album art" hidden>
+      <span id="mediaControls" class="media-controls"></span>
+      <button id="cancel" class="cancel" aria-label="Cancel listening" title="Cancel">✕</button>
+      <span id="chips" class="chips">
+        <span id="clock" class="chip" aria-label="Time"></span>
+        <span id="battery" class="chip" aria-label="Battery" hidden><span id="batteryIcon"></span><span id="batteryText"></span></span>
+      </span>
+      <span class="bang" aria-hidden="true">!</span>
+    </div>
+    <div class="card" aria-live="polite">
+      <strong id="cardTitle"></strong>
+      <span id="cardBody"></span>
+    </div>
+    <div class="confetti" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+    <div class="zzz" aria-hidden="true">z z z</div>
+  </main>
+  <script src="heroes.js"></script>
+  <script src="packs.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
