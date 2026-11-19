@@ -69,3 +69,9 @@ test('the command hotkey has a default and refuses odd values', () => {
   assert.strictEqual(sanitize({ commandHotkey: 'Control+Alt+L' }).commandHotkey, 'Control+Alt+L');
   for (const bad of ['', 'L', 'Control+Alt+', 'Control+Alt+LL', 5, null, undefined]) assert.strictEqual(sanitize({ commandHotkey: bad }).commandHotkey, DEFAULTS.commandHotkey, String(bad));
 });
+
+test('computer control from voice is off until you turn it on', () => {
+  assert.strictEqual(DEFAULTS.pcControl, false);
+  assert.strictEqual(sanitize({}).pcControl, false);
+  assert.strictEqual(sanitize({ pcControl: true }).pcControl, true, 'a person who turned it on keeps it on');
+});

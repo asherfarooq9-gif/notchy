@@ -321,3 +321,43 @@ Promise.all([window.settingsApi.meta(), window.settingsApi.get()]).then(([meta, 
   buildLooks();
   fill(settings);
 });
+
+// ---- Claude Code: show what Claude is doing on the notch ----
+const claudeUi = {
+  status: document.getElementById('claudeStatus'),
+  ask: document.getElementById('claudeAsk'),
+  connect: document.getElementById('claudeConnect'),
+  yes: document.getElementById('claudeYes'),
+  cancel: document.getElementById('claudeCancel'),
+  disconnect: document.getElementById('claudeDisconnect'),
+};
+const plainError = (err) => String(err && err.message ? err.message : 'That did not work.').replace(/^Error invoking remote method '[^']*': (Error: )?/, '');
+
+function drawClaude(state) {
+  const { installed, hasNode, connected, problem } = state;
+  claudeUi.ask.hidden = claudeUi.yes.hidden = claudeUi.cancel.hidden = true;
+  claudeUi.connect.hidden = claudeUi.disconnect.hidden = true;
+  if (!installed) claudeUi.status.textContent = 'Claude Code was not found on this PC. Install it first, then reopen this window.';
+  else if (problem) claudeUi.status.textContent = problem;
+  else if (connected) { claudeUi.status.textContent = 'Connected. The notch shows when Claude Code is working, needs you, or is done.'; claudeUi.disconnect.hidden = false; }
+  else if (!hasNode) claudeUi.status.textContent = 'Claude Code is installed, but the notch hook needs Node.js, which was not found.';
+  else { claudeUi.status.textContent = 'Claude Code is installed. Not connected yet.'; claudeUi.connect.hidden = false; }
+}
+
+async function claudeCall(action) {
+  try { drawClaude(await window.settingsApi.claude[action]()); } catch (err) {
+    claudeUi.status.textContent = plainError(err);
+    claudeUi.connect.hidden = false;
+    claudeUi.ask.hidden = claudeUi.yes.hidden = claudeUi.cancel.hidden = true;
+  }
+}
+const refreshClaude = () => claudeCall('status');
+
+claudeUi.connect.addEventListener('click', () => { // asks first: this changes another program's settings file
+  claudeUi.connect.hidden = true;
+  claudeUi.ask.hidden = claudeUi.yes.hidden = claudeUi.cancel.hidden = false;
+});
+claudeUi.cancel.addEventListener('click', refreshClaude);
+claudeUi.yes.addEventListener('click', () => claudeCall('connect'));
+claudeUi.disconnect.addEventListener('click', () => claudeCall('disconnect'));
+refreshClaude();

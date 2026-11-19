@@ -67,6 +67,17 @@
             <small>0 means never.</small>
             <input type="number" id="sleepMinutes" min="0" max="120">
           </label>
+          <div class="field wide" id="claudeBox">
+            <b>Claude Code</b>
+            <small id="claudeStatus" role="status">Checking...</small>
+            <small id="claudeAsk" hidden>This adds 6 small entries to Claude Code's settings file, so the notch can show when Claude is working, needs you, or is done. Your other settings and hooks stay as they are, and a backup of the file is saved first.</small>
+            <div>
+              <button type="button" id="claudeConnect" hidden>Show Claude's work on the notch</button>
+              <button type="button" id="claudeYes" hidden>Yes, connect</button>
+              <button type="button" id="claudeCancel" hidden>Cancel</button>
+              <button type="button" id="claudeDisconnect" hidden>Disconnect</button>
+            </div>
+          </div>
         </section>
 
         <section class="pane" id="pane-voice" data-title="Voice" data-sub="Talk to the notch. It listens offline." hidden>

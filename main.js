@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, globalShortcut, shell } = require('electron');
 const http = require('http');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const { parseCommand, VOICE_VOCAB, NEEDS_PC_CONTROL } = require('./lib/commands');
@@ -19,6 +20,8 @@ const { MODULES } = require('./lib/modules');
 const { THEME_INFO } = require('./lib/themes');
 const { createTrayIcons } = require('./lib/tray-icon');
 const { loadPacks } = require('./lib/packs');
+const { makeEventHandler } = require('./lib/event-server');
+const { createClaudeLink } = require('./lib/claude-link');
 const { createFocusMode } = require('./lib/focus-mode');
 const Heroes = require('./renderer/heroes.js');
 const settingsStore = require('./lib/settings');
@@ -27,7 +30,6 @@ const PORT = 47800;
 const WIN_W = 480;
 const WIN_H = 170;
 const STATES = new Set(['idle', 'thinking', 'working', 'needs', 'done', 'error', 'dance', 'asking', 'speaking']);
-const MAX_BODY_BYTES = 4096;
 const SPEECH_MAX_CHARS = 200;
 const ASSETS = path.join(__dirname, 'assets');
 const AUTOSTART_NAME = 'WindowsNotch';
@@ -177,24 +179,8 @@ function openSettings() {
 
 // Claude Code hooks post here: {"state":"working","text":"Edit"}
 function startEventServer() {
-  const server = http.createServer((req, res) => {
-    if (req.method !== 'POST' || req.url !== '/event') { res.writeHead(404).end(); return; }
-    let raw = '';
-    req.on('data', (chunk) => {
-      raw += chunk;
-      if (raw.length > MAX_BODY_BYTES) req.destroy();
-    });
-    req.on('end', () => {
-      try {
-        const { state, text } = JSON.parse(raw);
-        if (!STATES.has(state)) { res.writeHead(400).end(); return; }
-        sendAlert('state', { state, text: typeof text === 'string' ? text.slice(0, 80) : undefined });
-        res.writeHead(204).end();
-      } catch {
-        res.writeHead(400).end();
-      }
-    });
-  });
+  const handler = makeEventHandler({ port: PORT, states: STATES, onEvent: ({ state, text }) => sendAlert('state', { state, text }) });
+  const server = http.createServer(handler);
   server.on('error', (err) => send('state', { state: 'error', text: 'Port ' + PORT + ': ' + err.code }));
   server.listen(PORT, '127.0.0.1');
 }
@@ -767,6 +753,10 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.on('mic-test:stop', stopMicTest);
     ipcMain.handle('settings:get', () => settings);
     ipcMain.handle('settings:meta', () => { const { packs, problems } = readPacks(); return { modules: MODULES, themes: [...THEME_INFO, ...packs], packProblems: problems }; });
+    const claudeLink = createClaudeLink({ home: os.homedir(), hookSource: path.join(__dirname, 'scripts', 'notch-hook.js'), hookDest: path.join(app.getPath('userData'), 'notch-hook.js') });
+    ipcMain.handle('claude:status', () => claudeLink.status());
+    ipcMain.handle('claude:connect', () => claudeLink.connect());
+    ipcMain.handle('claude:disconnect', () => claudeLink.disconnect());
     ipcMain.handle('packs:list', () => readPacks().packs);
     ipcMain.handle('packs:open', () => { fs.mkdirSync(packsDir(), { recursive: true }); return shell.openPath(packsDir()); });
     ipcMain.handle('media:control', (_e, command) => { if (live) live.media(String(command)); });
