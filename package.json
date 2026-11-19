@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "description": "A Dynamic-Island style notch with a Batman face for Windows",
   "main": "main.js",
+  "author": "asherfarooq9-gif",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "electron .",
