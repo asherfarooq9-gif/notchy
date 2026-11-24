@@ -9,7 +9,7 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
 - `lib/ambient.js` (pure, tested): edge averages, smoothing, scene-cut snap, intensity.
 - Overlay renderer: 4 blurred edge gradients, CSS transitions for smooth fades.
 - Settings: `ambientLight` = off | movies | always, `ambientIntensity` = 1-5.
-- "movies" mode = full-screen app or media playing (reuse `isFullscreen`, `media`).
+- "movies" mode = full-screen app only (reuse `isFullscreen`).
 - Capture runs only while glow active. Saves battery.
 - Known limit: DRM video (Netflix in browser) may capture black. Local players fine.
 
@@ -20,7 +20,7 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
 - [x] `renderer/ambient.html` + `renderer/ambient.js`
 - [x] Settings UI row (mode, intensity)
 - [x] README line
-- [x] `npm test` green
+- [x] `npm test`: new tests green, 8 old failures unrelated
 - [x] Review section below
 
 ## Review
