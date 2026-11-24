@@ -159,6 +159,7 @@ meter::-webkit-meter-optimum-value, meter::-webkit-meter-suboptimum-value, meter
 
 /* ---- character picker: each card shows the face and wears its own colors ---- */
 .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 14px; }
+.look-group { grid-column: 1 / -1; margin: 6px 0 -4px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .look {
   all: unset; box-sizing: border-box; position: relative; display: grid; justify-items: center; gap: 8px; padding: 16px 10px 14px; cursor: pointer; border-radius: 24px; color: var(--text);
   background: linear-gradient(150deg, color-mix(in srgb, var(--hue-a) 40%, var(--surface-strong)), color-mix(in srgb, var(--hue-b) 30%, var(--surface)));

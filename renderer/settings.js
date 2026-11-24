@@ -180,7 +180,7 @@ const looksBox = document.getElementById('looks');
 function previewLook(id) {
   document.body.dataset.theme = id;
   window.Packs.paint(document.body, themeInfo.find((t) => t.id === id && t.isPack) || null);
-  for (const card of looksBox.children) {
+  for (const card of looksBox.querySelectorAll('.look')) {
     const isThis = card.dataset.theme === id;
     card.setAttribute('aria-checked', String(isThis));
     card.tabIndex = isThis ? 0 : -1;
@@ -213,7 +213,17 @@ function chooseLook(id) {
 }
 
 function buildLooks() {
-  looksBox.replaceChildren(...themeInfo.map((t) => {
+  let lastGroup = null;
+  looksBox.replaceChildren(...themeInfo.flatMap((t) => {
+    const parts = [];
+    const group = t.group || 'Your packs';
+    if (group !== lastGroup) { // a heading above the first look of each group
+      const heading = document.createElement('h3');
+      heading.className = 'look-group';
+      heading.textContent = group;
+      parts.push(heading);
+      lastGroup = group;
+    }
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'look';
@@ -236,7 +246,8 @@ function buildLooks() {
       chooseLook(next.id);
       looksBox.querySelector(`[data-theme="${next.id}"]`).focus();
     });
-    return card;
+    parts.push(card);
+    return parts;
   }));
 }
 

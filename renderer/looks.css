@@ -39,8 +39,15 @@
 [data-theme="captain"] { --hue-a: #1d5fd6; --hue-b: #e0252f; --on-a: #ffffff; --a-text-light: #1d5fd6; --a-text-dark: #5385e0; }
 [data-theme="spiderman"] { --hue-a: #d91c2b; --hue-b: #1d4ed8; --on-a: #ffffff; --a-text-light: #d51b2a; --a-text-dark: #e35762; }
 [data-theme="strange"] { --hue-a: #f08a24; --hue-b: #b91c1c; --on-a: #1f1000; --a-text-light: #9e5b18; --a-text-dark: #f08a24; }
-[data-theme="doom"] { --hue-a: #1f7a4a; --hue-b: #8e99a8; --on-a: #ffffff; --a-text-light: #1f7a4a; --a-text-dark: #4c956e; }
-[data-theme="blackpanther"] { --hue-a: #7c3aed; --hue-b: #b7c0d0; --on-a: #ffffff; --a-text-light: #7c3aed; --a-text-dark: #9e6df2; }
 [data-theme="hulk"] { --hue-a: #5fcf2a; --hue-b: #7a52c4; --on-a: #0c1a03; --a-text-light: #397c19; --a-text-dark: #5fcf2a; }
 [data-theme="thor"] { --hue-a: #2bb3f2; --hue-b: #f3c63f; --on-a: #00131c; --a-text-light: #1c739b; --a-text-dark: #2bb3f2; }
+[data-theme="blackpanther"] { --hue-a: #7c3aed; --hue-b: #b7c0d0; --on-a: #ffffff; --a-text-light: #7c3aed; --a-text-dark: #9e6df2; }
+[data-theme="doom"] { --hue-a: #1f7a4a; --hue-b: #8e99a8; --on-a: #ffffff; --a-text-light: #1f7a4a; --a-text-dark: #4c956e; }
 [data-theme="wolverine"] { --hue-a: #f5c400; --hue-b: #1d4ed8; --on-a: #1c1500; --a-text-light: #846a00; --a-text-dark: #f5c400; }
+[data-theme="batman"] { --hue-a: #3f4f69; --hue-b: #facc15; --on-a: #ffffff; --a-text-light: #3f4f69; --a-text-dark: #7c8799; }
+[data-theme="superman"] { --hue-a: #2563eb; --hue-b: #dc2626; --on-a: #ffffff; --a-text-light: #2563eb; --a-text-dark: #5182ef; }
+[data-theme="wonderwoman"] { --hue-a: #c81e1e; --hue-b: #d4a017; --on-a: #ffffff; --a-text-light: #c81e1e; --a-text-dark: #d96262; }
+[data-theme="flash"] { --hue-a: #dc2626; --hue-b: #facc15; --on-a: #ffffff; --a-text-light: #d32424; --a-text-dark: #e45656; }
+[data-theme="aquaman"] { --hue-a: #0e7490; --hue-b: #f59e0b; --on-a: #ffffff; --a-text-light: #0e7490; --a-text-dark: #3e90a6; }
+[data-theme="greenlantern"] { --hue-a: #22c55e; --hue-b: #065f46; --on-a: #04130a; --a-text-light: #167e3c; --a-text-dark: #22c55e; }
+[data-theme="joker"] { --hue-a: #7e22ce; --hue-b: #22c55e; --on-a: #ffffff; --a-text-light: #7e22ce; --a-text-dark: #a769de; }
