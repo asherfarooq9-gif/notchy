@@ -50,16 +50,21 @@ npm run dist
 
 The installer appears in the `release` folder as `Notch-Setup-<version>.exe`. `npm run pack` makes the same app as a plain folder without the installer, which is faster for testing.
 
+## Updates
+
+The installed app checks GitHub for a new version about 30 seconds after it starts and then every few hours. It downloads the update in the background. Press **Restart and update** in Settings, General, or just quit: it installs by itself. You can switch the check off there, or press **Check now**. A development run (`npm start`) never checks.
+
 ## Make a release (for the maintainer)
 
-Push a version tag. GitHub Actions runs the tests, builds the installer on Windows and attaches it, with its checksum, to a new release:
+1. Change `"version"` in `package.json` (for example to `0.2.0`) and merge it to `main`.
+2. Push a matching tag. GitHub Actions runs the tests, builds the installer on Windows and publishes a release with the installer, its update files and a checksum:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
-You can also run the **Release** workflow by hand from the Actions tab.
+The workflow stops with an error if the tag and the version do not match. Everyone with the app installed gets the new version at their next check. You can also run the **Release** workflow by hand from the Actions tab.
 
 ## Test
 
@@ -79,6 +84,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Report security problems as described in
 - Your notes, clipboard history, timers and settings stay on your PC, in the app's data folder.
 - Clipboard copies from password managers are skipped.
 - **Ask Claude** and **file tasks** send your question or task text to Claude through the `claude` command-line tool that you installed and signed in to yourself, only if you turn them on. The app never sees your sign-in, and Claude is started with all tools off.
+- The update check contacts github.com and sends nothing about you. Switch it off in Settings, General.
 - Weather, currency rates and calendar feeds fetch from the websites you choose. Local and home-network addresses are never fetched.
 - The phone link opens a small web page on your home network for a few minutes. It is not encrypted, so use it on a network you trust.
 - Screen glow takes a tiny picture of your screen about ten times a second. It stays in memory, is never saved and never leaves your PC.

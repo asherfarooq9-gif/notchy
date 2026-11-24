@@ -48,3 +48,10 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
 - [x] README install steps, SECURITY.md, CONTRIBUTING.md, package.json metadata.
 - [x] Packaged win-unpacked build on Linux: contents checked, no voice files, no tests.
 - Open: first release not made (needs a tag push). Installer not signed. Git history has the owner's real name and email in older commits.
+
+# Auto-update
+- [x] `lib/updater.js` (+10 tests): checks 30 s after start, then every 6 h, packaged app only, setting `autoUpdate`.
+- [x] Settings, General: toggle, version, status, Check now, Restart and update.
+- [x] Release workflow: tag must match package.json version, uploads latest.yml and blockmap, fails if update files missing.
+- [x] README, SECURITY.md updated.
+- Not verifiable here: NSIS build and a real update (needs Windows + two releases). Test: release v0.1.0, install, release v0.1.1, check the old install updates.

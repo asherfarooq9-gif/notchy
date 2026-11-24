@@ -9,6 +9,12 @@ contextBridge.exposeInMainWorld('settingsApi', {
     connect: () => ipcRenderer.invoke('claude:connect'),
     disconnect: () => ipcRenderer.invoke('claude:disconnect'),
   },
+  updates: {
+    status: () => ipcRenderer.invoke('updates:status'),
+    check: () => ipcRenderer.invoke('updates:check'),
+    install: () => ipcRenderer.invoke('updates:install'),
+    onStatus: (cb) => ipcRenderer.on('updates:status', (_e, status) => cb(status)),
+  },
   save: (settings) => ipcRenderer.invoke('settings:save', settings),
   testNotify: () => ipcRenderer.send('settings:test-notify'),
   quit: () => ipcRenderer.send('settings:quit'),

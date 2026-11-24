@@ -17,6 +17,7 @@
     "electron-builder": "26.18.0"
   },
   "dependencies": {
+    "electron-updater": "6.8.11",
     "pdf-lib": "1.17.1",
     "qrcode-generator": "2.0.4"
   },
@@ -60,7 +61,15 @@
       "allowToChangeInstallationDirectory": true,
       "shortcutName": "Notch",
       "artifactName": "Notch-Setup-${version}.exe"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "asherfarooq9-gif",
+        "repo": "windows-notch",
+        "releaseType": "release"
+      }
+    ]
   },
   "homepage": "https://github.com/asherfarooq9-gif/windows-notch#readme",
   "repository": {
