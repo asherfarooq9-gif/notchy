@@ -14,14 +14,20 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
 - Known limit: DRM video (Netflix in browser) may capture black. Local players fine.
 
 ## Steps
-- [ ] `lib/ambient.js` + `test/ambient.test.js`
-- [ ] Settings keys + sanitize + update `test/settings.test.js`
-- [ ] Overlay window + capture loop in `main.js`
-- [ ] `renderer/ambient.html` + `renderer/ambient.js`
-- [ ] Settings UI row (mode, intensity)
-- [ ] README line
-- [ ] `npm test` green
-- [ ] Review section below
+- [x] `lib/ambient.js` + `test/ambient.test.js`
+- [x] Settings keys + sanitize + update `test/settings.test.js`
+- [x] Overlay window + capture loop in `main.js`
+- [x] `renderer/ambient.html` + `renderer/ambient.js`
+- [x] Settings UI row (mode, intensity)
+- [x] README line
+- [x] `npm test` green
+- [x] Review section below
 
 ## Review
-(pending)
+- 8 tests fail with and without my change (Windows paths, missing pdf-lib / qrcode deps on Linux). Unrelated.
+- All new tests pass (`test/ambient.test.js`, settings test).
+- NOT run on real Windows. Overlay, capture and DRM behavior need a manual check:
+  1. `npm start`, Settings, Look, Screen glow = Always.
+  2. Play a local video. Edges should follow its colors.
+  3. Try Netflix in browser. Expect black, glow fades out.
+- Scope: primary display only. Full-screen mode = any full-screen app (movie or game).

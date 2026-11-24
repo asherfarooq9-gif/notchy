@@ -20,6 +20,8 @@ const fields = {
   showCopiedTick: document.getElementById('showCopiedTick'),
   edgeLight: document.getElementById('edgeLight'),
   edgeColor: document.getElementById('edgeColor'),
+  ambientLight: document.getElementById('ambientLight'),
+  ambientIntensity: document.getElementById('ambientIntensity'),
   theme: document.getElementById('theme'),
   colorMode: document.getElementById('colorMode'),
   hoverOpen: document.getElementById('hoverOpen'),
@@ -57,6 +59,8 @@ function fill(settings) {
   fields.showCopiedTick.checked = settings.showCopiedTick;
   fields.edgeLight.value = settings.edgeLight;
   fields.edgeColor.value = settings.edgeColor;
+  fields.ambientLight.value = settings.ambientLight;
+  fields.ambientIntensity.value = settings.ambientIntensity;
   fields.theme.value = settings.theme;
   previewLook(settings.theme);
   fields.colorMode.value = settings.colorMode;
@@ -153,6 +157,8 @@ form.addEventListener('submit', async (event) => {
     showCopiedTick: fields.showCopiedTick.checked,
     edgeLight: fields.edgeLight.value,
     edgeColor: fields.edgeColor.value,
+    ambientLight: fields.ambientLight.value,
+    ambientIntensity: Number(fields.ambientIntensity.value),
     theme: fields.theme.value,
     colorMode: fields.colorMode.value,
     hoverOpen: fields.hoverOpen.checked,

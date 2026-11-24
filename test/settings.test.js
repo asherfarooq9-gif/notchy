@@ -14,6 +14,12 @@ test('look and light settings accept only known values', () => {
   assert.strictEqual(sanitize({ theme: 'pack-sunny' }).theme, 'pack-sunny', 'a character pack look is kept');
   for (const bad of ['pack-', 'pack-A', 'pack-../x', 'pack-' + 'a'.repeat(25), 5, null]) assert.strictEqual(sanitize({ theme: bad }).theme, DEFAULTS.theme, String(bad));
 });
+test('screen glow accepts only known values', () => {
+  assert.strictEqual(DEFAULTS.ambientLight, 'off', 'off until you turn it on');
+  for (const bad of ['disco', 5, null]) assert.strictEqual(sanitize({ ambientLight: bad }).ambientLight, 'off', String(bad));
+  for (const bad of [0, 6, 2.5, '3', null]) assert.strictEqual(sanitize({ ambientIntensity: bad }).ambientIntensity, DEFAULTS.ambientIntensity, String(bad));
+  assert.strictEqual(sanitize({ ambientLight: 'always', ambientIntensity: 1 }).ambientLight, 'always');
+});
 test('a tool added in a new version appears for an old saved list, but a hidden tool stays hidden', () => {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'notch-settings-')), 'settings.json');
   const oldModules = MODULE_IDS.filter((id) => id !== 'message'); // an older version had no Message tool
@@ -32,8 +38,8 @@ test('empty or junk input gives defaults', () => {
   assert.deepStrictEqual(sanitize('nope'), DEFAULTS);
 });
 test('valid values are kept', () => {
-  const s = sanitize({ showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', edgeColor: '#AABBCC', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: ' discord ', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
-  assert.deepStrictEqual(s, { showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', edgeColor: '#aabbcc', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: 'discord', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
+  const s = sanitize({ showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#AABBCC', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: ' discord ', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
+  assert.deepStrictEqual(s, { showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#aabbcc', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: 'discord', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
 });
 test('bad values fall back to defaults', () => {
   const s = sanitize({ autostart: 'yes', sleepMinutes: -3, voiceHotkey: 'banana' });

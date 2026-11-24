@@ -12,6 +12,7 @@ It runs only on Windows (built and tested on Windows 11). It is built with Elect
 - **Converters.** Pictures to other formats, and Word to PDF and PDF to Word (needs Microsoft Word installed). Join PDFs and keep chosen pages.
 - **Assistant for file tasks.** Tell Claude a task like "sort my Downloads by type". It shows a plan in plain sentences and does nothing until you press Run. Everything can be undone.
 - **Phone link.** Send files from your phone to this PC over your home Wi-Fi. It is off until you press Start, works for 10 minutes and one phone, and stops when you press Stop.
+- **Screen glow.** Soft light around the screen edges that follows the colors of the video on screen (Settings, Look). Pick Off, Full-screen only or Always. Protected video (Netflix or Prime in a browser) may show as black and then the glow stays off. YouTube, VLC and local files work.
 - **Focus mode.** Say "focus mode on". Outside alerts stay away and the notch shows only your timer.
 - **Routines.** Save a list of safe commands under a name and run it with "run <name>".
 - **Looks and character packs.** Choose a look for the whole app. You can add your own look with a small `.json` file in the packs folder (Settings, Look).
