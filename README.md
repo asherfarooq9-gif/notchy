@@ -7,6 +7,7 @@ It runs only on Windows (built and tested on Windows 11). It is built with Elect
 ## What it does
 
 - **Type a command.** Press `Control+Alt+J`, type a command like "open downloads" or a question for Claude, press Enter.
+- **Quick note.** Press `Control+Alt+K`. The panel opens on a fresh note, ready to type.
 - **Panel of tools.** Press `Control+Alt+N`. It has notes and checklists, clipboard history, timers (focus, countdown, stopwatch), links, a message line for the notch, system numbers, unit and currency converters, weather, calendar, a file shelf, a music player view and screen time.
 - **Converters.** Pictures to other formats, and Word to PDF and PDF to Word (needs Microsoft Word installed). Join PDFs and keep chosen pages.
 - **Assistant for file tasks.** Tell Claude a task like "sort my Downloads by type". It shows a plan in plain sentences and does nothing until you press Run. Everything can be undone.
