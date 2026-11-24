@@ -1,0 +1,4 @@
+# Same line endings on every computer, so Windows checkouts match what the generators and tests expect.
+* text=auto eol=lf
+*.png binary
+*.ico binary
