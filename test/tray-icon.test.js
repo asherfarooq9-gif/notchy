@@ -5,7 +5,7 @@ const Heroes = require('../renderer/heroes.js');
 const { THEMES } = require('../lib/themes');
 
 test('every hero look makes a tray picture from the shared drawing, with two eyes', () => {
-  assert.strictEqual(Heroes.ids.length, 9);
+  assert.strictEqual(Heroes.ids.length, 16); // 9 Marvel looks and 7 DC looks
   for (const id of Heroes.ids) {
     assert.ok(THEMES.includes(id), `${id} is not a look`);
     const html = buildTrayHtml(id);
@@ -15,7 +15,7 @@ test('every hero look makes a tray picture from the shared drawing, with two eye
 });
 test('the picture really contains that hero (a color unique to its drawing)', () => {
   assert.ok(buildTrayHtml('ironman').includes('#b3121a'));
-  assert.ok(buildTrayHtml('hulk').includes('#7bbf2a'));
+  assert.ok(buildTrayHtml('hulk').includes('#7cc42c'));
   assert.ok(buildTrayHtml('doom').includes('#166534'));
 });
 test('plain looks and unknown looks have no tray picture, so they keep the Batman icon', () => {

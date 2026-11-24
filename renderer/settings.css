@@ -107,7 +107,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 26px; line-h
 .field.wide { grid-column: 1 / -1; }
 b { font-weight: 650; font-size: 15px; letter-spacing: -.005em; }
 small { color: var(--muted); font-size: 13px; line-height: 1.45; }
-.field > input, .field > .two, .field > .modules, .field > .looks, .field > .mic-row, .field > ul, .field > div:not(.two):not(.modules):not(.looks):not(.mic-row) { margin-top: 10px; }
+.field > input, .field > .two, .field > .modules, .field > .looks, .field > ul, .field > div:not(.two):not(.modules):not(.looks):not(.mic-row) { margin-top: 10px; }
 
 /* the switch: the knob stretches when pressed and springs into place */
 .toggle input[type="checkbox"] {
@@ -146,11 +146,8 @@ button { cursor: pointer; }
 .field button:active, .mod button:active { transform: scale(.96); transition-duration: .06s, .25s; }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.mic-row { display: flex; align-items: center; gap: 14px; }
-.mic-row meter { flex: 1; height: 14px; appearance: none; }
 meter::-webkit-meter-bar { background: color-mix(in srgb, var(--text) 10%, transparent); border: 0; border-radius: 8px; height: 14px; }
 meter::-webkit-meter-optimum-value, meter::-webkit-meter-suboptimum-value, meter::-webkit-meter-even-less-good-value { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-fill) 70%, #fff), var(--accent-fill)); border-radius: 8px; transition: width .1s linear; }
-#micHeard { margin-top: 10px; min-height: 20px; font-size: 13px; }
 .say { padding-left: 18px; color: var(--muted); display: grid; gap: 4px; font-size: 13px; }
 
 .modules { display: grid; gap: 8px; }
@@ -162,6 +159,7 @@ meter::-webkit-meter-optimum-value, meter::-webkit-meter-suboptimum-value, meter
 
 /* ---- character picker: each card shows the face and wears its own colors ---- */
 .looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 14px; }
+.look-group { grid-column: 1 / -1; margin: 6px 0 -4px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .look {
   all: unset; box-sizing: border-box; position: relative; display: grid; justify-items: center; gap: 8px; padding: 16px 10px 14px; cursor: pointer; border-radius: 24px; color: var(--text);
   background: linear-gradient(150deg, color-mix(in srgb, var(--hue-a) 40%, var(--surface-strong)), color-mix(in srgb, var(--hue-b) 30%, var(--surface)));

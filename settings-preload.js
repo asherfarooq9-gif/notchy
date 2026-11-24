@@ -12,7 +12,4 @@ contextBridge.exposeInMainWorld('settingsApi', {
   save: (settings) => ipcRenderer.invoke('settings:save', settings),
   testNotify: () => ipcRenderer.send('settings:test-notify'),
   quit: () => ipcRenderer.send('settings:quit'),
-  startMicTest: () => ipcRenderer.send('mic-test:start'),
-  stopMicTest: () => ipcRenderer.send('mic-test:stop'),
-  onMicTest: (cb) => ipcRenderer.on('mic-test', (_e, message) => cb(message)),
 });

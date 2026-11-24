@@ -20,7 +20,7 @@
       <nav id="nav" class="nav" aria-label="Settings sections">
         <span class="nav-ink" aria-hidden="true"></span>
         <button type="button" data-pane="general" aria-current="page">General</button>
-        <button type="button" data-pane="voice">Voice</button>
+        <button type="button" data-pane="voice">Commands</button>
         <button type="button" data-pane="notch">Notch</button>
         <button type="button" data-pane="panel">Panel</button>
         <button type="button" data-pane="look">Look</button>
@@ -51,7 +51,7 @@
             <input type="checkbox" id="autostart">
           </label>
           <label class="toggle">
-            <span><b>Stay hidden until I call him</b><small>The notch is out of sight and wakes only when you say “Hey Batman”, press the hotkey, or use the tray menu. He hides again a few seconds after he is done.</small></span>
+            <span><b>Stay hidden until I call him</b><small>The notch is out of sight and wakes only when you press a hotkey, or use the tray menu. He hides again a few seconds after he is done.</small></span>
             <input type="checkbox" id="hideUntilCalled">
           </label>
           <label class="toggle">
@@ -80,53 +80,26 @@
           </div>
         </section>
 
-        <section class="pane" id="pane-voice" data-title="Voice" data-sub="Talk to the notch. It listens offline." hidden>
+        <section class="pane" id="pane-voice" data-title="Commands" data-sub="Type a command, ask Claude, and set what it may do." hidden>
           <label class="toggle">
-            <span><b>Say “Hey Batman” to talk</b><small>The microphone listens for that phrase only. It uses Windows offline speech, so nothing is recorded or sent anywhere.</small></span>
-            <input type="checkbox" id="wakeWord">
-          </label>
-          <label class="field">
-            <b>“Hey Batman” sensitivity</b>
-            <small>1 = only very clear speech wakes him. 5 = wakes easily. If he ignores you, raise it.</small>
-            <input type="range" id="wakeSensitivity" min="1" max="5" step="1">
-          </label>
-          <label class="field">
-            <b>Voice hotkey</b>
-            <small>Press it, then speak. Example: Control+Alt+Space</small>
-            <input id="voiceHotkey" autocomplete="off">
-          </label>
-          <label class="toggle">
-            <span><b>Talk back</b><small>Batman says his answer out loud, like “Opening Chrome”. Uses the Windows voice, offline.</small></span>
-            <input type="checkbox" id="talkBack">
-          </label>
-          <label class="toggle">
-            <span><b>Answer my questions with Claude</b><small>Anything that is not a command goes to Claude, and he speaks the answer. Your question is sent to Anthropic. It uses your own Claude account.</small></span>
+            <span><b>Answer my questions with Claude</b><small>Anything you type that is not a command goes to Claude, and the answer shows on the notch. Your question is sent to Anthropic. It uses your own Claude account.</small></span>
             <input type="checkbox" id="askClaude">
           </label>
           <label class="toggle">
-            <span><b>Let voice control the computer</b><small>Brightness, Wi-Fi, Bluetooth, screenshots, window snapping, battery, typing into the open app, and sleep, restart and shut down. Sleep, restart, shut down and Wi-Fi off always ask “yes or no” first, and shut down and restart wait 30 seconds so you can say “cancel shutdown”.</small></span>
+            <span><b>Let commands control the computer</b><small>Brightness, Wi-Fi, Bluetooth, screenshots, window snapping, battery, typing into the open app, and sleep, restart and shut down. Sleep, restart, shut down and Wi-Fi off always ask “yes or no” first, and shut down and restart wait 30 seconds so you can type “cancel shutdown”.</small></span>
             <input type="checkbox" id="pcControl">
           </label>
           <label class="toggle">
-            <span><b>Let Claude do file tasks for me</b><small>Say “task sort my downloads” or use the Assistant tab. Claude sees file and folder names, never what is inside files. Nothing happens until you press Run, and it only works in Downloads, Documents, Desktop, Pictures, Music and Videos. Moves, renames and copies can be undone. Deleted files go to the Recycle Bin.</small></span>
+            <span><b>Let Claude do file tasks for me</b><small>Type “task sort my downloads” or use the Assistant tab. Claude sees file and folder names, never what is inside files. Nothing happens until you press Run, and it only works in Downloads, Documents, Desktop, Pictures, Music and Videos. Moves, renames and copies can be undone. Deleted files go to the Recycle Bin.</small></span>
             <input type="checkbox" id="assistantTasks">
           </label>
           <div class="field wide">
-            <b>Microphone check</b>
-            <small>Press the button and say “Hey Batman”. The bar moves with your voice. If it never moves, Windows is not hearing your microphone.</small>
-            <div class="mic-row">
-              <button type="button" id="micTest">Test microphone</button>
-              <meter id="micLevel" min="0" max="100" value="0"></meter>
-            </div>
-            <p id="micHeard" role="status"></p>
-          </div>
-          <div class="field wide">
             <label for="routines"><b>Routines</b></label>
-            <small>One routine per line: a name, a colon, then commands separated by semicolons. Say “run good morning” to start it. Only safe commands work here: no shutdown, restart, sleep, typing, lock or Wi-Fi off.</small>
+            <small>One routine per line: a name, a colon, then commands separated by semicolons. Type “run good morning” to start it. Only safe commands work here: no shutdown, restart, sleep, typing, lock or Wi-Fi off.</small>
             <textarea id="routines" rows="4" maxlength="2000" spellcheck="false" placeholder="good morning: what is the date; battery; open chrome"></textarea>
           </div>
           <div class="field wide">
-            <b>Things you can say</b>
+            <b>Things you can type</b>
             <ul class="say">
               <li>“open Chrome”, “open Notepad”, “open Settings”</li>
               <li>“open WhatsApp”, “open YouTube”, “open Gmail”</li>

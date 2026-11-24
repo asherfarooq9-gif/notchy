@@ -23,6 +23,13 @@ body[data-theme="blackpanther"] { --cowl: #2e1065; --jaw: #c4b5fd; --glove: #7c3
 body[data-theme="hulk"] { --cowl: #16a34a; --jaw: #15803d; --glove: #22c55e; --eye: #ecfccb; --accent: #84ff3d; --ring: #84ff3d; }
 body[data-theme="thor"] { --cowl: #64748b; --jaw: #e2e8f0; --glove: #38bdf8; --eye: #bae6fd; --accent: #38bdf8; --ring: #38bdf8; }
 body[data-theme="wolverine"] { --cowl: #1d4ed8; --jaw: #facc15; --glove: #facc15; --eye: #ffffff; --accent: #fbbf24; --ring: #fbbf24; }
+body[data-theme="batman"] { --cowl: #1f2937; --jaw: #e8c39e; --glove: #facc15; --eye: #f8fafc; --accent: #facc15; --ring: #facc15; }
+body[data-theme="superman"] { --cowl: #111827; --jaw: #f0c8a0; --glove: #dc2626; --eye: #bfdbfe; --accent: #4f8cff; --ring: #4f8cff; }
+body[data-theme="wonderwoman"] { --cowl: #1c1917; --jaw: #f0c8a0; --glove: #dc2626; --eye: #bfdbfe; --accent: #f0c040; --ring: #f0c040; }
+body[data-theme="flash"] { --cowl: #dc2626; --jaw: #f0c8a0; --glove: #facc15; --eye: #ffffff; --accent: #facc15; --ring: #facc15; }
+body[data-theme="aquaman"] { --cowl: #e0a526; --jaw: #e7b88a; --glove: #0e7490; --eye: #a5f3fc; --accent: #22d3ee; --ring: #22d3ee; }
+body[data-theme="greenlantern"] { --cowl: #16a34a; --jaw: #e8c39e; --glove: #22c55e; --eye: #ffffff; --accent: #4ade80; --ring: #4ade80; }
+body[data-theme="joker"] { --cowl: #16a34a; --jaw: #f1f5ee; --glove: #7e22ce; --eye: #bef264; --accent: #a855f7; --ring: #a855f7; }
 * { box-sizing: border-box; margin: 0; }
 html, body { background: transparent; overflow: hidden; font: 12px/1.3 "Segoe UI", system-ui, sans-serif; color: #f1f5f9; user-select: none; }
 
@@ -119,6 +126,26 @@ body[data-theme="doom"] .eye { width: 2.6px; height: 1.4px; top: -1.1px; backgro
 body[data-theme="blackpanther"] .eye { width: 5px; height: 2.2px; border-radius: 40%; }
 body[data-theme="blackpanther"] .eye:nth-of-type(1) { rotate: 14deg; }
 body[data-theme="blackpanther"] .eye:nth-of-type(2) { rotate: -14deg; }
+body[data-theme="batman"] .peng { gap: 3.4px; }
+body[data-theme="batman"] .eye { width: 4.2px; height: 1.9px; top: -1px; border-radius: 40%; }
+body[data-theme="batman"] .eye:nth-of-type(1) { rotate: 12deg; }
+body[data-theme="batman"] .eye:nth-of-type(2) { rotate: -12deg; }
+body[data-theme="superman"] .peng { gap: 3px; }
+body[data-theme="superman"] .eye { width: 2.2px; height: 1.2px; top: -1.8px; border-radius: 40%; }
+body[data-theme="wonderwoman"] .peng { gap: 2.6px; }
+body[data-theme="wonderwoman"] .eye { width: 2.2px; height: 1.2px; top: -1.8px; border-radius: 40%; }
+body[data-theme="flash"] .peng { gap: 2px; }
+body[data-theme="flash"] .eye { width: 3.2px; height: 1.5px; top: -0.6px; border-radius: 40%; }
+body[data-theme="flash"] .eye:nth-of-type(1) { rotate: 8deg; }
+body[data-theme="flash"] .eye:nth-of-type(2) { rotate: -8deg; }
+body[data-theme="aquaman"] .peng { gap: 2.6px; }
+body[data-theme="aquaman"] .eye { width: 2.2px; height: 1.2px; top: -1.2px; border-radius: 40%; }
+body[data-theme="greenlantern"] .peng { gap: 3.2px; }
+body[data-theme="greenlantern"] .eye { width: 3.2px; height: 1.8px; top: -1.4px; border-radius: 40%; }
+body[data-theme="greenlantern"] .eye:nth-of-type(1) { rotate: 8deg; }
+body[data-theme="greenlantern"] .eye:nth-of-type(2) { rotate: -8deg; }
+body[data-theme="joker"] .peng { gap: 3.6px; }
+body[data-theme="joker"] .eye { width: 2px; height: 1.2px; top: -1.4px; border-radius: 40%; }
 
 /* states */
 body[data-state="thinking"] .peng,

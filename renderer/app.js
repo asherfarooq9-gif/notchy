@@ -236,16 +236,16 @@ pill.addEventListener('mouseleave', () => {
   body.classList.remove('wave');
   if (body.classList.contains('card')) cardTimer = setTimeout(hideCard, 1500);
 });
-// Clicking the face starts listening, and clicking it again while listening cancels.
+// Clicking the face opens the panel, or cancels while he waits for an answer.
 peng.addEventListener('click', () => {
-  if (['listening', 'asking', 'speaking'].includes(body.dataset.state)) {
-    window.notch.cancelListen();
+  if (body.dataset.state === 'asking') {
+    window.notch.cancelAsk();
     return;
   }
   flash('hop', 700);
-  window.notch.listen();
+  window.notch.openPanel();
 });
-document.getElementById('cancel').addEventListener('click', () => window.notch.cancelListen());
+document.getElementById('cancel').addEventListener('click', () => window.notch.cancelAsk());
 
 window.notch.onState(({ state, text }) => setState(state, text));
 window.notch.onNotify(showCard);
@@ -256,7 +256,6 @@ window.notch.onTimer(({ text }) => {
   render();
 });
 window.notch.onAwake((isAwake) => body.classList.toggle('dormant', !isAwake));
-window.notch.onLevel((level) => root.style.setProperty('--level', String(level)));
 window.notch.onMusic((next) => {
   music = { ...next, receivedAt: Date.now() };
   body.dataset.music = music.playing ? 'playing' : '';

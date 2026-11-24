@@ -31,3 +31,11 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
   2. Play a local video. Edges should follow its colors.
   3. Try Netflix in browser. Expect black, glow fades out.
 - Scope: primary display only. Full-screen mode = any full-screen app (movie or game).
+
+# Voice removal + better faces + DC pack
+- [x] Voice deleted (engine, wake word, talk back, mic test, hotkey). Typed commands stay.
+- [x] Hulk and Doctor Strange redrawn.
+- [x] Looks grouped: Classic, Avengers, More Marvel, DC.
+- [x] 7 DC looks: Batman, Superman, Wonder Woman, Flash, Aquaman, Green Lantern, Joker.
+- Tests: 286 pass, same 8 old failures. Face previews rendered in Chromium and checked.
+- Not run in Electron on Windows: check notch eyes and tray icon sizes by eye.
