@@ -23,6 +23,7 @@ const { makeEventHandler } = require('./lib/event-server');
 const { createClaudeLink } = require('./lib/claude-link');
 const { createFocusMode } = require('./lib/focus-mode');
 const { createAmbientService } = require('./lib/ambient-service');
+const { createUpdater } = require('./lib/updater');
 const Heroes = require('./renderer/heroes.js');
 const settingsStore = require('./lib/settings');
 
@@ -37,6 +38,12 @@ const MIN_ANSWER_CARD_MS = 8000;
 const NOTIFY_LINGER_MS = 7000; // how long a card keeps him on screen when it gives no time of its own
 const MS_PER_ANSWER_CHAR = 70;
 
+// Defense in depth: the app's windows only ever show its own files. Refuse new windows, and refuse to navigate anywhere else.
+app.on('web-contents-created', (_event, contents) => {
+  contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  contents.on('will-navigate', (event, url) => { if (!url.startsWith('file://')) event.preventDefault(); });
+});
+
 app.setName('Windows Notch'); // names the autostart entry and the settings folder
 
 let win = null;
@@ -48,6 +55,7 @@ const media = createMedia();
 let lastVolume = null;
 let isFullscreen = false;
 let ambient = null; // glow around the screen edges (lib/ambient-service.js)
+let updater = null; // new versions from GitHub Releases (lib/updater.js)
 let pinnedMessage = null; // a line of your own, shown across the notch until cleared
 const MESSAGE_MAX_CHARS = 80;
 const MESSAGE_MOTIONS = ['none', 'pulse', 'scroll'];
@@ -96,6 +104,10 @@ const focusMode = createFocusMode({
     if (tray) tray.setContextMenu(buildTrayMenu());
   },
 });
+
+function sendToSettings(channel, payload) {
+  if (settingsWin && !settingsWin.isDestroyed()) settingsWin.webContents.send(channel, payload);
+}
 
 function createWindow() {
   const { x, y, width } = screen.getPrimaryDisplay().bounds;
@@ -406,6 +418,7 @@ function applySettings(next) {
   });
   applyFullscreen();
   if (ambient) ambient.sync();
+  if (updater) updater.sync();
   syncClaude();
   if (tray) tray.setContextMenu(buildTrayMenu());
   refreshTrayIcon();
@@ -491,6 +504,18 @@ if (!app.requestSingleInstanceLock()) {
       getSettings: () => settings,
       isFullscreen: () => isFullscreen,
     });
+    let lastPhase = null;
+    updater = createUpdater({
+      autoUpdater: require('electron-updater').autoUpdater, // loaded here so a development run does not need it at start-up
+      version: app.getVersion(),
+      isPackaged: app.isPackaged,
+      isEnabled: () => settings.autoUpdate,
+      onStatus: (status) => {
+        sendToSettings('updates:status', { ...updater.status(), ...status });
+        if (status.phase === 'ready' && lastPhase !== 'ready') sendAlert('notify', { title: 'Update ready', body: `Notch ${status.latest || ''} is ready. Open settings, General, and press Restart and update.`.replace('  ', ' '), ms: 12000 });
+        lastPhase = status.phase;
+      },
+    });
     createTray();
     panelService = createPanelService({
       dataDir: path.join(app.getPath('userData'), 'data'),
@@ -527,6 +552,9 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.handle('media:control', (_e, command) => { if (live) live.media(String(command)); });
     ipcMain.handle('message:show', (_e, input) => showMessage(input));
     ipcMain.handle('message:clear', () => clearMessage());
+    ipcMain.handle('updates:status', () => updater.status());
+    ipcMain.handle('updates:check', async () => { await updater.checkNow(); return updater.status(); });
+    ipcMain.handle('updates:install', () => updater.install());
     ipcMain.handle('settings:save', (_e, raw) => saveSettings(raw));
     ipcMain.on('settings:test-notify', () => send('notify', { title: 'Test message', body: 'Hello from your notch' }));
     ipcMain.on('settings:quit', () => app.quit());
@@ -541,6 +569,7 @@ if (!app.requestSingleInstanceLock()) {
       send('state', { state: 'error', text: settings.commandHotkey + ' is taken' });
     }
     applySettings(settings);
+    updater.start();
     watchNotifications({
       getFilter: () => settingsStore.keywordFilter(settings.notifyKeyword),
       onNotify: (n) => sendAlert('notify', n),
@@ -555,6 +584,7 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
   if (live) live.stop();
   if (ambient) ambient.stop();
+  if (updater) updater.stop();
   if (claude) claude.stop();
   if (panelService) panelService.stop();
 });

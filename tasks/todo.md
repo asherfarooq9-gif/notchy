@@ -39,3 +39,19 @@ Goal: soft colored light around laptop screen edges. Color follows video on scre
 - [x] 7 DC looks: Batman, Superman, Wonder Woman, Flash, Aquaman, Green Lantern, Joker.
 - Tests: 286 pass, same 8 old failures. Face previews rendered in Chromium and checked.
 - Not run in Electron on Windows: check notch eyes and tray icon sizes by eye.
+
+# Open-source install + security pass
+- [x] Secret scan (files + git history): no keys, tokens or passwords. App never handles an API key (Claude via user's own CLI sign-in, tools off).
+- [x] Electron 36.9.5 -> 45.4.1 (36 had many advisories). Smoke run under xvfb: no errors. `npm audit --omit=dev`: 0.
+- [x] Navigation + window.open guard on all windows.
+- [x] CI (tests on Windows) and Release workflow (installer + SHA256SUMS on tag).
+- [x] README install steps, SECURITY.md, CONTRIBUTING.md, package.json metadata.
+- [x] Packaged win-unpacked build on Linux: contents checked, no voice files, no tests.
+- Open: first release not made (needs a tag push). Installer not signed. Git history has the owner's real name and email in older commits.
+
+# Auto-update
+- [x] `lib/updater.js` (+10 tests): checks 30 s after start, then every 6 h, packaged app only, setting `autoUpdate`.
+- [x] Settings, General: toggle, version, status, Check now, Restart and update.
+- [x] Release workflow: tag must match package.json version, uploads latest.yml and blockmap, fails if update files missing.
+- [x] README, SECURITY.md updated.
+- Not verifiable here: NSIS build and a real update (needs Windows + two releases). Test: release v0.1.0, install, release v0.1.1, check the old install updates.

@@ -2,6 +2,7 @@ const form = document.getElementById('form');
 const statusEl = document.getElementById('status');
 const fields = {
   autostart: document.getElementById('autostart'),
+  autoUpdate: document.getElementById('autoUpdate'),
   hideUntilCalled: document.getElementById('hideUntilCalled'),
   reactiveHero: document.getElementById('reactiveHero'),
   routines: document.getElementById('routines'),
@@ -33,6 +34,7 @@ const fields = {
 
 function fill(settings) {
   fields.autostart.checked = settings.autostart;
+  fields.autoUpdate.checked = settings.autoUpdate;
   fields.hideUntilCalled.checked = settings.hideUntilCalled;
   fields.reactiveHero.checked = settings.reactiveHero;
   fields.routines.value = settings.routines.map((r) => `${r.name}: ${r.steps.join('; ')}`).join('\n');
@@ -131,6 +133,7 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   const result = await window.settingsApi.save({
     autostart: fields.autostart.checked,
+    autoUpdate: fields.autoUpdate.checked,
     hideUntilCalled: fields.hideUntilCalled.checked,
     reactiveHero: fields.reactiveHero.checked,
     routines: parseRoutineLines(fields.routines.value),
@@ -171,6 +174,28 @@ form.addEventListener('submit', async (event) => {
 
 document.getElementById('test').addEventListener('click', () => window.settingsApi.testNotify());
 document.getElementById('quit').addEventListener('click', () => window.settingsApi.quit());
+
+// ---- Updates ----
+const updateUi = { version: document.getElementById('appVersion'), status: document.getElementById('updateStatus'), check: document.getElementById('updateCheck'), install: document.getElementById('updateInstall') };
+function drawUpdate(s) {
+  updateUi.version.textContent = s.version;
+  const lines = {
+    off: s.reason === 'dev' ? 'This is a development run, so updates are not checked here.' : 'Automatic checks are off. You can still press Check now.',
+    idle: 'Up to date as far as I know. The next check happens soon.',
+    checking: 'Checking for a new version...',
+    downloading: `Downloading version ${s.latest || ''}: ${s.percent}%`,
+    ready: `Version ${s.latest || ''} is ready. Press Restart and update.`,
+    current: 'You have the newest version.',
+    error: s.error || 'The update check did not work.',
+  };
+  updateUi.status.textContent = lines[s.phase] || '';
+  updateUi.install.hidden = s.phase !== 'ready';
+  updateUi.check.disabled = !s.canCheck || ['checking', 'downloading', 'ready'].includes(s.phase);
+}
+window.settingsApi.updates.status().then(drawUpdate);
+window.settingsApi.updates.onStatus(drawUpdate);
+updateUi.check.addEventListener('click', () => window.settingsApi.updates.check().then(drawUpdate));
+updateUi.install.addEventListener('click', () => window.settingsApi.updates.install());
 
 // The look list comes from the main program. Picking a look previews it in this window and also offers its color for the notch's edge light.
 let themeInfo = [];

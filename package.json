@@ -1,7 +1,7 @@
 {
   "name": "windows-notch",
   "version": "0.1.0",
-  "description": "A Dynamic-Island style notch with a Batman face for Windows",
+  "description": "A Dynamic-Island style notch for Windows: tool panel, timers, music, screen glow and character looks (Electron)",
   "main": "main.js",
   "author": "asherfarooq9-gif",
   "license": "MIT",
@@ -9,21 +9,24 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --win nsis"
+    "pack": "electron-builder --dir --publish never",
+    "dist": "electron-builder --win nsis --publish never"
   },
   "devDependencies": {
-    "electron": "^36.9.5",
+    "electron": "45.4.1",
     "electron-builder": "26.18.0"
   },
   "dependencies": {
+    "electron-updater": "6.8.11",
     "pdf-lib": "1.17.1",
     "qrcode-generator": "2.0.4"
   },
   "build": {
     "appId": "com.windowsnotch.app",
     "productName": "Notch",
-    "directories": { "output": "release" },
+    "directories": {
+      "output": "release"
+    },
     "files": [
       "main.js",
       "preload.js",
@@ -38,16 +41,49 @@
       "!assets/icon.ico",
       "package.json"
     ],
-    "asarUnpack": ["scripts/**"],
+    "asarUnpack": [
+      "scripts/**"
+    ],
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "assets/icon.png"
     },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Notch"
-    }
-  }
+      "shortcutName": "Notch",
+      "artifactName": "Notch-Setup-${version}.exe"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "asherfarooq9-gif",
+        "repo": "windows-notch",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "homepage": "https://github.com/asherfarooq9-gif/windows-notch#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asherfarooq9-gif/windows-notch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/asherfarooq9-gif/windows-notch/issues"
+  },
+  "keywords": [
+    "electron",
+    "windows",
+    "notch",
+    "dynamic-island",
+    "productivity"
+  ]
 }

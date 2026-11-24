@@ -51,6 +51,18 @@
             <input type="checkbox" id="autostart">
           </label>
           <label class="toggle">
+            <span><b>Check for updates</b><small>Looks for a new version on GitHub every few hours and downloads it. It installs when you press the button below or when you quit. Only the installed app does this, never <code>npm start</code>. It contacts github.com and sends nothing about you.</small></span>
+            <input type="checkbox" id="autoUpdate">
+          </label>
+          <div class="field wide">
+            <b>Version <span id="appVersion"></span></b>
+            <small id="updateStatus" role="status">Checking status...</small>
+            <div class="two">
+              <button type="button" id="updateCheck">Check now</button>
+              <button type="button" id="updateInstall" hidden>Restart and update</button>
+            </div>
+          </div>
+          <label class="toggle">
             <span><b>Stay hidden until I call him</b><small>The notch is out of sight and wakes only when you press a hotkey, or use the tray menu. He hides again a few seconds after he is done.</small></span>
             <input type="checkbox" id="hideUntilCalled">
           </label>
