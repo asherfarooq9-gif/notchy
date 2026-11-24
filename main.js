@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, globalShortcut, shell } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, globalShortcut, shell, desktopCapturer } = require('electron');
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -23,6 +23,7 @@ const { loadPacks } = require('./lib/packs');
 const { makeEventHandler } = require('./lib/event-server');
 const { createClaudeLink } = require('./lib/claude-link');
 const { createFocusMode } = require('./lib/focus-mode');
+const { createAmbientService } = require('./lib/ambient-service');
 const Heroes = require('./renderer/heroes.js');
 const settingsStore = require('./lib/settings');
 
@@ -60,6 +61,7 @@ let live = null;
 const media = createMedia();
 let lastVolume = null;
 let isFullscreen = false;
+let ambient = null; // glow around the screen edges (lib/ambient-service.js)
 let pinnedMessage = null; // a line of your own, shown across the notch until cleared
 const MESSAGE_MAX_CHARS = 80;
 const MESSAGE_MOTIONS = ['none', 'pulse', 'scroll'];
@@ -575,6 +577,7 @@ function onLiveEvent(event) {
   } else if (event.e === 'fullscreen') {
     isFullscreen = event.on === true;
     applyFullscreen();
+    if (ambient) ambient.sync();
   } else if (event.e === 'media') {
     const { isNewTrack } = media.update(event);
     const payload = musicPayload();
@@ -640,6 +643,7 @@ function applySettings(next) {
     args: app.isPackaged ? ['--autostart'] : [`"${app.getAppPath()}"`, '--autostart'], // the installed app is its own exe; only the dev run needs the folder
   });
   applyFullscreen();
+  if (ambient) ambient.sync();
   syncClaude();
   if (voice && isVoiceReady) {
     voice.setMinWake(wakeConfidence());
@@ -723,6 +727,13 @@ if (!app.requestSingleInstanceLock()) {
     });
     readPacks(); // before the tray, so a pack look has its drawing
     createWindow();
+    ambient = createAmbientService({
+      desktopCapturer, screen, BrowserWindow,
+      preload: path.join(__dirname, 'ambient-preload.js'),
+      page: path.join(__dirname, 'renderer', 'ambient.html'),
+      getSettings: () => settings,
+      isFullscreen: () => isFullscreen,
+    });
     createTray();
     panelService = createPanelService({
       dataDir: path.join(app.getPath('userData'), 'data'),
@@ -794,6 +805,7 @@ app.on('will-quit', () => {
   isQuitting = true;
   globalShortcut.unregisterAll();
   if (live) live.stop();
+  if (ambient) ambient.stop();
   if (voice) voice.stop();
   if (claude) claude.stop();
   if (panelService) panelService.stop();

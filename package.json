@@ -29,6 +29,7 @@
       "preload.js",
       "panel-preload.js",
       "settings-preload.js",
+      "ambient-preload.js",
       "lib/**",
       "renderer/**",
       "scripts/**",

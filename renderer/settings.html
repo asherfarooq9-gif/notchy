@@ -189,6 +189,18 @@
               <input type="color" id="edgeColor" aria-label="Edge light color">
             </div>
           </div>
+          <div class="field">
+            <b>Screen glow</b>
+            <small>Soft light around the screen edges that follows the colors of what is playing. “Full-screen only” lights up for movies and games. Protected video (Netflix, Prime in a browser) may show as black, so the glow stays off there.</small>
+            <div class="two">
+              <select id="ambientLight" aria-label="Screen glow mode">
+                <option value="off">Off</option>
+                <option value="movies">Full-screen only</option>
+                <option value="always">Always</option>
+              </select>
+              <input type="range" id="ambientIntensity" min="1" max="5" step="1" aria-label="Screen glow strength">
+            </div>
+          </div>
           <label class="field">
             <b>Show messages from</b>
             <small>A word to look for in popups, like whatsapp. Empty shows every app.</small>
