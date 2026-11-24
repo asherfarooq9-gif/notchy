@@ -1,19 +1,18 @@
 # Notch
 
-A small "notch" at the top of your Windows screen, in the style of the iPhone's Dynamic Island. It shows what is going on (a timer, the song playing, a message), listens when you say "Hey Batman", and opens a panel of everyday tools.
+A small "notch" at the top of your Windows screen, in the style of the iPhone's Dynamic Island. It shows what is going on (a timer, the song playing, a message), and opens a panel of everyday tools.
 
 It runs only on Windows (built and tested on Windows 11). It is built with Electron. Nothing is uploaded anywhere unless you use a feature that says so (see "Privacy" below).
 
 ## What it does
 
-- **Voice assistant.** Say "Hey Batman" or press `Control+Alt+Space`. Open apps and folders, change the volume, control music, take a screenshot, ask a question.
-- **Type a command instead.** Press `Control+Alt+J`, type what you would have said, press Enter.
+- **Type a command.** Press `Control+Alt+J`, type a command like "open downloads" or a question for Claude, press Enter.
 - **Panel of tools.** Press `Control+Alt+N`. It has notes and checklists, clipboard history, timers (focus, countdown, stopwatch), links, a message line for the notch, system numbers, unit and currency converters, weather, calendar, a file shelf, a music player view and screen time.
 - **Converters.** Pictures to other formats, and Word to PDF and PDF to Word (needs Microsoft Word installed). Join PDFs and keep chosen pages.
 - **Assistant for file tasks.** Tell Claude a task like "sort my Downloads by type". It shows a plan in plain sentences and does nothing until you press Run. Everything can be undone.
 - **Phone link.** Send files from your phone to this PC over your home Wi-Fi. It is off until you press Start, works for 10 minutes and one phone, and stops when you press Stop.
 - **Screen glow.** Soft light around the screen edges that follows the colors of the video on screen (Settings, Look). Pick Off, Full-screen only or Always. Protected video (Netflix or Prime in a browser) may show as black and then the glow stays off. YouTube, VLC and local files work.
-- **Focus mode.** Say "focus mode on". Outside alerts stay away and the notch shows only your timer.
+- **Focus mode.** Type "focus mode on" (`Control+Alt+J`). Outside alerts stay away and the notch shows only your timer.
 - **Routines.** Save a list of safe commands under a name and run it with "run <name>".
 - **Looks and character packs.** Choose a look for the whole app. You can add your own look with a small `.json` file in the packs folder (Settings, Look).
 - **A character with a streak.** The Home tab shows how many days in a row you finished a focus session.
@@ -58,9 +57,9 @@ npm test
 
 ## Safety
 
-- Risky voice commands (shut down, restart, sleep) always ask first, and shutdown waits 30 seconds so it can be cancelled.
+- Risky commands (shut down, restart, sleep) always ask first, and shutdown waits 30 seconds so it can be cancelled.
 - Computer control (typing, Wi-Fi, Bluetooth, brightness) can be switched off in Settings.
-- Nothing you say or type is ever run as a raw command. Each action is a fixed one on a list.
+- Nothing you type is ever run as a raw command. Each action is a fixed one on a list.
 
 ## Not affiliated
 

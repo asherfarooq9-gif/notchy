@@ -7,8 +7,6 @@ const fields = {
   routines: document.getElementById('routines'),
   alertsWhileHidden: document.getElementById('alertsWhileHidden'),
   danceOnMusic: document.getElementById('danceOnMusic'),
-  wakeWord: document.getElementById('wakeWord'),
-  talkBack: document.getElementById('talkBack'),
   askClaude: document.getElementById('askClaude'),
   pcControl: document.getElementById('pcControl'),
   assistantTasks: document.getElementById('assistantTasks'),
@@ -29,10 +27,8 @@ const fields = {
   panelHotkey: document.getElementById('panelHotkey'),
   captureHotkey: document.getElementById('captureHotkey'),
   commandHotkey: document.getElementById('commandHotkey'),
-  wakeSensitivity: document.getElementById('wakeSensitivity'),
   notifyKeyword: document.getElementById('notifyKeyword'),
   sleepMinutes: document.getElementById('sleepMinutes'),
-  voiceHotkey: document.getElementById('voiceHotkey'),
 };
 
 function fill(settings) {
@@ -42,15 +38,11 @@ function fill(settings) {
   fields.routines.value = settings.routines.map((r) => `${r.name}: ${r.steps.join('; ')}`).join('\n');
   fields.alertsWhileHidden.checked = settings.alertsWhileHidden;
   fields.danceOnMusic.checked = settings.danceOnMusic;
-  fields.wakeWord.checked = settings.wakeWord;
-  fields.talkBack.checked = settings.talkBack;
   fields.askClaude.checked = settings.askClaude;
   fields.pcControl.checked = settings.pcControl;
   fields.assistantTasks.checked = settings.assistantTasks;
-  fields.wakeSensitivity.value = settings.wakeSensitivity;
   fields.notifyKeyword.value = settings.notifyKeyword;
   fields.sleepMinutes.value = settings.sleepMinutes;
-  fields.voiceHotkey.value = settings.voiceHotkey;
   fields.showTimeInNotch.checked = settings.showTimeInNotch;
   fields.showBatteryInNotch.checked = settings.showBatteryInNotch;
   fields.stepAside.checked = settings.stepAside;
@@ -144,8 +136,6 @@ form.addEventListener('submit', async (event) => {
     routines: parseRoutineLines(fields.routines.value),
     alertsWhileHidden: fields.alertsWhileHidden.checked,
     danceOnMusic: fields.danceOnMusic.checked,
-    wakeWord: fields.wakeWord.checked,
-    talkBack: fields.talkBack.checked,
     askClaude: fields.askClaude.checked,
     pcControl: fields.pcControl.checked,
     assistantTasks: fields.assistantTasks.checked,
@@ -167,10 +157,8 @@ form.addEventListener('submit', async (event) => {
     captureHotkey: fields.captureHotkey.value.trim(),
     commandHotkey: fields.commandHotkey.value.trim(),
     modules: moduleOrder,
-    wakeSensitivity: Number(fields.wakeSensitivity.value),
     notifyKeyword: fields.notifyKeyword.value,
     sleepMinutes: Number(fields.sleepMinutes.value),
-    voiceHotkey: fields.voiceHotkey.value.trim(),
   });
   if (result.ok) {
     fill(result.settings);
@@ -183,61 +171,6 @@ form.addEventListener('submit', async (event) => {
 
 document.getElementById('test').addEventListener('click', () => window.settingsApi.testNotify());
 document.getElementById('quit').addEventListener('click', () => window.settingsApi.quit());
-
-const micButton = document.getElementById('micTest');
-const micLevel = document.getElementById('micLevel');
-const micHeard = document.getElementById('micHeard');
-const QUIET_LEVEL = 20; // out of 100: below this the microphone is too quiet for good recognition
-let isTesting = false;
-let peakLevel = 0;
-let heardCount = 0;
-
-// Explains what the test found when it ends without hearing the phrase.
-function explainMicResult() {
-  if (heardCount > 0) return;
-  if (peakLevel === 0) {
-    micHeard.textContent = 'No sound reached the microphone. Check that the right microphone is the default one and is not muted in Windows Sound settings.';
-  } else if (peakLevel < QUIET_LEVEL) {
-    micHeard.textContent = `Your microphone is very quiet (the loudest was ${peakLevel} out of 100). Raise its Input volume in Windows Sound settings, or speak closer to it.`;
-  } else {
-    micHeard.textContent = `The microphone works (the loudest was ${peakLevel} out of 100), but I did not hear “Hey Batman”. Try a higher sensitivity.`;
-  }
-}
-
-micButton.addEventListener('click', () => (isTesting ? window.settingsApi.stopMicTest() : window.settingsApi.startMicTest()));
-window.settingsApi.onMicTest((message) => {
-  switch (message.kind) {
-    case 'started':
-      isTesting = true;
-      peakLevel = 0;
-      heardCount = 0;
-      micLevel.value = 0;
-      micButton.textContent = 'Stop test';
-      micHeard.textContent = `Listening for ${message.seconds} seconds. Say “Hey Batman”…`;
-      break;
-    case 'stopped':
-      isTesting = false;
-      micLevel.value = 0;
-      micButton.textContent = 'Test microphone';
-      explainMicResult();
-      break;
-    case 'level':
-      micLevel.value = message.level;
-      peakLevel = Math.max(peakLevel, message.level);
-      break;
-    case 'heard':
-      heardCount += 1;
-      micHeard.textContent = `Heard “${message.text}”, ${Math.round(message.confidence * 100)}% sure. ` +
-        (message.wouldWake ? 'That would wake him. ✓' : 'Not sure enough to wake him. Try a higher sensitivity.');
-      break;
-    case 'error':
-      isTesting = false;
-      micHeard.textContent = message.text;
-      break;
-    default:
-      break;
-  }
-});
 
 // The look list comes from the main program. Picking a look previews it in this window and also offers its color for the notch's edge light.
 let themeInfo = [];

@@ -67,7 +67,7 @@ registerModule({
       clipBox.textContent = latest ? latest.text : 'Nothing copied yet';
     }
 
-    // Type what you would have said ("open downloads", "volume up", "task sort my downloads"). Same safety rules as voice.
+    // Type what you would have said ("open downloads", "volume up", "task sort my downloads"). Same safety rules everywhere.
     const command = h('input', { type: 'text', class: 'grow', maxlength: '300', placeholder: 'Type a command, like "open downloads"', 'aria-label': 'Type a command' });
     const send = () => {
       const text = command.value.trim();

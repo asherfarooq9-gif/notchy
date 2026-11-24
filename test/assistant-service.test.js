@@ -26,7 +26,7 @@ test('plan -> review -> run -> done, and the state tells the panel what to show'
   assert.strictEqual(service.state().phase, 'idle');
   const planned = await service.plan('sort my invoices');
   assert.strictEqual(planned.phase, 'review');
-  assert.deepStrictEqual([planned.summary, planned.steps.length, planned.hasTrash, planned.canApproveByVoice], ['Sort', 2, true, false]);
+  assert.deepStrictEqual([planned.summary, planned.steps.length, planned.hasTrash, planned.canQuickApprove], ['Sort', 2, true, false]);
   assert.ok(planned.steps.every((s) => !('abs' in s)), 'the panel only gets sentences, not real paths');
   const done = await service.run();
   assert.strictEqual(done.phase, 'done');

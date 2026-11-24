@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { parseCommand, VOICE_VOCAB, NEEDS_PC_CONTROL } = require('../lib/commands');
+const { parseCommand, NEEDS_PC_CONTROL } = require('../lib/commands');
 
 const pc = (text) => parseCommand(text);
 
@@ -64,9 +64,7 @@ test('which commands the system-control switch covers', () => {
   for (const phrase of ['brightness up', 'wifi off', 'screenshot', 'snap left', 'sleep', 'type hi', 'battery']) assert.ok(NEEDS_PC_CONTROL.has(pc(phrase).type), phrase);
   for (const phrase of ['volume up', 'open chrome', 'lock the screen', 'what time is it']) assert.ok(!NEEDS_PC_CONTROL.has(pc(phrase).type), phrase);
 });
-test('everything the microphone is told to listen for parses, and unsafe text still does not', () => {
-  for (const phrase of VOICE_VOCAB.fixed) assert.notStrictEqual(pc(phrase).type, 'unknown', phrase);
-  for (const target of VOICE_VOCAB.openTargets) assert.notStrictEqual(pc('open ' + target).type, 'unknown', target);
+test('unsafe text does not parse as a command', () => {
   for (const phrase of ['delete everything', 'format the disk', 'wifi off & shutdown /s', 'restart now please']) assert.strictEqual(pc(phrase).type, 'unknown', phrase);
-  assert.ok(VOICE_VOCAB.fixed.includes('shut down') && VOICE_VOCAB.openTargets.includes('downloads'));
+  for (const phrase of ['shut down', 'wifi off', 'sleep']) assert.notStrictEqual(pc(phrase).type, 'unknown', phrase);
 });

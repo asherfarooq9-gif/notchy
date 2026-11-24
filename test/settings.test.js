@@ -38,20 +38,13 @@ test('empty or junk input gives defaults', () => {
   assert.deepStrictEqual(sanitize('nope'), DEFAULTS);
 });
 test('valid values are kept', () => {
-  const s = sanitize({ showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#AABBCC', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: ' discord ', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
-  assert.deepStrictEqual(s, { showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#aabbcc', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, wakeWord: false, talkBack: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', wakeSensitivity: 5, notifyKeyword: 'discord', sleepMinutes: 10, voiceHotkey: 'Alt+Shift+M' });
+  const s = sanitize({ showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#AABBCC', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', notifyKeyword: ' discord ', sleepMinutes: 10 });
+  assert.deepStrictEqual(s, { showTimeInNotch: false, showBatteryInNotch: false, stepAside: false, showMusicActivity: false, showVolumeBar: false, showCopiedTick: true, edgeLight: 'pulse', ambientLight: 'movies', ambientIntensity: 5, edgeColor: '#aabbcc', theme: 'thor', colorMode: 'dark', panelHotkey: 'Alt+Shift+P', hoverOpen: false, showTimerInNotch: false, modules: ['notes', 'home'], autostart: false, hideUntilCalled: false, alertsWhileHidden: true, danceOnMusic: false, askClaude: false, pcControl: false, assistantTasks: false, reactiveHero: false, routines: [], captureHotkey: 'Control+Alt+K', commandHotkey: 'Control+Alt+L', notifyKeyword: 'discord', sleepMinutes: 10 });
 });
 test('bad values fall back to defaults', () => {
-  const s = sanitize({ autostart: 'yes', sleepMinutes: -3, voiceHotkey: 'banana' });
+  const s = sanitize({ autostart: 'yes', sleepMinutes: -3 });
   assert.strictEqual(s.autostart, DEFAULTS.autostart);
   assert.strictEqual(s.sleepMinutes, DEFAULTS.sleepMinutes);
-  assert.strictEqual(s.voiceHotkey, DEFAULTS.voiceHotkey);
-});
-test('wake sensitivity must be a whole number from 1 to 5', () => {
-  assert.strictEqual(sanitize({ wakeSensitivity: 0 }).wakeSensitivity, DEFAULTS.wakeSensitivity);
-  assert.strictEqual(sanitize({ wakeSensitivity: 6 }).wakeSensitivity, DEFAULTS.wakeSensitivity);
-  assert.strictEqual(sanitize({ wakeSensitivity: 2.5 }).wakeSensitivity, DEFAULTS.wakeSensitivity);
-  assert.strictEqual(sanitize({ wakeSensitivity: 4 }).wakeSensitivity, 4);
 });
 test('the module list keeps known tools once each, in order, and falls back to all', () => {
   assert.deepStrictEqual(sanitize({ modules: ['units', 'bogus', 'home', 'units'] }).modules, ['units', 'home']);
@@ -76,7 +69,7 @@ test('the command hotkey has a default and refuses odd values', () => {
   for (const bad of ['', 'L', 'Control+Alt+', 'Control+Alt+LL', 5, null, undefined]) assert.strictEqual(sanitize({ commandHotkey: bad }).commandHotkey, DEFAULTS.commandHotkey, String(bad));
 });
 
-test('computer control from voice is off until you turn it on', () => {
+test('computer control by commands is off until you turn it on', () => {
   assert.strictEqual(DEFAULTS.pcControl, false);
   assert.strictEqual(sanitize({}).pcControl, false);
   assert.strictEqual(sanitize({ pcControl: true }).pcControl, true, 'a person who turned it on keeps it on');

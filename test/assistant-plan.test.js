@@ -104,8 +104,8 @@ test('plans have limits: not empty, not huge, and a short clean summary', () => 
 });
 test('how a plan may be approved: voice only for a few safe steps, never with a delete', () => {
   const steps = (n, op = 'makeFolder') => Array.from({ length: n }, (_, i) => ({ op, abs: 'x' + i }));
-  assert.deepStrictEqual(planFacts(steps(3)), { count: 3, hasTrash: false, canApproveByVoice: true });
-  assert.strictEqual(planFacts(steps(4)).canApproveByVoice, false);
-  assert.strictEqual(planFacts(steps(1, 'trash')).canApproveByVoice, false);
-  assert.strictEqual(planFacts([]).canApproveByVoice, false);
+  assert.deepStrictEqual(planFacts(steps(3)), { count: 3, hasTrash: false, canQuickApprove: true });
+  assert.strictEqual(planFacts(steps(4)).canQuickApprove, false);
+  assert.strictEqual(planFacts(steps(1, 'trash')).canQuickApprove, false);
+  assert.strictEqual(planFacts([]).canQuickApprove, false);
 });
