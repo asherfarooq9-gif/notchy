@@ -4,3 +4,12 @@ release/
 *.log
 .env
 .env.*
+dist/
+out/
+.DS_Store
+Thumbs.db
+*.pem
+*.pfx
+*.p12
+*.key
+coverage/

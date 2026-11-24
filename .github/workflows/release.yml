@@ -1,0 +1,42 @@
+name: Release
+
+# Builds the Windows installer and attaches it to a GitHub release.
+#   Push a tag:   git tag v0.2.0 && git push origin v0.2.0
+#   Or run it by hand from the Actions tab and type the tag name.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release, like v0.2.0 (created if it does not exist)'
+        required: true
+
+permissions:
+  contents: write # only this workflow may create releases
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Set-Location release
+          Get-ChildItem *.exe | ForEach-Object { "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)" } | Set-Content SHA256SUMS.txt
+          Get-Content SHA256SUMS.txt
+      - name: Publish release
+        shell: pwsh
+        run: |
+          gh release create "$env:TAG" release/*.exe release/SHA256SUMS.txt --title "Notch $env:TAG" --generate-notes --verify-tag=false

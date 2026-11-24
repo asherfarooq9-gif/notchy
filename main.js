@@ -37,6 +37,12 @@ const MIN_ANSWER_CARD_MS = 8000;
 const NOTIFY_LINGER_MS = 7000; // how long a card keeps him on screen when it gives no time of its own
 const MS_PER_ANSWER_CHAR = 70;
 
+// Defense in depth: the app's windows only ever show its own files. Refuse new windows, and refuse to navigate anywhere else.
+app.on('web-contents-created', (_event, contents) => {
+  contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  contents.on('will-navigate', (event, url) => { if (!url.startsWith('file://')) event.preventDefault(); });
+});
+
 app.setName('Windows Notch'); // names the autostart entry and the settings folder
 
 let win = null;

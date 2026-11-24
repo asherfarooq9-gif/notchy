@@ -19,15 +19,25 @@ It runs only on Windows (built and tested on Windows 11). It is built with Elect
 
 ## Install
 
-There is no download page yet. Build the installer yourself (see "Build the installer").
+**Needs:** Windows 10 (version 2004 or newer) or Windows 11, 64-bit.
 
-Windows may warn "Unknown publisher" the first time, because the installer is not signed with a paid certificate. Choose "More info", then "Run anyway".
+1. Open the [Releases page](../../releases/latest) and download `Notch-Setup-<version>.exe`.
+2. Run it. Windows may warn "Unknown publisher" because the installer is not signed with a paid certificate. Choose **More info**, then **Run anyway**.
+3. The notch starts with Windows. Press `Control+Alt+N` for the panel, or click the tray icon for settings.
+
+**Check the download (optional, recommended).** Each release has a `SHA256SUMS.txt`. In PowerShell run `Get-FileHash .\Notch-Setup-<version>.exe` and compare the hash. Or skip the installer and build it yourself, below.
+
+**Optional extras.** Ask Claude and file tasks need [Claude Code](https://claude.com/claude-code) installed and signed in. Nothing else in the app needs an account or a key.
+
+**Uninstall.** Windows Settings, Apps, Notch.
 
 ## Run from source
 
-You need [Node.js](https://nodejs.org) (a recent version).
+You need [Node.js](https://nodejs.org) 20 or newer.
 
 ```bash
+git clone https://github.com/asherfarooq9-gif/windows-notch.git
+cd windows-notch
 npm install
 npm start
 ```
@@ -38,7 +48,18 @@ npm start
 npm run dist
 ```
 
-The installer appears in the `release` folder as `Notch Setup <version>.exe`. `npm run pack` makes the same app as a plain folder without the installer, which is faster for testing.
+The installer appears in the `release` folder as `Notch-Setup-<version>.exe`. `npm run pack` makes the same app as a plain folder without the installer, which is faster for testing.
+
+## Make a release (for the maintainer)
+
+Push a version tag. GitHub Actions runs the tests, builds the installer on Windows and attaches it, with its checksum, to a new release:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+You can also run the **Release** workflow by hand from the Actions tab.
 
 ## Test
 
@@ -46,13 +67,21 @@ The installer appears in the `release` folder as `Notch Setup <version>.exe`. `n
 npm test
 ```
 
+The tests run on every pull request in GitHub Actions (Windows). On Linux or macOS a few Windows-only tests fail; that is expected.
+
+## Contribute
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Report security problems as described in [SECURITY.md](SECURITY.md).
+
 ## Privacy
 
+- No accounts, no API keys and no telemetry. The app never asks for a key or a password.
 - Your notes, clipboard history, timers and settings stay on your PC, in the app's data folder.
 - Clipboard copies from password managers are skipped.
-- **Ask Claude** and **file tasks** send your question or task text to Claude through the `claude` command-line tool, only if you turn them on and have it installed.
+- **Ask Claude** and **file tasks** send your question or task text to Claude through the `claude` command-line tool that you installed and signed in to yourself, only if you turn them on. The app never sees your sign-in, and Claude is started with all tools off.
 - Weather, currency rates and calendar feeds fetch from the websites you choose. Local and home-network addresses are never fetched.
 - The phone link opens a small web page on your home network for a few minutes. It is not encrypted, so use it on a network you trust.
+- Screen glow takes a tiny picture of your screen about ten times a second. It stays in memory, is never saved and never leaves your PC.
 - Screen Time, if you turn it on, records which app is in front, on this PC only.
 
 ## Safety
