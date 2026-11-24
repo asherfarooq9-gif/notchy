@@ -1,16 +1,16 @@
 /* Three registered colors per edge, so the gradient colors fade smoothly from frame to frame. */
-@property --top0 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --top1 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --top2 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --right0 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --right1 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --right2 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --bottom0 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --bottom1 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --bottom2 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --left0 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --left1 { syntax: '<color>'; inherits: false; initial-value: transparent; }
-@property --left2 { syntax: '<color>'; inherits: false; initial-value: transparent; }
+@property --top0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --top1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --top2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --right0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --right1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --right2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --bottom0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --bottom1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --bottom2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --left0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --left1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --left2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
 
 html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
 
