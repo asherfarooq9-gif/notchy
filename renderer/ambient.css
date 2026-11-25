@@ -1,33 +1,5 @@
-/* Three registered colors per edge, so the gradient colors fade smoothly from frame to frame. */
-@property --top0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --top1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --top2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --right0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --right1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --right2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --bottom0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --bottom1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --bottom2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --left0 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --left1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --left2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-
+/* The glow is drawn on a tiny canvas that the graphics chip stretches over the whole screen.
+   The stretch is smooth, so the edges come out soft, and no big gradient is ever repainted. */
 html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
 
-#glow { position: fixed; inset: 0; opacity: 0; transition: opacity 0.6s ease; --size: 120px; }
-
-.edge {
-  position: fixed;
-  transition: --top0 0.35s linear, --top1 0.35s linear, --top2 0.35s linear,
-    --right0 0.35s linear, --right1 0.35s linear, --right2 0.35s linear,
-    --bottom0 0.35s linear, --bottom1 0.35s linear, --bottom2 0.35s linear,
-    --left0 0.35s linear, --left1 0.35s linear, --left2 0.35s linear;
-}
-
-.top, .bottom { left: 0; right: 0; height: var(--size); }
-.left, .right { top: 0; bottom: 0; width: var(--size); }
-
-.top { top: 0; background: linear-gradient(to right, var(--top0), var(--top1), var(--top2)); mask-image: linear-gradient(to bottom, #000, transparent); }
-.bottom { bottom: 0; background: linear-gradient(to right, var(--bottom0), var(--bottom1), var(--bottom2)); mask-image: linear-gradient(to top, #000, transparent); }
-.left { left: 0; background: linear-gradient(to bottom, var(--left0), var(--left1), var(--left2)); mask-image: linear-gradient(to right, #000, transparent); }
-.right { right: 0; background: linear-gradient(to bottom, var(--right0), var(--right1), var(--right2)); mask-image: linear-gradient(to left, #000, transparent); }
+#glow { position: fixed; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.15s linear; }
