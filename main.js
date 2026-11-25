@@ -498,7 +498,8 @@ if (!app.requestSingleInstanceLock()) {
     readPacks(); // before the tray, so a pack look has its drawing
     createWindow();
     ambient = createAmbientService({
-      desktopCapturer, screen, BrowserWindow,
+      desktopCapturer, screen, BrowserWindow, ipcMain,
+      onError: (message) => sendAlert('state', { state: 'error', text: ('Screen glow: ' + message).slice(0, 40) }),
       preload: path.join(__dirname, 'ambient-preload.js'),
       page: path.join(__dirname, 'renderer', 'ambient.html'),
       getSettings: () => settings,
