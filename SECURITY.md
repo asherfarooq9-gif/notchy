@@ -17,7 +17,7 @@ Please use GitHub's private reporting: **Security tab, then "Report a vulnerabil
 
 ## Installer
 
-The installer is not signed with a paid certificate, so Windows shows "Unknown publisher". Every release lists a SHA-256 checksum (`SHA256SUMS.txt`). Compare it with `Get-FileHash "Notch-Setup-x.y.z.exe"` in PowerShell before you run it, or build the app yourself from source (see the README).
+The installer is not signed with a paid certificate, so Windows shows "Unknown publisher". Every release lists a SHA-256 checksum (`SHA256SUMS.txt`). Compare it with `Get-FileHash "Notchy-Setup-x.y.z.exe"` in PowerShell before you run it, or build the app yourself from source (see the README).
 
 ## Updates
 

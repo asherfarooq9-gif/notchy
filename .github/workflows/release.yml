@@ -49,4 +49,4 @@ jobs:
       - name: Publish release
         shell: pwsh
         run: |
-          gh release create "$env:TAG" release/*.exe release/*.blockmap release/latest.yml release/SHA256SUMS.txt --title "Notch $env:TAG" --generate-notes --verify-tag=false
+          gh release create "$env:TAG" release/*.exe release/*.blockmap release/latest.yml release/SHA256SUMS.txt --title "Notchy $env:TAG" --generate-notes --verify-tag=false
