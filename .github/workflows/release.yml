@@ -39,7 +39,7 @@ jobs:
       - name: Check the auto-update files exist
         shell: pwsh
         run: |
-          foreach ($f in 'release/latest.yml', 'release/win-unpacked/resources/app-update.yml') { if (-not (Test-Path $f)) { throw "Missing $f: installed apps could not update." } }
+          foreach ($f in 'release/latest.yml', 'release/win-unpacked/resources/app-update.yml') { if (-not (Test-Path $f)) { throw "Missing ${f}: installed apps could not update." } }
       - name: Checksums
         shell: pwsh
         run: |
