@@ -1,0 +1,81 @@
+name: Install test
+
+# Installs a published release on a fresh Windows machine, the same way a double-click would,
+# checks the result, then uninstalls it. Run by hand from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to test (for example v0.1.0)
+        required: true
+        default: v0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download the installer and check its checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\Downloads" | Out-Null
+          Set-Location "$env:USERPROFILE\Downloads"
+          gh release download "$env:TAG" --repo "$env:GITHUB_REPOSITORY" --pattern 'Notchy-Setup-*.exe' --pattern 'SHA256SUMS.txt'
+          $exe = Get-ChildItem 'Notchy-Setup-*.exe' | Select-Object -First 1
+          $want = ((Get-Content 'SHA256SUMS.txt' | Select-Object -First 1) -split '\s+')[0].ToLower()
+          $got = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLower()
+          Write-Host "Installer: $($exe.Name) ($([math]::Round($exe.Length / 1MB, 1)) MB)"
+          if ($want -ne $got) { throw "Checksum mismatch. Expected $want, got $got." }
+          Write-Host 'Checksum matches.'
+
+      - name: Install (no switches, like a double-click)
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem "$env:USERPROFILE\Downloads\Notchy-Setup-*.exe" | Select-Object -First 1).FullName
+          $p = Start-Process -FilePath $exe -PassThru
+          if (-not $p.WaitForExit(300000)) { throw 'Installer still running after 5 minutes.' }
+          Write-Host "Installer exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { throw "Installer failed with exit code $($p.ExitCode)." }
+
+      - name: Check what the install left behind
+        shell: pwsh
+        run: |
+          $dir = "$env:LOCALAPPDATA\Programs\Notchy"
+          $problems = @()
+          if (-not (Test-Path "$dir\Notchy.exe")) { $problems += "Missing $dir\Notchy.exe" }
+          $lnk = Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Recurse -Filter 'Notchy*.lnk' -ErrorAction SilentlyContinue
+          if (-not $lnk) { $problems += 'No Start menu shortcut' }
+          $un = Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue |
+            Where-Object { (Get-ItemProperty $_.PSPath).DisplayName -like 'Notchy*' }
+          if (-not $un) { $problems += 'No entry in the Apps list' } else { Write-Host "Apps list: $((Get-ItemProperty $un.PSPath).DisplayName) $((Get-ItemProperty $un.PSPath).DisplayVersion)" }
+          if (-not (Test-Path "$dir\Uninstall Notchy.exe")) { $problems += 'Missing uninstaller' }
+          Write-Host "Install folder: $dir"
+          Write-Host "Shortcut: $($lnk.FullName)"
+          Start-Sleep -Seconds 20
+          $running = @(Get-Process -Name Notchy -ErrorAction SilentlyContinue)
+          Write-Host "Notchy processes running: $($running.Count)"
+          if ($running.Count -eq 0) { Write-Host '::warning::Notchy did not stay running after install. A runner has no real screen or graphics card, so check this on a real PC.' }
+          if ($problems.Count -gt 0) { $problems | ForEach-Object { Write-Host "::error::$_" }; throw 'Install check failed.' }
+
+      - name: Uninstall and check it is gone
+        shell: pwsh
+        run: |
+          $dir = "$env:LOCALAPPDATA\Programs\Notchy"
+          Get-Process -Name Notchy -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 3
+          $p = Start-Process -FilePath "$dir\Uninstall Notchy.exe" -ArgumentList '/currentuser', '/S' -PassThru
+          if (-not $p.WaitForExit(120000)) { throw 'Uninstaller still running after 2 minutes.' }
+          Start-Sleep -Seconds 8
+          $left = @()
+          if (Test-Path "$dir\Notchy.exe") { $left += 'Program files remain' }
+          if (Get-ChildItem "$env:APPDATA\Microsoft\Windows\Start Menu\Programs" -Recurse -Filter 'Notchy*.lnk' -ErrorAction SilentlyContinue) { $left += 'Start menu shortcut remains' }
+          $run = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -ErrorAction SilentlyContinue
+          if ($run.PSObject.Properties.Name -contains 'WindowsNotch') { $left += 'Start-with-Windows entry remains' }
+          if ($left.Count -gt 0) { $left | ForEach-Object { Write-Host "::error::$_" }; throw 'Uninstall left things behind.' }
+          Write-Host 'Uninstall removed everything it should.'
