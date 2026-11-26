@@ -71,8 +71,8 @@ Still stuck? [Open an issue](../../issues/new) and say your Windows version and 
 You need [Node.js](https://nodejs.org) 20 or newer.
 
 ```bash
-git clone https://github.com/asherfarooq9-gif/windows-notch.git
-cd windows-notch
+git clone https://github.com/asherfarooq9-gif/notchy.git
+cd notchy
 npm install
 npm start
 ```
