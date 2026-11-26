@@ -32,7 +32,7 @@ const WIN_W = 480;
 const WIN_H = 170;
 const STATES = new Set(['idle', 'thinking', 'working', 'needs', 'done', 'error', 'dance', 'asking', 'speaking']);
 const ASSETS = path.join(__dirname, 'assets');
-const AUTOSTART_NAME = 'WindowsNotch';
+const AUTOSTART_NAME = 'WindowsNotch'; // internal name of the start-with-Windows entry; kept so an upgrade never adds a second one
 
 const MIN_ANSWER_CARD_MS = 8000;
 const NOTIFY_LINGER_MS = 7000; // how long a card keeps him on screen when it gives no time of its own
@@ -44,7 +44,7 @@ app.on('web-contents-created', (_event, contents) => {
   contents.on('will-navigate', (event, url) => { if (!url.startsWith('file://')) event.preventDefault(); });
 });
 
-app.setName('Windows Notch'); // names the autostart entry and the settings folder
+app.setName('Windows Notch'); // the app is called Notchy, but this old name stays: it names the settings folder (changing it would lose everyone's saved settings)
 
 let win = null;
 let settingsWin = null;
@@ -71,7 +71,7 @@ let isAsking = false;
 // Visibility: in hidden mode he is out of sight until called (see lib/awake.js).
 let visibility = null;
 const isBusy = () => isAsking || pinnedMessage !== null;
-const trayTip = (isAwake) => (isAwake ? 'Notch (click for settings)' : 'Notch is asleep. Press the panel hotkey (click for settings)');
+const trayTip = (isAwake) => (isAwake ? 'Notchy (click for settings)' : 'Notchy is asleep. Press the panel hotkey (click for settings)');
 
 const script = (name) => path.join(__dirname, 'scripts', name);
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json');
@@ -145,7 +145,7 @@ function openSettings() {
     height: 680,
     minWidth: 780,
     minHeight: 560,
-    title: 'Notch settings',
+    title: 'Notchy settings',
     icon: path.join(ASSETS, 'icon.png'), // the same picture the installer and the .exe use
     autoHideMenuBar: true,
     backgroundColor: settings.colorMode === 'dark' ? '#0b0b0e' : '#f2f2f7', // matches the glass background, so there is no flash on open
@@ -391,7 +391,7 @@ function buildTrayMenu() {
     { type: 'separator' },
     { label: 'Start with Windows', type: 'checkbox', checked: settings.autostart, click: (item) => saveSettings({ ...settings, autostart: item.checked }) },
     { type: 'separator' },
-    { label: 'Quit Notch', click: () => app.quit() },
+    { label: 'Quit Notchy', click: () => app.quit() },
   ]);
 }
 
@@ -513,7 +513,7 @@ if (!app.requestSingleInstanceLock()) {
       isEnabled: () => settings.autoUpdate,
       onStatus: (status) => {
         sendToSettings('updates:status', { ...updater.status(), ...status });
-        if (status.phase === 'ready' && lastPhase !== 'ready') sendAlert('notify', { title: 'Update ready', body: `Notch ${status.latest || ''} is ready. Open settings, General, and press Restart and update.`.replace('  ', ' '), ms: 12000 });
+        if (status.phase === 'ready' && lastPhase !== 'ready') sendAlert('notify', { title: 'Update ready', body: `Notchy ${status.latest || ''} is ready. Open settings, General, and press Restart and update.`.replace('  ', ' '), ms: 12000 });
         lastPhase = status.phase;
       },
     });

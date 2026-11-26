@@ -1,7 +1,7 @@
 {
   "name": "windows-notch",
   "version": "0.1.0",
-  "description": "A Dynamic-Island style notch for Windows: tool panel, timers, music, screen glow and character looks (Electron)",
+  "description": "Notchy: a Dynamic-Island style notch for Windows with a tool panel, timers, music, screen glow and character looks (Electron)",
   "main": "main.js",
   "author": "asherfarooq9-gif",
   "license": "MIT",
@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "com.windowsnotch.app",
-    "productName": "Notch",
+    "productName": "Notchy",
     "directories": {
       "output": "release"
     },
@@ -56,11 +56,16 @@
       "icon": "assets/icon.png"
     },
     "nsis": {
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Notch",
-      "artifactName": "Notch-Setup-${version}.exe"
+      "runAfterFinish": true,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Notchy",
+      "uninstallDisplayName": "Notchy",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "Notchy-Setup-${version}.exe",
+      "include": "build/installer.nsh"
     },
     "publish": [
       {
@@ -69,7 +74,8 @@
         "repo": "windows-notch",
         "releaseType": "release"
       }
-    ]
+    ],
+    "copyright": "Copyright (c) 2026 asherfarooq9-gif. MIT License."
   },
   "homepage": "https://github.com/asherfarooq9-gif/windows-notch#readme",
   "repository": {
@@ -83,6 +89,7 @@
     "electron",
     "windows",
     "notch",
+    "notchy",
     "dynamic-island",
     "productivity"
   ]
