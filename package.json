@@ -71,19 +71,19 @@
       {
         "provider": "github",
         "owner": "asherfarooq9-gif",
-        "repo": "windows-notch",
+        "repo": "notchy",
         "releaseType": "release"
       }
     ],
     "copyright": "Copyright (c) 2026 asherfarooq9-gif. MIT License."
   },
-  "homepage": "https://github.com/asherfarooq9-gif/windows-notch#readme",
+  "homepage": "https://github.com/asherfarooq9-gif/notchy#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/asherfarooq9-gif/windows-notch.git"
+    "url": "git+https://github.com/asherfarooq9-gif/notchy.git"
   },
   "bugs": {
-    "url": "https://github.com/asherfarooq9-gif/windows-notch/issues"
+    "url": "https://github.com/asherfarooq9-gif/notchy/issues"
   },
   "keywords": [
     "electron",
