@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src data:">
   <title>Notchy settings</title>
   <link rel="stylesheet" href="looks.css">
   <link rel="stylesheet" href="settings.css">
@@ -15,7 +15,7 @@
       <div class="brand">
         <div class="portrait" id="portrait" aria-hidden="true"></div>
         <h1>Notchy</h1>
-        <p id="lookName">Classic look</p>
+        <p id="lookName">Batman look</p>
       </div>
       <nav id="nav" class="nav" aria-label="Settings sections">
         <span class="nav-ink" aria-hidden="true"></span>
@@ -69,6 +69,14 @@
           <label class="toggle">
             <span><b>Character reacts</b><small>Your hero cheers when a timer ends and looks worried when the battery is low and not charging.</small></span>
             <input type="checkbox" id="reactiveHero">
+          </label>
+          <label class="toggle">
+            <span><b>Character moves every minute</b><small>Your hero does its special move and shows its famous line in the notch, once a minute, while nothing else is on.</small></span>
+            <input type="checkbox" id="heroMoves">
+          </label>
+          <label class="toggle">
+            <span><b>Character voice</b><small>A Windows voice says the line out loud. Turn this off for meetings.</small></span>
+            <input type="checkbox" id="heroVoice">
           </label>
           <label class="toggle">
             <span><b>Still pop up for alerts while hidden</b><small>WhatsApp messages and Claude Code alerts (needs you, done, error) show for a moment, then hide again.</small></span>

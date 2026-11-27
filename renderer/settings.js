@@ -5,6 +5,8 @@ const fields = {
   autoUpdate: document.getElementById('autoUpdate'),
   hideUntilCalled: document.getElementById('hideUntilCalled'),
   reactiveHero: document.getElementById('reactiveHero'),
+  heroMoves: document.getElementById('heroMoves'),
+  heroVoice: document.getElementById('heroVoice'),
   routines: document.getElementById('routines'),
   alertsWhileHidden: document.getElementById('alertsWhileHidden'),
   danceOnMusic: document.getElementById('danceOnMusic'),
@@ -37,6 +39,8 @@ function fill(settings) {
   fields.autoUpdate.checked = settings.autoUpdate;
   fields.hideUntilCalled.checked = settings.hideUntilCalled;
   fields.reactiveHero.checked = settings.reactiveHero;
+  fields.heroMoves.checked = settings.heroMoves;
+  fields.heroVoice.checked = settings.heroVoice;
   fields.routines.value = settings.routines.map((r) => `${r.name}: ${r.steps.join('; ')}`).join('\n');
   fields.alertsWhileHidden.checked = settings.alertsWhileHidden;
   fields.danceOnMusic.checked = settings.danceOnMusic;
@@ -136,6 +140,8 @@ form.addEventListener('submit', async (event) => {
     autoUpdate: fields.autoUpdate.checked,
     hideUntilCalled: fields.hideUntilCalled.checked,
     reactiveHero: fields.reactiveHero.checked,
+    heroMoves: fields.heroMoves.checked,
+    heroVoice: fields.heroVoice.checked,
     routines: parseRoutineLines(fields.routines.value),
     alertsWhileHidden: fields.alertsWhileHidden.checked,
     danceOnMusic: fields.danceOnMusic.checked,
@@ -282,7 +288,7 @@ fields.theme.addEventListener('change', () => {
   if (chosen) fields.edgeColor.value = chosen.accent;
 });
 
-Promise.all([window.settingsApi.meta(), window.settingsApi.get()]).then(([meta, settings]) => {
+Promise.all([window.settingsApi.meta(), window.settingsApi.get(), window.Packs.loadPhotos(window.settingsApi.faces)]).then(([meta, settings]) => {
   allModules = meta.modules;
   themeInfo = meta.themes;
   window.Heroes.setPacks(themeInfo.filter((t) => t.isPack));

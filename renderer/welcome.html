@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src data:">
   <title>Welcome to Notchy</title>
   <link rel="stylesheet" href="welcome.css">
 </head>
@@ -11,7 +11,12 @@
   <main class="card">
     <div class="pill" aria-hidden="true"><span class="eye"></span><span class="eye"></span></div>
     <h1>Welcome to Notchy</h1>
-    <p class="lead">Notchy lives in a small notch at the top of your screen. Before it starts, pick what it is allowed to do. You can change every choice later in Settings.</p>
+    <p class="lead">Notchy lives in a small notch at the top of your screen. Before it starts, pick a look and choose what it is allowed to do. You can change every choice later in Settings.</p>
+
+    <section class="looks-box" aria-labelledby="looksTitle">
+      <h2 id="looksTitle">Pick your look</h2>
+      <div id="looks" class="looks" role="radiogroup" aria-label="Character look"></div>
+    </section>
 
     <label class="row">
       <span class="text"><b>Start with Windows</b><small>Notchy opens by itself when you sign in to your laptop.</small></span>
@@ -41,6 +46,7 @@
       <button type="button" id="finish" class="finish">Start using Notchy</button>
     </div>
   </main>
+  <script src="heroes.js"></script>
   <script src="welcome.js"></script>
 </body>
 </html>

@@ -10,12 +10,12 @@ test('every hero look makes a tray picture from the shared drawing, with two eye
     assert.ok(THEMES.includes(id), `${id} is not a look`);
     const html = buildTrayHtml(id);
     assert.ok(html && html.includes('<svg') && html.includes('viewBox="-2 -2 28 28"'), id);
-    assert.ok((html.match(/<rect /g) || []).length >= 2, `${id} eyes`);
+    assert.ok((html.match(/class="eyeball"/g) || []).length >= 2, `${id} eyes`);
   }
 });
 test('the picture really contains that hero (a color unique to its drawing)', () => {
-  assert.ok(buildTrayHtml('ironman').includes('#b3121a'));
-  assert.ok(buildTrayHtml('hulk').includes('#7cc42c'));
+  assert.ok(buildTrayHtml('ironman').includes('#f2bb34'));
+  assert.ok(buildTrayHtml('hulk').includes('#5fb02c'));
   assert.ok(buildTrayHtml('doom').includes('#166534'));
 });
 test('plain looks and unknown looks have no tray picture, so they keep the Batman icon', () => {
@@ -58,14 +58,12 @@ test('a painting that never finishes is given up on, the window is closed, and t
   assert.strictEqual(await icons.imageFor('hulk'), fallback);
   assert.strictEqual(destroyed, 1);
 });
-test('the shared drawings file gives every hero a drawing and eyes, and nothing else', () => {
-  assert.deepStrictEqual(Object.keys(Heroes.DRAWINGS).sort(), Object.keys(Heroes.EYES).sort());
+test('the shared drawings file gives every hero a bot that draws its own eyes', () => {
   for (const id of Heroes.ids) {
     assert.ok(Heroes.DRAWINGS[id].includes('<path'), id);
-    const e = Heroes.EYES[id];
-    assert.strictEqual(e.cx.length, 2, `${id} has two eyes`);
-    assert.ok(e.w > 0 && e.h > 0 && /^#[0-9a-f]{6}$/i.test(e.color), id);
+    assert.ok((Heroes.DRAWINGS[id].match(/class="eyeball"/g) || []).length >= 2, `${id} has two eyes`);
+    assert.ok(!Heroes.DRAWINGS[id].includes('<g'), `${id}: the notch hides <g> inside the face (style.css ".hero g")`);
   }
+  assert.deepStrictEqual(Object.keys(Heroes.EYES), [], 'only character packs bring separate eye spots');
   assert.strictEqual(Heroes.markup('nobody'), null);
-  assert.ok(!Heroes.markup('thor', { withEyes: false }).includes('<rect x="'), 'eyes left out on request');
 });

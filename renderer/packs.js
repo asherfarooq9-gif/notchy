@@ -21,5 +21,10 @@
     return packs;
   }
 
-  window.Packs = { paint, refresh };
+  // Your own face pictures, checked by the main program. If they cannot be fetched, the drawings stay.
+  async function loadPhotos(fetchFaces) {
+    try { window.Heroes.setPhotos(await fetchFaces()); } catch { window.Heroes.setPhotos({}); }
+  }
+
+  window.Packs = { paint, refresh, loadPhotos };
 })();

@@ -5,7 +5,7 @@
    --surface      frosted glass, --surface-solid is the same surface without see-through (used when transparency is off)
    Any element with data-theme wears that look's two colors (the look picker cards use this). The hero looks use only
    color palettes inspired by each character, never logos or official artwork. */
-:root { --hue-a: #0b66e4; --hue-b: #6e56e8; --on-a: #ffffff; --a-text-light: #0b66e4; --a-text-dark: #3c85e9; }
+:root { --hue-a: #3f4f69; --hue-b: #facc15; --on-a: #ffffff; --a-text-light: #3f4f69; --a-text-dark: #7c8799; }
 :root, [data-mode="light"] {
   color-scheme: light;
   --bg: #f2f2f7; --surface: rgba(255, 255, 255, .56); --surface-strong: rgba(255, 255, 255, .82); --surface-solid: #ffffff;
@@ -32,9 +32,6 @@
     radial-gradient(70% 55% at 10% 0%, color-mix(in srgb, var(--hue-a) var(--wash-a), transparent), transparent 70%),
     radial-gradient(60% 60% at 100% 100%, color-mix(in srgb, var(--hue-b) var(--wash-b), transparent), transparent 72%);
 }
-[data-theme="classic"] { --hue-a: #0b66e4; --hue-b: #6e56e8; --on-a: #ffffff; --a-text-light: #0b66e4; --a-text-dark: #3c85e9; }
-[data-theme="ember"] { --hue-a: #c2410c; --hue-b: #e5302c; --on-a: #ffffff; --a-text-light: #c2410c; --a-text-dark: #cf6b41; }
-[data-theme="vivid"] { --hue-a: #7c4ddb; --hue-b: #d6409f; --on-a: #ffffff; --a-text-light: #7c4ddb; --a-text-dark: #9671e2; }
 [data-theme="ironman"] { --hue-a: #c4161c; --hue-b: #f5b301; --on-a: #ffffff; --a-text-light: #c4161c; --a-text-dark: #d76165; }
 [data-theme="captain"] { --hue-a: #1d5fd6; --hue-b: #e0252f; --on-a: #ffffff; --a-text-light: #1d5fd6; --a-text-dark: #5385e0; }
 [data-theme="spiderman"] { --hue-a: #d91c2b; --hue-b: #1d4ed8; --on-a: #ffffff; --a-text-light: #d51b2a; --a-text-dark: #e35762; }
