@@ -43,8 +43,11 @@
   }
 
   let settingsCall = 0;
+  const photosReady = Promise.all([window.Packs.loadPhotos(window.panel.faces), window.Packs.loadTraced(window.panel.traced)]); // your own faces, fetched once
   const applySettings = async (s) => {
     const mine = ++settingsCall;
+    await photosReady;
+    if (mine !== settingsCall) return;
     document.body.dataset.mode = s.colorMode || 'light';
     let theme = s.theme;
     let packs = [];

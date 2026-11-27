@@ -19,6 +19,7 @@ const { MODULES } = require('./lib/modules');
 const { THEME_INFO } = require('./lib/themes');
 const { createTrayIcons } = require('./lib/tray-icon');
 const { loadPacks } = require('./lib/packs');
+const { loadFaces, loadTracedFaces } = require('./lib/faces');
 const { makeEventHandler } = require('./lib/event-server');
 const { createClaudeLink } = require('./lib/claude-link');
 const { createFocusMode } = require('./lib/focus-mode');
@@ -484,6 +485,20 @@ function readPacks() {
   return result;
 }
 
+// Your own face pictures: <hero>.png files in the "faces" folder, checked by lib/faces.js. Read again each time, like packs.
+const facesDir = () => path.join(app.getPath('userData'), 'faces');
+function readFaces() {
+  const { faces } = loadFaces(facesDir(), Heroes.ids);
+  Heroes.setPhotos(faces); // the tray icon draws from the same pictures
+  return faces;
+}
+// The traced drawings (<hero>.svg in the same folder), checked and rebuilt from plain shapes. These go on the notch too.
+function readTracedFaces() {
+  const { faces } = loadTracedFaces(facesDir(), Heroes.ids);
+  Heroes.setTraced(faces);
+  return faces;
+}
+
 // The tray icon follows the look: a hero's drawing for hero looks, the Batman icon for the plain ones.
 let trayIcons = null;
 let trayLook = null;
@@ -520,6 +535,8 @@ if (!app.requestSingleInstanceLock()) {
       },
     });
     readPacks(); // before the tray, so a pack look has its drawing
+    readFaces(); // and a hero with your own picture shows it in the tray too
+    readTracedFaces();
     createWindow();
     ambient = createAmbientService({
       desktopCapturer, screen, BrowserWindow, ipcMain,
@@ -573,6 +590,8 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.handle('claude:connect', () => claudeLink.connect());
     ipcMain.handle('claude:disconnect', () => claudeLink.disconnect());
     ipcMain.handle('packs:list', () => readPacks().packs);
+    ipcMain.handle('faces:list', () => readFaces());
+    ipcMain.handle('faces:traced', () => readTracedFaces());
     ipcMain.handle('packs:open', () => { fs.mkdirSync(packsDir(), { recursive: true }); return shell.openPath(packsDir()); });
     ipcMain.handle('media:control', (_e, command) => { if (live) live.media(String(command)); });
     ipcMain.handle('message:show', (_e, input) => showMessage(input));

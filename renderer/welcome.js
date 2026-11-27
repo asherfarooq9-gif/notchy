@@ -26,7 +26,9 @@ function buildLooks(looks) {
 }
 
 async function start() {
-  const [settings, meta] = await Promise.all([window.welcomeApi.get(), window.welcomeApi.meta()]);
+  const [settings, meta, faces, traced] = await Promise.all([window.welcomeApi.get(), window.welcomeApi.meta(), window.welcomeApi.faces().catch(() => ({})), window.welcomeApi.traced().catch(() => ({}))]);
+  window.Heroes.setPhotos(faces); // your own face pictures, when you have them
+  window.Heroes.setTraced(traced); // and the drawings traced from them, which come first
   for (const id of CHOICES) document.getElementById(id).checked = settings[id] === true;
   document.getElementById('panelKey').textContent = settings.panelHotkey;
   buildLooks(meta.themes.filter((look) => !look.isPack));

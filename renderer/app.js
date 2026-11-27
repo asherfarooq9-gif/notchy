@@ -162,6 +162,8 @@ function showActivity(activity) {
     textEl.textContent = '✓ Copied';
   } else if (activity.kind === 'music') {
     textEl.textContent = 'Now playing · ' + musicLine(activity);
+  } else if (activity.kind === 'hero') {
+    textEl.textContent = activity.text; // the hero's line, during its special move
   }
   textEl.style.color = '';
   textEl.classList.remove('pulse', 'scroll');
@@ -170,6 +172,7 @@ function showActivity(activity) {
 
 function setState(state, text) {
   clearTimeout(resetTimer);
+  if (state !== 'idle') endMove(); // something more important: the special move stops
   if (override) endActivity(); // a Claude state matters more than a song announcement
   body.dataset.state = state;
   if (state !== 'listening') root.style.setProperty('--level', '0');
@@ -268,14 +271,18 @@ function applyHero(theme) {
   const picture = window.Heroes.element(theme, { withEyes: false });
   hero.replaceChildren(...(picture ? [...picture.childNodes] : []));
   body.classList.toggle('has-hero', Boolean(picture));
+  body.classList.toggle('has-traced', window.Heroes.hasTraced(theme)); // a traced face has its own eyes: the animated ones hide
   document.getElementById('peng').setAttribute('aria-label', picture ? 'Click to talk' : 'Batman: click to talk');
 }
 // The notch wears the chosen look. A character pack's colors and drawing come from the main program.
 let lookCall = 0;
+// The notch shows drawings, never your face pictures: the traced drawings made from them when you have them, else the built-in ones.
+const tracedReady = window.Packs.loadTraced(window.notch.traced);
 async function wearLook(theme) {
   const mine = ++lookCall;
   body.dataset.theme = theme;
   const packs = theme.startsWith('pack-') ? await window.Packs.refresh(window.notch.packs) : [];
+  await tracedReady;
   if (mine !== lookCall) return; // a newer look was chosen while this one loaded
   window.Packs.paint(body, packs.find((p) => p.id === theme) || null, { glow: true });
   applyHero(theme);
@@ -297,9 +304,50 @@ window.notch.onSettings((settings) => {
   else { applyMusic(); render(); }
 });
 
-setInterval(() => {
-  if (body.dataset.state === 'idle' && !isFocus && Math.random() > 0.5) flash('slide', 2500);
+setInterval(() => { // the old slide trick, only when the special moves are switched off
+  if (body.dataset.state === 'idle' && !isFocus && !settingsNow.heroMoves && Math.random() > 0.5) flash('slide', 2500);
 }, SLIDE_EVERY_MS);
+
+// ---- the hero's special move and line, every minute (renderer/hero-moves.js, style.css) ----
+const fxEl = document.getElementById('fx');
+let moveTimer = 0;
+
+function endMove() {
+  clearTimeout(moveTimer);
+  delete body.dataset.move;
+  fxEl.replaceChildren();
+}
+
+// A Windows voice says the line. A PC with no voices still shows the words.
+function speakLine(entry) {
+  if (!settingsNow.heroVoice || !window.speechSynthesis) return;
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(entry.line);
+    const voice = window.HeroMoves.pickVoice(window.speechSynthesis.getVoices(), entry.voice.female);
+    if (voice) utterance.voice = voice;
+    utterance.pitch = entry.voice.pitch;
+    utterance.rate = entry.voice.rate;
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // speaking is a bonus: the line is already on the notch
+  }
+}
+
+function playMove() {
+  const entry = window.HeroMoves.moveFor(body.dataset.theme);
+  const isPlaying = window.HeroMoves.shouldPlay({ state: body.dataset.state, isFocus, isDormant: body.classList.contains('dormant'), isOn: settingsNow.heroMoves === true });
+  if (!entry || !isPlaying) return;
+  endMove();
+  const effect = window.HeroMoves.FX[entry.move];
+  if (effect) fxEl.append(svgIcon(effect)); // fixed drawings from hero-moves.js
+  void fxEl.offsetWidth; // restart the animations even when the same move plays twice in a row
+  body.dataset.move = entry.move;
+  showActivity({ kind: 'hero', text: entry.line, ms: window.HeroMoves.MOVE_MS });
+  speakLine(entry);
+  moveTimer = setTimeout(endMove, window.HeroMoves.MOVE_MS);
+}
+setInterval(playMove, window.HeroMoves.MOVE_EVERY_MS);
 
 // The time left on the song counts down while it shows.
 setInterval(() => {

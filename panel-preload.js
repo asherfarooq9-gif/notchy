@@ -5,6 +5,8 @@ const listen = (channel) => (callback) => ipcRenderer.on(channel, (_event, paylo
 contextBridge.exposeInMainWorld('panel', {
   settings: () => ipcRenderer.invoke('panel:settings'),
   packs: () => ipcRenderer.invoke('packs:list'),
+  faces: () => ipcRenderer.invoke('faces:list'),
+  traced: () => ipcRenderer.invoke('faces:traced'),
   life: () => ipcRenderer.invoke('life:get'),
   data: {
     get: (name, fallback) => ipcRenderer.invoke('data:get', name, fallback),
