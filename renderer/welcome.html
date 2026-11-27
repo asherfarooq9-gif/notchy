@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'">
+  <title>Welcome to Notchy</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <main class="card">
+    <div class="pill" aria-hidden="true"><span class="eye"></span><span class="eye"></span></div>
+    <h1>Welcome to Notchy</h1>
+    <p class="lead">Notchy lives in a small notch at the top of your screen. Before it starts, pick what it is allowed to do. You can change every choice later in Settings.</p>
+
+    <label class="row">
+      <span class="text"><b>Start with Windows</b><small>Notchy opens by itself when you sign in to your laptop.</small></span>
+      <input type="checkbox" id="autostart" aria-label="Start with Windows">
+    </label>
+    <label class="row">
+      <span class="text"><b>Check for updates</b><small>Looks on github.com for a new version every few hours and downloads it. It sends nothing about you.</small></span>
+      <input type="checkbox" id="autoUpdate" aria-label="Check for updates">
+    </label>
+    <label class="row">
+      <span class="text"><b>Ask Claude</b><small>Lets you type a question in the command box. Your text goes to Claude through the Claude Code tool that you installed and signed in to yourself.</small></span>
+      <input type="checkbox" id="askClaude" aria-label="Ask Claude">
+    </label>
+    <label class="row">
+      <span class="text"><b>Claude file tasks</b><small>Claude can plan a file job, like sorting your Downloads folder. It shows the plan and does nothing until you press Run.</small></span>
+      <input type="checkbox" id="assistantTasks" aria-label="Claude file tasks">
+    </label>
+
+    <ul class="notes">
+      <li>Computer control (typing, Wi-Fi, shut down) stays off until you turn it on in Settings.</li>
+      <li>Notchy shows WhatsApp message pop-ups in the notch. You can change which apps in Settings.</li>
+      <li>Open the panel with <kbd id="panelKey">Control+Alt+N</kbd>. Click the Notchy icon near the clock for Settings.</li>
+    </ul>
+
+    <div class="foot">
+      <p id="error" class="error" role="alert" hidden></p>
+      <button type="button" id="finish" class="finish">Start using Notchy</button>
+    </div>
+  </main>
+  <script src="welcome.js"></script>
+</body>
+</html>

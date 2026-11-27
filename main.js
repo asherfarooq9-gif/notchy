@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, nativeImage, ipcMain, screen, globalShortcut, shell, desktopCapturer } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, nativeTheme, ipcMain, screen, globalShortcut, shell, desktopCapturer } = require('electron');
 const http = require('http');
 const fs = require('fs');
 const os = require('os');
@@ -26,6 +26,7 @@ const { createAmbientService } = require('./lib/ambient-service');
 const { createUpdater } = require('./lib/updater');
 const Heroes = require('./renderer/heroes.js');
 const settingsStore = require('./lib/settings');
+const { applyWelcomeChoices } = require('./lib/welcome');
 
 const PORT = 47800;
 const WIN_W = 480;
@@ -48,6 +49,7 @@ app.setName('Windows Notch'); // the app is called Notchy, but this old name sta
 
 let win = null;
 let settingsWin = null;
+let welcomeWin = null;
 let tray = null;
 // The desktop watcher: volume, full-screen apps and what is playing (lib/live.js).
 let live = null;
@@ -134,7 +136,29 @@ function createWindow() {
   });
 }
 
+// First run: ask what Notchy may do before it does any of it. Closing the window without finishing asks again next time.
+function openWelcome() {
+  if (welcomeWin && !welcomeWin.isDestroyed()) {
+    welcomeWin.focus();
+    return;
+  }
+  welcomeWin = new BrowserWindow({
+    width: 540,
+    height: Math.min(820, screen.getPrimaryDisplay().workAreaSize.height - 40), // a short screen scrolls; the button stays pinned
+    useContentSize: true,
+    resizable: false,
+    maximizable: false,
+    title: 'Welcome to Notchy',
+    icon: path.join(ASSETS, 'icon.png'),
+    autoHideMenuBar: true,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0b0b0e' : '#f2f2f7',
+    webPreferences: { preload: path.join(__dirname, 'welcome-preload.js'), contextIsolation: true, sandbox: true },
+  });
+  welcomeWin.loadFile(path.join(__dirname, 'renderer', 'welcome.html'));
+}
+
 function openSettings() {
+  if (!settings.setupDone) return openWelcome(); // tray click or a second launch before the welcome is finished
   if (settingsWin && !settingsWin.isDestroyed()) {
     if (settingsWin.isMinimized()) settingsWin.restore();
     settingsWin.focus();
@@ -557,6 +581,11 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.handle('updates:check', async () => { await updater.checkNow(); return updater.status(); });
     ipcMain.handle('updates:install', () => updater.install());
     ipcMain.handle('settings:save', (_e, raw) => saveSettings(raw));
+    ipcMain.handle('welcome:finish', (_e, choices) => {
+      const result = saveSettings(applyWelcomeChoices(settings, choices));
+      if (result.ok && welcomeWin && !welcomeWin.isDestroyed()) welcomeWin.close();
+      return result;
+    });
     ipcMain.on('settings:test-notify', () => send('notify', { title: 'Test message', body: 'Hello from your notch' }));
     ipcMain.on('settings:quit', () => app.quit());
 
@@ -576,7 +605,7 @@ if (!app.requestSingleInstanceLock()) {
       onNotify: (n) => sendAlert('notify', n),
       onError: (err) => sendAlert('state', { state: 'error', text: 'Notifications: ' + err.message.slice(0, 40) }),
     });
-    if (!process.argv.includes('--autostart')) openSettings();
+    if (!process.argv.includes('--autostart') || !settings.setupDone) openSettings(); // openSettings shows the welcome screen until it is finished
   });
 }
 
