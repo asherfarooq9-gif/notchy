@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('notch', {
   onTimer: (cb) => ipcRenderer.on('timer', (_e, payload) => cb(payload)),
   onActivity: (cb) => ipcRenderer.on('activity', (_e, payload) => cb(payload)),
   packs: () => ipcRenderer.invoke('packs:list'),
-  traced: () => ipcRenderer.invoke('faces:traced'),
+  faces: () => ipcRenderer.invoke('faces:list'),
   media: (command) => ipcRenderer.invoke('media:control', command),
   setMouseIgnore: (ignore) => ipcRenderer.send('mouse-ignore', ignore),
   openPanel: () => ipcRenderer.send('open-panel'),

@@ -98,8 +98,18 @@ body[data-state="needs"] .bang { display: block; }
 .hero g { display: none; }
 body.has-hero .hero { display: block; }
 body.has-hero .peng { background: transparent; }
-body.has-traced .eye { display: none; } /* a traced face has its own eyes */
-body.has-traced .hero { filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .55)); } /* dark faces (Batman, Black Panther) still stand out on the black notch */
+body.has-hero .eye { display: none; } /* the hero pictures draw their own eyes */
+/* Heroes blink: an eyelid in the face's own color closes over each eye now and then, and stays shut while he sleeps.
+   The built-in bots also look around with their pupils. */
+.hero .lid { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: lidBlink 4.2s ease-in-out infinite; }
+.hero .lid + .lid { animation-delay: .02s; }
+body[data-state="sleep"] .hero .lid { animation: none; transform: scaleY(1); }
+@keyframes lidBlink { 0%, 90%, 100% { transform: scaleY(0); } 93%, 95% { transform: scaleY(1); } }
+.hero .pupil { animation: lookAround 7s ease-in-out infinite; }
+body[data-state="sleep"] .hero .pupil { animation: none; }
+@keyframes lookAround { 0%, 22%, 100% { transform: translate(0, 0); } 30%, 46% { transform: translate(.6px, 0); } 56%, 72% { transform: translate(-.6px, .2px); } 80% { transform: translate(0, 0); } }
+@media (prefers-reduced-motion: reduce) { .hero .lid, .hero .pupil { animation: none; } }
+body.has-hero .hero { filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .55)); } /* dark faces (Batman, Black Panther) still stand out on the black notch */
 body.has-hero .peng::before, body.has-hero .peng::after, body.has-hero .fl, body.has-hero .beak { display: none; }
 /* the two eyes sit over each drawing's eye spots: size, spacing and tilt per hero */
 body[data-theme="ironman"] .peng { gap: 2.2px; }

@@ -4,252 +4,192 @@
 (function (root) {
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
-  // Shared look: a dark outline on every shape, plus a soft shade (bottom right) and gloss (top left) laid over the big shapes.
+  // Cartoon bots: a big round head, big eyes, a bold outline and a soft shine. Each hero's colors, mask, hair and helmet
+  // follow the reference picture. Eye whites are class "eyeball"; pupils (with their shine) are class "pupil": on the notch
+  // the pupils look around and lids close over the eyes to blink (style.css, LIDS below).
   // "__U__" is swapped for a number in markup(), so two pictures on one page never share a gradient name.
-  const O = ' stroke="#14141c" stroke-width=".55" stroke-linejoin="round" stroke-linecap="round"';
-  const vol = (d) => `<path d="${d}" fill="url(#hs__U__)"/><path d="${d}" fill="url(#hg__U__)"/>`;
-  const defs = (u) => `<defs><linearGradient id="hs${u}" x1="0" y1="0" x2="1" y2="1"><stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient><linearGradient id="hg${u}" x1="0" y1="0" x2=".7" y2=".9"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>`;
-  const shine = (d) => `<path d="${d}" stroke="#fff" stroke-opacity=".5" stroke-width=".9" fill="none" stroke-linecap="round"/>`;
-  const SKIN = '#efc29a';
-  const SKIN_DARK = '#d29c74';
-  // The men share a square, strong jaw: wide at the cheeks, sharp corners under the ears, a broad chin.
-  const HEAD = 'M12 2.6C8.6 2.6 6.4 5.2 6.4 9V14.6L7.2 19.4C7.4 21 8.4 22.2 9.6 22.8L12 23.4 14.4 22.8C15.6 22.2 16.6 21 16.8 19.4L17.6 14.6V9C17.6 5.2 15.4 2.6 12 2.6Z';
-  // A line along the jaw and a soft shadow under the cheekbones, so the jawline reads even in small sizes.
-  const JAW = '<path d="M7 16.4L8 19.6Q9.2 22 12 22.6 14.8 22 16 19.6L17 16.4" stroke="#a8754d" stroke-opacity=".75" stroke-width=".55" fill="none" stroke-linecap="round"/><path d="M6.6 13.6Q8.2 17 9.4 18.2M17.4 13.6Q15.8 17 14.6 18.2" stroke="#a8754d" stroke-opacity=".4" stroke-width=".7" fill="none" stroke-linecap="round"/>';
-  // Wonder Woman keeps a softer oval face.
-  const OVAL_HEAD = 'M12 2.6C8.4 2.6 6.4 5.4 6.4 9.2V14.2C6.4 19.2 8.8 22.8 12 23.2 15.2 22.8 17.6 19.2 17.6 14.2V9.2C17.6 5.4 15.6 2.6 12 2.6Z';
-  const ears = (fill = SKIN, y = 12.8) => `<ellipse cx="6.1" cy="${y}" rx="1.1" ry="1.8" fill="${fill}"${O}/><ellipse cx="17.9" cy="${y}" rx="1.1" ry="1.8" fill="${fill}"${O}/>`;
-  const nose = (y1 = 10.8, y2 = 14.6) => `<path d="M12 ${y1}V${y2}Q11.2 ${y2 + 0.8} 10.4 ${y2 + 0.4}" stroke="#b9855f" stroke-width=".6" fill="none" stroke-linecap="round"/>`;
+  const defs = (u) => `<defs><linearGradient id="hs${u}" x1="0" y1="0" x2="1" y2="1"><stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></linearGradient><linearGradient id="hg${u}" x1="0" y1="0" x2=".7" y2=".9"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>`; // used by character packs
+  const OL = ' stroke="#1b1410" stroke-width=".65" stroke-linejoin="round" stroke-linecap="round"';
+  const HEAD = 'M12 1.4C5.6 1.4 2.2 5.8 2.2 11.8c0 6.8 4.4 11.6 9.8 11.6s9.8-4.8 9.8-11.6C21.8 5.8 18.4 1.4 12 1.4Z';
+  const grad = (id, a, b, c) => `<radialGradient id="${id}__U__" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="${a}"/><stop offset=".6" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></radialGradient>`;
+  const paint = (id) => `url(#${id}__U__)`;
+  const SKIN = ['#ffd9b3', '#f2b787', '#d9925e'];
+  const SKIN_MID = SKIN[1];
+  const gloss = (d = 'M5.6 5.2Q7.8 2.9 10.8 2.5') => `<path d="${d}" stroke="#fff" stroke-opacity=".55" stroke-width=".9" fill="none" stroke-linecap="round"/>`;
+  // Two round cartoon eyes (at x 8 and 16) with pupils that can look around.
+  function eyes(pupil, { y = 13.2, rx = 2.1, ry = 2.3 } = {}) {
+    return [8, 16].map((cx) => `<ellipse class="eyeball" cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff"${OL}/>`).join('')
+      + [8, 16].map((cx) => `<circle class="pupil" cx="${cx + 0.35}" cy="${y + 0.35}" r="1.2" fill="${pupil}"/><circle class="pupil" cx="${cx + 0.75}" cy="${y - 0.15}" r=".42" fill="#fff"/>`).join('');
+  }
+  const blush = () => '<ellipse cx="5.4" cy="16.8" rx="1.4" ry=".8" fill="#f28b82" opacity=".45"/><ellipse cx="18.6" cy="16.8" rx="1.4" ry=".8" fill="#f28b82" opacity=".45"/>';
+  const smile = (y) => `<path d="M9.6 ${y}Q12 ${y + 2} 14.4 ${y}" stroke="#7a3b25" stroke-width=".75" fill="none" stroke-linecap="round"/>`;
+  const grin = (y) => `<path d="M8.8 ${y}Q12 ${y + 3.4} 15.2 ${y}Q12 ${y + 1} 8.8 ${y}Z" fill="#fff"${OL}/>`;
+  const ears = () => `<ellipse cx="2.3" cy="13" rx="1.4" ry="2" fill="${SKIN_MID}"${OL}/><ellipse cx="21.7" cy="13" rx="1.4" ry="2" fill="${SKIN_MID}"${OL}/>`;
 
-  const IRON_HELM = 'M12 -1.6C6.4 -1.6 3.4 2 3.2 7.5L3 15C3 19.8 6 23 9 24.6L12 25.6 15 24.6C18 23 21 19.8 21 15L20.8 7.5C20.6 2 17.6 -1.6 12 -1.6Z';
-  const IRON_PLATE = 'M5.4 5.4C5.4 2.8 8 .8 12 .8S18.6 2.8 18.6 5.4L19 13.5C19 17.8 17 20.8 14.8 22.4L12 23.6 9.2 22.4C7 20.8 5 17.8 5 13.5Z';
-  const SPIDER_HEAD = 'M12 -1.8C6.6 -1.8 3.2 2.8 3.2 9.6V15L6 21C7 23 9.4 24.4 12 24.4S17 23 18 21L20.8 15V9.6C20.8 2.8 17.4 -1.8 12 -1.8Z';
-  const DOOM_HOOD = 'M12 -1.8C6 -1.8 1.4 3.4 1.4 11V19C1.4 23 5.6 25.4 12 25.4S22.6 23 22.6 19V11C22.6 3.4 18 -1.8 12 -1.8Z';
-  const DOOM_MASK = 'M5.8 7C7.2 5.6 16.8 5.6 18.2 7V16L16.8 21C16 22.6 14 23.4 12 23.6S8 22.6 7.2 21L5.8 16Z';
-  const STRANGE_FACE = 'M7.4 8.2C7.4 4.6 9.4 3 12 3S16.6 4.6 16.6 8.2V14.4L16 19C15.6 20.6 14 21.8 12 22.2S8.4 20.6 8 19L7.4 14.4Z';
-  const HULK_FACE = 'M3 10.4C3 4.8 7 2.8 12 2.8S21 4.8 21 10.4V16L19 22C18 24 15 25 12 25S6 24 5 22L3 16Z';
-  const JOKER_FACE = 'M7 8.6C7 5 9.2 3.6 12 3.6S17 5 17 8.6V15L16.2 19.6C15.6 21.4 14 22.4 12 22.6S8.4 21.4 7.8 19.6L7 15Z';
-  const CAP_COWL = 'M12 -1.2C6.6 -1.2 3 2.6 3 8.6V14.6L4.6 20C5.6 22.4 8.4 24 12 24S18.4 22.4 19.4 20L21 14.6V8.6C21 2.6 17.4 -1.2 12 -1.2Z';
-  const CAP_FACE = 'M5.2 12.4C7.4 10.4 16.6 10.4 18.8 12.4V16.4L16.8 21C16 22.2 14 22.8 12 22.8S8 22.2 7.2 21L5.2 16.4Z';
-  const PANTHER_HEAD = 'M3.6 9.6C3.6 4.4 7.2 1.6 12 1.6S20.4 4.4 20.4 9.6V14L18.8 20.4C17.8 22.6 15 24.4 12 24.4S6.2 22.6 5.2 20.4L3.6 14Z';
-  const BAT_COWL = 'M12 1.8C6.6 1.8 3.6 5.6 3.6 11.2 3.6 17 4.8 20.6 7 23 8.6 24.6 10.2 25.2 12 25.2S15.4 24.6 17 23C19.2 20.6 20.4 17 20.4 11.2 20.4 5.6 17.4 1.8 12 1.8Z';
-  const BAT_JAW = 'M6.8 15C8.6 13.4 15.4 13.4 17.2 15L17 19.2C16.6 21.6 14.6 23 12 23.4 9.4 23 7.4 21.6 7 19.2Z';
-  const WOLF_COWL = 'M12 1.4C7.2 1.4 4.6 5 4.6 10V14C4.6 18.4 5.8 21 7.4 22.6 8.8 23.8 10.4 24.2 12 24.2S15.2 23.8 16.6 22.6C18.2 21 19.4 18.4 19.4 14V10C19.4 5 16.8 1.4 12 1.4Z';
-  const FLASH_COWL = 'M12 -1.4C6.4 -1.4 3.2 3 3.2 9.6V15L4.8 21C5.8 23.4 8.6 24.8 12 24.8S18.2 23.4 19.2 21L20.8 15V9.6C20.8 3 17.6 -1.4 12 -1.4Z';
-  const FLASH_FACE = 'M6.4 9.6C6.4 6.6 9 5.6 12 5.6S17.6 6.6 17.6 9.6V15L16.6 19.6C16 21.4 14.2 22.6 12 22.8S8 21.4 7.4 19.6L6.4 15Z';
-
-  // Each drawing fits a 24 by 24 face box; the picture window is -2 -2 28 28, so ears and fins can stick out.
+  // Each drawing fits a 24 by 24 face box; the picture window is -2 -2 28 28, so ears, wings and helmets can stick out.
   const DRAWINGS = {
-  ironman: `
-      <path d="${IRON_HELM}" fill="#b3121a"${O}/>${vol(IRON_HELM)}
-      <path d="${IRON_PLATE}" fill="#eab93a"${O}/>${vol(IRON_PLATE)}
-      <path d="M9.6 .8H14.4V7.2C14.4 7.9 13.9 8.4 13.2 8.4H10.8C10.1 8.4 9.6 7.9 9.6 7.2Z" fill="#b3121a"${O}/>
-      <path d="M5.8 10.6C9 9.4 15 9.4 18.2 10.6M6.4 15.6L9.4 21.6M17.6 15.6L14.6 21.6" stroke="#b88a1c" stroke-width=".55" fill="none"/>
-      <rect x="5.2" y="11.1" width="6.4" height="2.6" rx="1.3" transform="rotate(14 8.4 12.4)" fill="#3b4452" stroke="#14141c" stroke-width=".4"/>
-      <rect x="12.4" y="11.1" width="6.4" height="2.6" rx="1.3" transform="rotate(-14 15.6 12.4)" fill="#3b4452" stroke="#14141c" stroke-width=".4"/>
-      <path d="M7.6 19.2H16.4L14.6 21.2H9.4Z" fill="none" stroke="#7a5410" stroke-width=".6"/>
-      <path d="M9.4 23.2L12 24.8 14.6 23.2 12 22.6Z" fill="#b3121a"/>
-      ${shine('M5.4 5C6 2.6 8 1.2 10.4 .6')}
-    `,
-  captain: `
-      <path d="M3.4 9L.2 4.2 2.2 4.8 1 2 3.2 3.2 3 .6 5.6 4.4Z M20.6 9L23.8 4.2 21.8 4.8 23 2 20.8 3.2 21 .6 18.4 4.4Z" fill="#f1f5f9"${O}/>
-      <path d="${CAP_COWL}" fill="#1d4ed8"${O}/>${vol(CAP_COWL)}
-      <path d="${CAP_FACE}" fill="${SKIN}"${O}/>${vol(CAP_FACE)}
-      <rect x="3.9" y="6.9" width="6.2" height="4.2" rx="2.1" fill="#0b1a4a"/><rect x="13.9" y="6.9" width="6.2" height="4.2" rx="2.1" fill="#0b1a4a"/>
-      <path d="M12 -.6L13.2 2.2 16.2 2.4 13.9 4.3 14.6 7.2 12 5.6 9.4 7.2 10.1 4.3 7.8 2.4 10.8 2.2Z" fill="#ffffff"${O}/>
-      <path d="M12 11V14.6Q11.2 15.4 10.4 15" stroke="#b9855f" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <path d="M5.4 15L7.2 20.4Q8.6 22.6 12 22.8" stroke="#0b1a4a" stroke-width=".7" fill="none"/><path d="M18.6 15L16.8 20.4Q15.4 22.6 12 22.8" stroke="#0b1a4a" stroke-width=".7" fill="none"/>
-      <path d="M7.6 16.8Q8.6 20.4 9.8 21.2M16.4 16.8Q15.4 20.4 14.2 21.2" stroke="#a8754d" stroke-opacity=".45" stroke-width=".7" fill="none" stroke-linecap="round"/>
-      <path d="M9.6 18.2Q12 19.6 14.4 18.2" stroke="#8a5a3a" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      <path d="M11.4 21.4Q12 21.8 12.6 21.4" stroke="#a8754d" stroke-width=".5" fill="none" stroke-linecap="round"/>
-      ${shine('M5 5C6 2.4 8.4 .8 11 .4')}
-    `,
-  spiderman: `
-      <path d="${SPIDER_HEAD}" fill="#dc2626"${O}/>${vol(SPIDER_HEAD)}
-      <path d="M12 -1.8V9 M12 -1.8L5.2 5.6 M12 -1.8L8.4 7.6 M12 -1.8L15.6 7.6 M12 -1.8L18.8 5.6 M6 1.2Q12 3.8 18 1.2 M4.2 4.2Q12 7.8 19.8 4.2 M3.4 7.2Q12 11.4 20.6 7.2" stroke="#1a0404" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <path d="M12 12.6V24.4 M12 12.6L8 23.6 M12 12.6L16 23.6 M12 12.6L5 20.4 M12 12.6L19 20.4 M12 12.6L3.6 15.8 M12 12.6L20.4 15.8 M4.4 16.2Q12 19.2 19.6 16.2 M6 19.8Q12 22.8 18 19.8 M8.8 22.4Q12 24 15.2 22.4" stroke="#1a0404" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <path d="M3.8 8.6C6.2 7.6 10.2 9.4 11.4 12.6 8.6 13.8 5 12.6 3.8 8.6Z M20.2 8.6C17.8 7.6 13.8 9.4 12.6 12.6 15.4 13.8 19 12.6 20.2 8.6Z" fill="#0a0a0a" stroke="#0a0a0a" stroke-width=".9" stroke-linejoin="round"/>
-      <path d="M4.9 9.3C6.8 8.7 9.8 10.1 10.4 12 8.2 12.5 5.8 11.9 4.9 9.3Z M19.1 9.3C17.2 8.7 14.2 10.1 13.6 12 15.8 12.5 18.2 11.9 19.1 9.3Z" fill="#f8fafc"/>
-      ${shine('M5.2 6C6 3 8.4 1 11 .2')}
-    `,
-  strange: `
-      <path d="${STRANGE_FACE}" fill="${SKIN}"${O}/>${vol(STRANGE_FACE)}
-      <path d="M7.4 14.4L8 19C8.4 20.4 10 21.2 12 21.4 14 21.2 15.6 20.4 16 19L16.6 14.4C15.6 16 14 16.8 12 16.8S8.4 16 7.4 14.4Z" fill="#d8ae86"/>
-      <path d="M7.6 16L8.2 19Q9.4 21 12 21.4 14.6 21 15.8 19L16.4 16" stroke="#a8754d" stroke-opacity=".6" stroke-width=".5" fill="none" stroke-linecap="round"/>
-      <path d="M6.4 10.4C5.6 3.2 9 -1.4 14.2 -1.2 18.4 -1 19.6 2.4 18.6 8 17.8 5.2 15.4 3.4 12 3.6S8 5.6 7.6 9.8Z" fill="#33211a"${O}/>
-      <path d="M7.2 4.6C6.4 6.4 6.2 8.6 6.8 10.6L7.8 8.4Z M16.8 3.6C18 5 18.4 7.4 17.8 10.2L16.8 6Z" fill="#cbd2da"/>
-      <path d="M8.2 8.6L11 9.6M15.8 8.6L13 9.6" stroke="#2a1a12" stroke-width=".9" stroke-linecap="round" fill="none"/>
-      <path d="M12 10.6V14.6Q11 15.4 10.4 15.2M12 14.6Q13 15.4 13.6 15.2" stroke="#b98c68" stroke-width=".5" fill="none"/>
-      <path d="M9.2 17Q10.6 16.2 12 16.8 13.4 16.2 14.8 17 13.6 17.8 12 17.4 10.4 17.8 9.2 17Z" fill="#3b261b"/>
-      <path d="M10.2 17.8Q12 21.6 13.8 17.8 13.4 20 12 20.4 10.6 20 10.2 17.8Z" fill="#3b261b"/>
-    `,
-  doom: `
-      <path d="${DOOM_HOOD}" fill="#166534"${O}/>${vol(DOOM_HOOD)}
-      <path d="M3.6 18Q3 10 6.6 4 M20.4 18Q21 10 17.4 4" stroke="#2a9a4a" stroke-width=".6" fill="none"/>
-      <path d="M5 8C5.4 4 8.4 2.4 12 2.4S18.6 4 19 8V16.4C19 21.4 16 24 12 24S5 21.4 5 16.4Z" fill="#0d3a20"/>
-      <path d="${DOOM_MASK}" fill="#a8b2c0"${O}/>${vol(DOOM_MASK)}
-      <path d="M6 8.4L11.2 7.4 11 10.4 6.2 10.6Z M18 8.4L12.8 7.4 13 10.4 17.8 10.6Z" fill="#7b8696"/>
-      <path d="M6.8 9.8H10.8L10.4 12H7.4Z M17.2 9.8H13.2L13.6 12H16.6Z" fill="#101a24"/>
-      <path d="M11.2 12L12.8 12 13.4 17 12 17.6 10.6 17Z" fill="#8f99a8"/>
-      <path d="M12 5.8V8.2 M8.6 19.4H15.4 M9 20.8H15 M9.6 22.1H14.4" stroke="#566070" stroke-width=".8" fill="none"/>
-      <circle cx="7.2" cy="13.2" r=".45" fill="#5b6574"/><circle cx="16.8" cy="13.2" r=".45" fill="#5b6574"/><circle cx="7.4" cy="8.3" r=".4" fill="#5b6574"/><circle cx="16.6" cy="8.3" r=".4" fill="#5b6574"/>
-      ${shine('M6.6 7C8.4 6 10 5.8 11.4 5.8')}
-    `,
-  blackpanther: `
-      <path d="M4.6 8L3.6 -1.4 9.6 2.6Z M19.4 8L20.4 -1.4 14.4 2.6Z" fill="#17101f"${O}/>
-      <path d="M5.2 5.4L4.8 1 8 3.2Z M18.8 5.4L19.2 1 16 3.2Z" fill="#3b2a52"/>
-      <path d="${PANTHER_HEAD}" fill="#17101f"${O}/>${vol(PANTHER_HEAD)}
-      <path d="M5 11C5.4 16.4 8.2 21 12 23 15.8 21 18.6 16.4 19 11" stroke="#c9ced8" stroke-width=".45" fill="none"/>
-      <path d="M3.9 7.4L9.9 10.2M20.1 7.4L14.1 10.2M12 2V8.6M8.4 3.2L10.6 8.4M15.6 3.2L13.4 8.4" stroke="#c9ced8" stroke-width=".4" fill="none"/>
-      <path d="M12 12.4L10.6 14.6H13.4Z" fill="#2a2236"${O}/>
-      <path d="M9.6 18.6H14.4" stroke="#3b3448" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <path d="M7.2 24.2L8.2 26 9.2 24.4Z M10.6 24.8L11.4 26 12.2 24.8Z M12.8 24.8L13.6 26 14.4 24.4Z M14.8 24.4L15.8 26 16.8 24.2Z" fill="#e5e7eb"/>
-      ${shine('M6.4 4.4C8 2.8 10 2.4 11.6 2.6')}
-    `,
-  hulk: `
-      <path d="M3.8 11L1.2 9.6Q.4 13.6 3.8 16Z M20.2 11L22.8 9.6Q23.6 13.6 20.2 16Z" fill="#69a524"${O}/>
-      <path d="${HULK_FACE}" fill="#7cc42c"${O}/>${vol(HULK_FACE)}
-      <path d="M3 12.4C4.2 16.4 6 19.4 8.8 21.6 6 23.6 3 21 3 15.8Z M21 12.4C19.8 16.4 18 19.4 15.2 21.6 18 23.6 21 21 21 15.8Z" fill="#5b981c"/>
-      <path d="M2.8 11.6C1.4 7 2.8 2.8 6 .6 6.4 1.8 7.4 2.4 8.6 2.2 9.4 -.6 11 -1.8 12.6 -1.2 13.6 -1.8 15.4 -1.2 15.8 1.6 17.2 0 19.2 .8 18.8 2.8 20.8 3.2 22.4 6.4 21.2 11.6 20.4 8.8 19 7.2 16.8 6.8 15.4 5.6 13.4 5.4 12 6.4 10.4 5.2 8.2 5.6 7 7 5 7.6 3.8 9.2 2.8 11.6Z" fill="#20271a"${O}/>
-      <path d="M4 9.2Q8 7.6 11.8 10.8L11.4 12.4Q8 10.4 4.4 11.6Z M20 9.2Q16 7.6 12.2 10.8L12.6 12.4Q16 10.4 19.6 11.6Z" fill="#2f5a0e"/>
-      <path d="M11.2 8.8L11.7 10.4M12.8 8.8L12.3 10.4M9 7.4Q12 6.4 15 7.4" stroke="#3d6b12" stroke-width=".5" fill="none" stroke-linecap="round"/>
-      <path d="M11.2 11.8H12.8L13.8 15.6Q12 16.8 10.2 15.6Z" fill="#639e20"/>
-      <ellipse cx="10.9" cy="15.6" rx=".7" ry=".5" fill="#2f5a0e"/><ellipse cx="13.1" cy="15.6" rx=".7" ry=".5" fill="#2f5a0e"/>
-      <path d="M6.6 18Q12 16.4 17.4 18 16.8 21.2 12 21.4 7.2 21.2 6.6 18Z" fill="#2b1212"${O}/>
-      <path d="M7.4 18.3Q12 17.1 16.6 18.3V20.1Q12 20.9 7.4 20.1Z" fill="#f4f1dc"/>
-      <path d="M7.6 19.2H16.4M9.4 17.9V20.5M12 17.6V20.8M14.6 17.9V20.5" stroke="#2b1212" stroke-width=".35" fill="none"/>
-    `,
-  thor: `
-      <path d="M4.4 10C3.2 16 3.6 21 5.4 25.4L8.2 22V11Z M19.6 10C20.8 16 20.4 21 18.6 25.4L15.8 22V11Z" fill="#f2c53a"${O}/>
-      <path d="M5.6 7.4L1.6 6.4 3.4 4.6 -.4 2.8 2.2 1.4 -.2 -1 3.6 -.4 2.8 -2.4 6.2 -.8 7 2.8Z" fill="#f1f5f9"${O}/>
-      <path d="M18.4 7.4L22.4 6.4 20.6 4.6 24.4 2.8 21.8 1.4 24.2 -1 20.4 -.4 21.2 -2.4 17.8 -.8 17 2.8Z" fill="#f1f5f9"${O}/>
-      <path d="M7.2 8.8H16.8V15L16.2 20C15.6 22 14 23 12 23.2S8.4 22 7.8 20L7.2 15Z" fill="${SKIN}"${O}/>
-      <path d="M6.6 13V19.4C6.6 22.2 9 24.6 12 25.2S17.4 22.2 17.4 19.4V13C16 16.6 14.2 17.8 12 17.8S8 16.6 6.6 13Z" fill="#e0b02f"${O}/>
-      <path d="M5.2 9.2C5.2 3 8 -.4 12 -.4S18.8 3 18.8 9.2Z" fill="#9aa6b8"${O}/>${vol('M5.2 9.2C5.2 3 8 -.4 12 -.4S18.8 3 18.8 9.2Z')}
-      <path d="M5.2 6.8Q12 9 18.8 6.8V9.6Q12 11.8 5.2 9.6Z" fill="#cbd5e1"${O}/>
-      <path d="M12 -.2V6.6" stroke="#64748b" stroke-width=".5"/>
-      <path d="M8 11.2L11 11.6M16 11.2L13 11.6" stroke="#6b4a1a" stroke-width=".9" stroke-linecap="round" fill="none"/>
-      <path d="M12 12.4V15Q11.4 15.6 10.8 15.4" stroke="#b9855f" stroke-width=".5" fill="none"/>
-      <path d="M9.6 18.4Q12 20.8 14.4 18.4Q12 19.2 9.6 18.4Z" fill="#ffffff" stroke="#5a3d12" stroke-width=".5" stroke-linejoin="round"/>
-      ${shine('M6.6 5.6C7.6 3 9.4 1.2 11.2 .6')}
-    `,
-  wolverine: `
-      <path d="M5 10L.8 -4.4 9.8 2.4Z M19 10L23.2 -4.4 14.2 2.4Z" fill="#20202a"${O}/>
-      <path d="${WOLF_COWL}" fill="#facc15"${O}/>${vol(WOLF_COWL)}
-      <path d="M4.6 13.6V14C4.6 18.4 5.8 21 7.4 22.6 8.8 23.8 10.4 24.2 12 24.2S15.2 23.8 16.6 22.6C18.2 21 19.4 18.4 19.4 14L16.8 17V20C16.8 22.4 14.8 23.8 12 23.8S7.2 22.4 7.2 20V17Z" fill="#20202a"${O}/>
-      <path d="M4.8 9.6C8 8.4 10.6 9.8 12 12 13.4 9.8 16 8.4 19.2 9.6 19.4 12.4 17.8 15.2 14.8 15 13.6 14.4 12.6 13.8 12 13.2 11.4 13.8 10.4 14.4 9.2 15 6.2 15.2 4.6 12.4 4.8 9.6Z" fill="#20202a"${O}/>
-      <path d="M7.2 17C8.8 15.8 15.2 15.8 16.8 17V20C16.8 22.4 14.8 23.8 12 23.8S7.2 22.4 7.2 20Z" fill="${SKIN}"/>
-      <path d="M9.8 21.1Q12 20.1 14.2 21.1" stroke="#7a4a30" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      <path d="M12 15.8V17.6" stroke="#b9855f" stroke-width=".5"/>
-      <path d="M9 21.6H15 M8.4 18.8V20.6 M15.6 18.8V20.6" stroke="#8a6a50" stroke-width=".35" stroke-dasharray=".5 .6" fill="none"/>
-      ${shine('M7 5.4C8 3.6 9.6 2.6 11.4 2.4')}
-    `,
-  batman: `
-      <path d="M4.6 9.4L3.4 -3.2 9.6 2.8Z M19.4 9.4L20.6 -3.2 14.4 2.8Z" fill="#191c24"${O}/>
-      <path d="${BAT_COWL}" fill="#1f232d"${O}/>${vol(BAT_COWL)}
-      <path d="${BAT_JAW}" fill="${SKIN}"/>${vol(BAT_JAW)}
-      <path d="M7.2 16.6L8 19.8Q9.2 22.4 12 22.8 14.8 22.4 16 19.8L16.8 16.6" stroke="#8a5a3a" stroke-opacity=".7" stroke-width=".55" fill="none" stroke-linecap="round"/>
-      <path d="M10.4 14.4L12 12.6 13.6 14.4" stroke="#0b1020" stroke-width=".6" fill="none"/>
-      <path d="M4.6 8.4L10.8 11.6 M19.4 8.4L13.2 11.6" stroke="#0b1020" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-      <path d="M9.8 19.6Q12 19.2 14.2 19.6" stroke="#6e4630" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      <path d="M11.4 22.2H12.6" stroke="#b9855f" stroke-width=".5"/>
-      ${shine('M6.4 5.2C8.4 3.4 10.6 2.8 12 3')}
-    `,
-  superman: `
-      <path d="M-.5 26L2 18.5 7.6 21.6 6 26Z M24.5 26L22 18.5 16.4 21.6 18 26Z" fill="#b91c1c"${O}/>
-      <path d="M1 26C2 22.5 6 21.6 8.6 21.4L12 24 15.4 21.4C18 21.6 22 22.5 23 26Z" fill="#1d4ed8"${O}/>
-      <path d="M12 23.6L13.9 24.9 12 26.2 10.1 24.9Z" fill="#facc15" stroke="#b91c1c" stroke-width=".4"/>
-      <path d="M8.6 20V23.4L12 24.6 15.4 23.4V20Z" fill="${SKIN_DARK}"${O}/>
+  ironman: `<defs>${grad('ir', '#ff5b4f', '#d3191b', '#8f0d10')}${grad('ig', '#ffe58a', '#f2bb34', '#c98912')}</defs>
+      <path d="${HEAD}" fill="${paint('ir')}"${OL}/>
+      <path d="M4.6 8.6Q12 6.2 19.4 8.6L19 15.6Q17.8 21.8 12 22.6 6.2 21.8 5 15.6Z" fill="${paint('ig')}"${OL}/>
+      <path d="M9.6 1.8H14.4V7.6L12 8.6 9.6 7.6Z" fill="${paint('ir')}"${OL}/>
+      <path class="eyeball" d="M5.6 12.3L10.6 12.9 10.2 14.5 6 13.9Z" fill="#e8fbff" stroke="#38bdf8" stroke-width=".6" stroke-linejoin="round"/>
+      <path class="eyeball" d="M18.4 12.3L13.4 12.9 13.8 14.5 18 13.9Z" fill="#e8fbff" stroke="#38bdf8" stroke-width=".6" stroke-linejoin="round"/>
+      <path d="M8.6 19.2H15.4L14.2 20.6H9.8Z" fill="#a8740e" opacity=".75"/>
+      <path d="M6 16.4L8.6 20.4M18 16.4L15.4 20.4" stroke="#a8740e" stroke-width=".5" fill="none"/>
+      ${gloss()}`,
+  captain: `<defs>${grad('cb', '#5b8cff', '#1d4ed8', '#122f8a')}${grad('sk', ...SKIN)}</defs>
+      <path d="M3.2 9.6L.2 5.4 2.4 5.8 1.4 3 3.6 4.4 3.6 1.6 5.8 6.2Z M20.8 9.6L23.8 5.4 21.6 5.8 22.6 3 20.4 4.4 20.4 1.6 18.2 6.2Z" fill="#f8fafc"${OL}/>
+      <path d="${HEAD}" fill="${paint('cb')}"${OL}/>
+      <path d="M4.4 14.6Q12 12.4 19.6 14.6Q19.2 21.8 12 23.2 4.8 21.8 4.4 14.6Z" fill="${paint('sk')}"${OL}/>
+      <path d="M12 2.6L13.1 5.2 15.9 5.4 13.7 7.2 14.4 9.9 12 8.4 9.6 9.9 10.3 7.2 8.1 5.4 10.9 5.2Z" fill="#fff"${OL}/>
+      ${eyes('#1e40af', { y: 12, ry: 2 })}
+      ${smile(18.2)}
+      ${gloss()}`,
+  spiderman: `<defs>${grad('sr', '#ff5a4e', '#e0201c', '#a50f12')}</defs>
+      <path d="M12 .6C5.6.6 2.4 5.2 2.4 11.2c0 6.8 4.2 12.2 9.6 12.2s9.6-5.4 9.6-12.2C21.6 5.2 18.4.6 12 .6Z" fill="${paint('sr')}" stroke="#2a0606" stroke-width=".7"/>
+      <path d="M12 .8V23.2M12 12L4 5.4M12 12L20 5.4M12 12L2.8 13M12 12L21.2 13M12 12L5.2 20.4M12 12L18.8 20.4M8.6 3.2Q12 5 15.4 3.2M5.4 6.8Q12 10.4 18.6 6.8M3.6 11.6Q12 15.4 20.4 11.6M4.6 17Q12 20.8 19.4 17" fill="none" stroke="#7a0b0b" stroke-width=".35" stroke-linecap="round"/>
+      <path class="eyeball" d="M3.4 9.2C5.8 7.6 10 9.4 11 13.6 8.4 15.8 4.6 14.6 3.4 9.2Z" fill="#fff" stroke="#111" stroke-width="1.1" stroke-linejoin="round"/>
+      <path class="eyeball" d="M20.6 9.2C18.2 7.6 14 9.4 13 13.6 15.6 15.8 19.4 14.6 20.6 9.2Z" fill="#fff" stroke="#111" stroke-width="1.1" stroke-linejoin="round"/>
+      ${gloss('M5.2 4.6Q7.4 2.4 10.4 2')}`,
+  strange: `<defs>${grad('sk', ...SKIN)}</defs>
+      <path d="M2.6 23.4L1.2 13.4 4.4 9 6.6 19Z M21.4 23.4L22.8 13.4 19.6 9 17.4 19Z" fill="#b91c1c"${OL}/>
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M2.6 11.6C1.6 4.6 6 .4 12.4.4 18.6.4 22.6 4.6 21.4 11.4 20.6 8.4 19.4 6.6 17.6 6 15.4 5.2 13 6.2 12 7.6 10.6 5.6 7.6 5 5.4 6.4 3.8 7.6 3 9.4 2.6 11.6Z" fill="#2a1a12"${OL}/>
+      <path d="M2.8 10.6Q3 8 4.6 6.8L5.2 9.6Z M21.2 10.6Q21 8 19.4 6.8L18.8 9.6Z" fill="#cfd5dc"/>
+      <path d="M5.8 10.2L10 10.8M18.2 10.2L14 10.8" stroke="#2a1a12" stroke-width=".9" stroke-linecap="round"/>
+      ${eyes('#3b5b7a', { y: 13 })}
+      <path d="M8.6 17.6Q12 16.2 15.4 17.6 14.6 18.4 12 17.9 9.4 18.4 8.6 17.6Z" fill="#2a1a12"/>
+      <path d="M10.8 18.7H13.2" stroke="#7a3b25" stroke-width=".5" stroke-linecap="round"/>
+      <path d="M10.4 19.3Q12 18.9 13.6 19.3L12.8 22.4 12 23 11.2 22.4Z" fill="#2a1a12"/>`,
+  hulk: `<defs>${grad('hu', '#9be35a', '#5fb02c', '#3b7a18')}</defs>
+      <ellipse cx="1.8" cy="13" rx="1.6" ry="2.2" fill="#5fb02c" stroke="#1d3a0c" stroke-width=".6"/>
+      <ellipse cx="22.2" cy="13" rx="1.6" ry="2.2" fill="#5fb02c" stroke="#1d3a0c" stroke-width=".6"/>
+      <path d="M12 1.6C5.4 1.6 1.8 5.8 1.8 11.8c0 6.8 4.4 11.6 10.2 11.6s10.2-4.8 10.2-11.6C22.2 5.8 18.6 1.6 12 1.6Z" fill="${paint('hu')}" stroke="#1d3a0c" stroke-width=".7"/>
+      <path d="M2 10.4C1.4 4.6 5.4.2 11.6.2 18.6.2 22.8 4.8 22 10.6 21 8.2 19.6 7.2 18 7.6 17.6 5.8 16.2 5.6 15 6.6 14.4 5 13 4.8 12 6 11 4.8 9.4 5 8.8 6.6 7.8 5.6 6.2 5.8 5.8 7.6 4.2 7.2 2.8 8.2 2 10.4Z" fill="#141a10" stroke="#0a0d08" stroke-width=".5"/>
+      <path d="M4.6 9.8L10.6 11.4M19.4 9.8L13.4 11.4" stroke="#1f3d0d" stroke-width="1.6" stroke-linecap="round"/>
+      <ellipse class="eyeball" cx="8" cy="13.4" rx="2.3" ry="2" fill="#fff" stroke="#1d3a0c" stroke-width=".5"/>
+      <ellipse class="eyeball" cx="16" cy="13.4" rx="2.3" ry="2" fill="#fff" stroke="#1d3a0c" stroke-width=".5"/>
+      <circle class="pupil" cx="8.5" cy="13.8" r="1.15" fill="#2a1a10"/><circle class="pupil" cx="15.5" cy="13.8" r="1.15" fill="#2a1a10"/>
+      <circle class="pupil" cx="8.9" cy="13.3" r=".38" fill="#fff"/><circle class="pupil" cx="15.9" cy="13.3" r=".38" fill="#fff"/>
+      <path d="M8.4 11.6L10.8 12.2M15.6 11.6L13.2 12.2" stroke="#1f3d0d" stroke-width="1" stroke-linecap="round"/>
+      <path d="M8.2 18.4Q12 17 15.8 18.4V19.6Q12 21 8.2 19.6Z" fill="#fff" stroke="#1d3a0c" stroke-width=".55" stroke-linejoin="round"/>
+      <path d="M10.1 17.9V20M12 17.6V20.3M13.9 17.9V20M8.4 19H15.6" stroke="#1d3a0c" stroke-width=".3"/>
+      <ellipse cx="5.4" cy="16.6" rx="1.3" ry=".7" fill="#3f8a1c" opacity=".6"/><ellipse cx="18.6" cy="16.6" rx="1.3" ry=".7" fill="#3f8a1c" opacity=".6"/>`,
+  thor: `<defs>${grad('sk', ...SKIN)}${grad('hm', '#f1f5f9', '#b6c0cc', '#7d8896')}</defs>
+      <path d="M2 11C1.2 18 2.2 22.6 4.6 24.4L7 19.2Z M22 11C22.8 18 21.8 22.6 19.4 24.4L17 19.2Z" fill="#f2c94c"${OL}/>
+      <path d="M4.2 7.6L-.6 2.6 1.6 3 .2-.6 3 1.4 2.8-1.8 6.4 4Z M19.8 7.6L24.6 2.6 22.4 3 23.8-.6 21 1.4 21.2-1.8 17.6 4Z" fill="#f1f5f9"${OL}/>
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M2.6 10.4C2.6 4.4 6.6.6 12 .6S21.4 4.4 21.4 10.4Z" fill="${paint('hm')}"${OL}/>
+      <path d="M2.6 9.2Q12 11.4 21.4 9.2V10.8Q12 13 2.6 10.8Z" fill="#cbd5e1"${OL}/>
+      <path d="M12 .8V8.6" stroke="#7d8896" stroke-width=".8"/>
+      <path d="M2.6 10.8C2.4 14 3 17 4.4 19L6 12.4Z M21.4 10.8C21.6 14 21 17 19.6 19L18 12.4Z" fill="#f2c94c"${OL}/>
+      <path d="M6 11.8L9.8 12.2M18 11.8L14.2 12.2" stroke="#c7962a" stroke-width=".9" stroke-linecap="round"/>
+      ${eyes('#2563eb', { y: 13.8, ry: 2 })}
+      <path d="M4.6 15.6C5 21 8 24 12 24.4S19 21 19.4 15.6C17.8 18.4 15.4 19.4 12 19.4S6.2 18.4 4.6 15.6Z" fill="#e8b93a"${OL}/>
+      <path d="M8.4 17.6Q12 16 15.6 17.6 14.4 18.6 12 18.1 9.6 18.6 8.4 17.6Z" fill="#e8b93a"${OL}/>
+      <path d="M9.4 18.4Q12 20.8 14.6 18.4Q12 19.2 9.4 18.4Z" fill="#fff" stroke="#7a5410" stroke-width=".5" stroke-linejoin="round"/>
+      ${gloss('M5.4 4.6Q7.6 2.4 10.6 2')}`,
+  blackpanther: `<defs>${grad('bp', '#3b3550', '#17141f', '#07060a')}</defs>
+      <path d="M4.2 7.4L3.2.2 8.6 3.4Z M19.8 7.4L20.8.2 15.4 3.4Z" fill="#17141f"${OL}/>
+      <path d="M4.8 5.6L4.4 1.8 7.2 3.6Z M19.2 5.6L19.6 1.8 16.8 3.6Z" fill="#7c3aed"/>
+      <path d="${HEAD}" fill="${paint('bp')}"${OL}/>
+      <path d="M12 3V9.4M8 3.6Q9.4 7 10.8 9.6M16 3.6Q14.6 7 13.2 9.6M3.6 10.6Q7 11.6 9.4 13.8M20.4 10.6Q17 11.6 14.6 13.8M5.2 16.4Q8.4 19.6 12 21.6 15.6 19.6 18.8 16.4M9.2 15.8Q12 17.4 14.8 15.8" stroke="#a78bfa" stroke-width=".55" fill="none" stroke-linecap="round"/>
+      <path class="eyeball" d="M5 12.2Q8 11 10.6 13.4 8 14.6 5 12.2Z" fill="#fff" stroke="#c4b5fd" stroke-width=".5"/>
+      <path class="eyeball" d="M19 12.2Q16 11 13.4 13.4 16 14.6 19 12.2Z" fill="#fff" stroke="#c4b5fd" stroke-width=".5"/>
+      ${gloss()}`,
+  doom: `<defs>${grad('dh', '#3aa35f', '#166534', '#0b3b1e')}${grad('dm', '#e2e8f0', '#a3afbf', '#6b7787')}</defs>
+      <path d="M12-.6C5-.6.8 4.6.8 11.8c0 7.4 4.6 12.4 11.2 12.4s11.2-5 11.2-12.4C23.2 4.6 19-.6 12-.6Z" fill="${paint('dh')}"${OL}/>
+      <path d="M12 2.4C6.6 2.4 3.8 6.4 3.8 11.8c0 6 3.6 10.2 8.2 10.2s8.2-4.2 8.2-10.2C20.2 6.4 17.4 2.4 12 2.4Z" fill="#082a15"/>
+      <path d="M12 4C7.6 4 5.4 7.2 5.4 11.8c0 5.4 2.8 9.4 6.6 9.4s6.6-4 6.6-9.4C18.6 7.2 16.4 4 12 4Z" fill="${paint('dm')}"${OL}/>
+      <path d="M5.8 10.6Q12 8.6 18.2 10.6" stroke="#5b6574" stroke-width=".7" fill="none"/>
+      <path class="eyeball" d="M6.6 11.8H10.6L10.2 13.4H7.2Z" fill="#0f172a"/>
+      <path class="eyeball" d="M17.4 11.8H13.4L13.8 13.4H16.8Z" fill="#0f172a"/>
+      <ellipse class="pupil" cx="8.6" cy="12.6" rx="1.1" ry=".45" fill="#67e8f9"/><ellipse class="pupil" cx="15.4" cy="12.6" rx="1.1" ry=".45" fill="#67e8f9"/>
+      <path d="M12 11V16" stroke="#7b8696" stroke-width="1"/>
+      <path d="M9 18H15M9.4 19.4H14.6M10 20.6H14" stroke="#4b5563" stroke-width=".6"/>
+      <circle cx="7" cy="16" r=".45" fill="#5b6574"/><circle cx="17" cy="16" r=".45" fill="#5b6574"/>
+      ${gloss('M6.8 6.6Q8.8 4.8 11.2 4.6')}`,
+  wolverine: `<defs>${grad('wy', '#ffe066', '#f5c400', '#c99700')}${grad('sk', ...SKIN)}</defs>
+      <path d="M5.6 11L1.4-2.6 9.4 3.6Z M18.4 11L22.6-2.6 14.6 3.6Z" fill="#1f2937"${OL}/>
+      <path d="${HEAD}" fill="${paint('wy')}"${OL}/>
+      <path d="M2.4 10.4Q6 9.2 10.8 12.6L11 15.4Q7 15.8 3 14.6Z M21.6 10.4Q18 9.2 13.2 12.6L13 15.4Q17 15.8 21 14.6Z" fill="#1f2937"/>
+      <path d="M5 15.6Q12 14 19 15.6Q18.6 22 12 23.2 5.4 22 5 15.6Z" fill="${paint('sk')}"${OL}/>
+      <path d="M5 15.6Q4.6 19.4 6.8 21.6L7.6 17Z M19 15.6Q19.4 19.4 17.2 21.6L16.4 17Z" fill="#3a2a1c"/>
+      <path class="eyeball" d="M5.2 12.4L9.8 13.4 9.4 14.4 5.6 13.6Z" fill="#fff"/>
+      <path class="eyeball" d="M18.8 12.4L14.2 13.4 14.6 14.4 18.4 13.6Z" fill="#fff"/>
+      <path d="M9.8 20Q12 19 14.2 20" stroke="#7a3b25" stroke-width=".75" fill="none" stroke-linecap="round"/>
+      ${gloss()}`,
+  batman: `<defs>${grad('bc', '#4b5563', '#1f2937', '#0b0f16')}${grad('sk', ...SKIN)}</defs>
+      <path d="M4.4 8.4L3.6-1.8 8.8 3.4Z M19.6 8.4L20.4-1.8 15.2 3.4Z" fill="#1f2937"${OL}/>
+      <path d="${HEAD}" fill="${paint('bc')}"${OL}/>
+      <path d="M5.2 15.4Q8.4 14.2 10.6 15.6L12 14.6 13.4 15.6Q15.6 14.2 18.8 15.4Q18.4 22 12 23.2 5.6 22 5.2 15.4Z" fill="${paint('sk')}"${OL}/>
+      <path d="M5 10.8L10.4 12.2M19 10.8L13.6 12.2" stroke="#0b0f16" stroke-width=".9" stroke-linecap="round"/>
+      <path class="eyeball" d="M5.4 11.6L10 12.8 9.4 13.8 5.8 13Z" fill="#fff"/>
+      <path class="eyeball" d="M18.6 11.6L14 12.8 14.6 13.8 18.2 13Z" fill="#fff"/>
+      <path d="M10 19.6H14" stroke="#7a3b25" stroke-width=".75" stroke-linecap="round"/>
+      ${gloss()}`,
+  superman: `<defs>${grad('sk', ...SKIN)}</defs>
       ${ears()}
-      <path d="${HEAD}" fill="${SKIN}"${O}/>${vol(HEAD)}${JAW}
-      <path d="M11.4 21.2Q12 21.7 12.6 21.2" stroke="#a8754d" stroke-width=".5" fill="none" stroke-linecap="round"/>
-      <path d="M6 10.6C4.8 4 8.4 -.6 13.2 -.4 18 -.2 19.4 4 18 10.6 17.8 8 16.6 6.2 14.4 5.4 13.2 5 11.6 5.2 10.4 5.8 8.4 6.6 6.8 8.2 6 10.6Z" fill="#1b2236"${O}/>
-      <path d="M13.2 5C11.6 5.2 11 6.8 11.8 8.4 12.4 7 13.6 6.4 14.6 6.6" stroke="#14141c" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      <path d="M7.6 8.6Q9.4 7.6 11 8.8M13 8.8Q14.6 7.6 16.4 8.6" stroke="#14141c" stroke-width=".9" fill="none" stroke-linecap="round"/>
-      ${nose()}
-      <path d="M9.4 17.6Q12 20.4 14.6 17.6Q12 18.5 9.4 17.6Z" fill="#ffffff" stroke="#9a4a3a" stroke-width=".55" stroke-linejoin="round"/>
-      ${shine('M8 3.2C9.4 1.6 11.4 1 13 1.2')}
-    `,
-  wonderwoman: `
-      <path d="M3.4 14C3 6 6.4 .6 12 .6S21 6 20.6 14C20.6 19 21.6 23 19 26 17.4 25.4 17 22.6 16.8 18L15.8 15.4 8.2 15.4 7.2 18C7 22.6 6.6 25.4 5 26 2.4 23 3.4 19 3.4 14Z" fill="#1d1814"${O}/>
-      <path d="M4.6 14Q3.8 19 5.6 23.4M19.4 14Q20.2 19 18.4 23.4" stroke="#5a4636" stroke-width=".6" fill="none" stroke-linecap="round"/>
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M2.6 11.4C1.6 4.6 6 .6 12.2.6 18.4.6 22.4 4.6 21.4 11.2 20.6 8 19 6.4 16.6 5.8 14.6 5.4 12.6 5.8 11.2 6.6 9 7.4 6.6 7.4 4.4 8.6 3.4 9.4 2.8 10.4 2.6 11.4Z" fill="#141b2d"${OL}/>
+      <path d="M12.6 6.4C11 6.8 10.6 8.6 11.6 9.6 12 8.6 12.8 8.2 13.6 8.4" stroke="#141b2d" stroke-width=".9" fill="none" stroke-linecap="round"/>
+      <path d="M5.8 10.6Q8 9.6 10.2 10.6M13.8 10.6Q16 9.6 18.2 10.6" stroke="#141b2d" stroke-width=".9" fill="none" stroke-linecap="round"/>
+      ${eyes('#2563eb')}
+      ${grin(17.8)}
+      <path d="M11.4 21.6Q12 22.1 12.6 21.6" stroke="#b9855f" stroke-width=".5" fill="none" stroke-linecap="round"/>`,
+  wonderwoman: `<defs>${grad('sk', ...SKIN)}</defs>
+      <path d="M2.2 12C1.4 4.8 6 .4 12 .4S22.6 4.8 21.8 12C21.6 17.6 22.8 21.6 20.8 24.6 19 23.6 18.6 20.6 18.6 17.4L5.4 17.4C5.4 20.6 5 23.6 3.2 24.6 1.2 21.6 2.4 17.6 2.2 12Z" fill="#14110f"${OL}/>
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M3.4 11C3.6 5.4 7.4 2.6 12 2.6S20.4 5.4 20.6 11C19.4 7.4 16.4 5.8 12 5.8S4.6 7.4 3.4 11Z" fill="#14110f"${OL}/>
+      <path d="M5 7.4Q12 3.6 19 7.4L18.4 8.8Q12 5.8 5.6 8.8Z" fill="#f2c230"${OL}/>
+      <path d="M12 3.6L12.7 5.2 14.4 5.3 13.1 6.4 13.5 8 12 7.1 10.5 8 10.9 6.4 9.6 5.3 11.3 5.2Z" fill="#dc2626" stroke="#7f1d1d" stroke-width=".3"/>
+      <path d="M6 10Q8 8.8 10.2 9.8M13.8 9.8Q16 8.8 18 10" stroke="#14110f" stroke-width=".6" fill="none" stroke-linecap="round"/>
+      ${eyes('#2563eb')}
+      <path d="M5.9 11.6L4.9 10.8M5.9 12.3L4.8 11.9M18.1 11.6L19.1 10.8M18.1 12.3L19.2 11.9" stroke="#14110f" stroke-width=".6" stroke-linecap="round"/>
+      ${blush()}
+      <path d="M10.2 18.6Q11.1 18 12 18.4 12.9 18 13.8 18.6 13 19.9 12 20 11 19.9 10.2 18.6Z" fill="#dc2626" stroke="#7f1d1d" stroke-width=".3"/>
+      <circle cx="2.6" cy="16" r=".7" fill="#f2c230" stroke="#7a5410" stroke-width=".3"/><circle cx="21.4" cy="16" r=".7" fill="#f2c230" stroke="#7a5410" stroke-width=".3"/>`,
+  flash: `<defs>${grad('fr', '#ff5b4f', '#d3191b', '#8f0d10')}${grad('sk', ...SKIN)}</defs>
+      <path d="M2.6 9.4L-1.6 7 .6 9.2-2 10.6 1.4 11.6-.4 13.6 2.8 13.2Z M21.4 9.4L25.6 7 23.4 9.2 26 10.6 22.6 11.6 24.4 13.6 21.2 13.2Z" fill="#facc15"${OL}/>
+      <path d="${HEAD}" fill="${paint('fr')}"${OL}/>
+      <path d="M5 15Q12 13.4 19 15Q18.6 22 12 23.2 5.4 22 5 15Z" fill="${paint('sk')}"${OL}/>
+      <circle cx="12" cy="4.6" r="1.9" fill="#facc15"${OL}/>
+      <path d="M12.5 3.2L11 5H12.2L11.6 6.2 13.2 4.4H12Z" fill="#dc2626"/>
+      ${eyes('#1d4ed8', { y: 11.8, ry: 2 })}
+      <path d="M9.6 18.6Q12.6 20.2 14.6 18.2" stroke="#7a3b25" stroke-width=".75" fill="none" stroke-linecap="round"/>
+      ${gloss()}`,
+  aquaman: `<defs>${grad('sk', '#f2c08f', '#d99a62', '#b9763f')}</defs>
+      <path d="M1.8 12C1 4.6 5.8.2 12 .2S23 4.6 22.2 12C22 17.6 23.4 21.6 21 24.6 19 23 18.4 19.8 18.4 16.6H5.6C5.6 19.8 5 23 3 24.6.6 21.6 2 17.6 1.8 12Z" fill="#3b2416"${OL}/>
+      <path d="M3.4 14Q2.6 18 4.2 22M20.6 14Q21.4 18 19.8 22M5.4 3.6Q8 2 11 2.4" stroke="#6b4a30" stroke-width=".6" fill="none" stroke-linecap="round"/>
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M3.4 11.4C3.4 5.6 7 2.6 12 2.6S20.6 5.6 20.6 11.4C19.6 7.6 17 6 14.4 5.8L12 7.2 9.6 5.8C7 6 4.4 7.6 3.4 11.4Z" fill="#3b2416"${OL}/>
+      <path d="M5.6 10.2L10.2 11.2M18.4 10.2L13.8 11.2" stroke="#24160e" stroke-width="1.1" stroke-linecap="round"/>
+      ${eyes('#4d6b1a')}
+      <path d="M4.4 14.8C4.8 20.6 8 24.2 12 24.6S19.2 20.6 19.6 14.8C18 17.6 15.4 18.4 12 18.4S6 17.6 4.4 14.8Z" fill="#2e1c12"${OL}/>
+      <path d="M8.4 17Q12 15.6 15.6 17 14.4 18 12 17.5 9.6 18 8.4 17Z" fill="#2e1c12"/>
+      <path d="M10.6 18.7H13.4" stroke="#8a5a3a" stroke-width=".6" stroke-linecap="round"/>`,
+  greenlantern: `<defs>${grad('sk', ...SKIN)}</defs>
       ${ears()}
-      <circle cx="6.1" cy="14.9" r=".75" fill="#e0b020" stroke="#7a5410" stroke-width=".3"/><circle cx="17.9" cy="14.9" r=".75" fill="#e0b020" stroke="#7a5410" stroke-width=".3"/>
-      <path d="${OVAL_HEAD}" fill="${SKIN}"${O}/>${vol(OVAL_HEAD)}
-      <path d="M6.6 10C6.8 5 9.4 2.8 12 2.8S17.2 5 17.4 10C16.2 6.8 14 5.6 12 5.6S7.8 6.8 6.6 10Z" fill="#1d1814"${O}/>
-      <path d="M6.8 6Q12 2.2 17.2 6L16.8 7.2Q12 4.2 7.2 7.2Z" fill="#e0b020"${O}/>
-      <path d="M12 2.9L12.9 5.3H11.1Z" fill="#dc2626" stroke="#7a1010" stroke-width=".25"/>
-      <path d="M7.7 8.4Q9.5 7.2 11.2 8.2M12.8 8.2Q14.5 7.2 16.3 8.4" stroke="#1d1814" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <ellipse cx="9.2" cy="10.5" rx="1.9" ry="1" fill="#ffffff"/><ellipse cx="14.8" cy="10.5" rx="1.9" ry="1" fill="#ffffff"/>
-      <path d="M7.2 10.5Q9.2 8.8 11.2 10.3 M6.4 9.6L7.4 10.3 M12.8 10.3Q14.8 8.8 16.8 10.5 M17.6 9.6L16.6 10.3" stroke="#14141c" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      <circle cx="8.2" cy="14.6" r="1.6" fill="#f08a8a" opacity=".3"/><circle cx="15.8" cy="14.6" r="1.6" fill="#f08a8a" opacity=".3"/>
-      <path d="M11.2 13.6Q12 14.3 12.8 13.6" stroke="#c58e68" stroke-width=".5" fill="none" stroke-linecap="round"/>
-      <path d="M9.5 17.4Q10.8 16.5 12 17.1 13.2 16.5 14.5 17.4 13.5 19.3 12 19.4 10.5 19.3 9.5 17.4Z" fill="#c2271f"/>
-      <path d="M10.6 18.2Q12 18.8 13.4 18.2" stroke="#f87171" stroke-opacity=".7" stroke-width=".35" fill="none" stroke-linecap="round"/>
-    `,
-  flash: `
-      <path d="M4 8.6L-1.8 6.2 1 8.2 -2.6 9.4 1.6 10.6 -.4 12.6 4.2 12.6Z M20 8.6L25.8 6.2 23 8.2 26.6 9.4 22.4 10.6 24.4 12.6 19.8 12.6Z" fill="#facc15"${O}/>
-      <path d="${FLASH_COWL}" fill="#dc2626"${O}/>${vol(FLASH_COWL)}
-      <path d="${FLASH_FACE}" fill="${SKIN}"${O}/>${vol(FLASH_FACE)}
-      <circle cx="12" cy="2.6" r="1.9" fill="#facc15"${O}/>
-      <path d="M12.5 1.2L11 3H12.2L11.6 4.2 13.2 2.4H12Z" fill="#dc2626"/>
-      <path d="M7.8 8.6Q9.4 7.8 11 8.6M13 8.6Q14.6 7.8 16.2 8.6" stroke="#14141c" stroke-width=".8" fill="none" stroke-linecap="round"/>
-      ${nose(11.6, 14.8)}
-      <path d="M9.6 18.8Q12.4 19.8 14.4 18" stroke="#9a4a3a" stroke-width=".8" stroke-linecap="round" fill="none"/>
-      ${shine('M5.2 6C6 3 8.2 1 10.6 .2')}
-    `,
-  aquaman: `
-      <path d="M3 12C2.4 5 6.2 .4 12 .4S21.6 5 21 12C20.8 17 21.2 21.4 19.6 25.4L16.8 18 7.2 18 4.4 25.4C2.8 21.4 3.2 17 3 12Z" fill="#3b2416"${O}/>
-      <path d="M5.4 12C5.2 16 5.6 20 6.4 23 M18.6 12C18.8 16 18.4 20 17.6 23" stroke="#6b4a30" stroke-width=".6" fill="none"/>
-      ${ears('#e0b080')}
-      <path d="${HEAD}" fill="#e0b080"${O}/>${vol(HEAD)}${JAW}
-      <path d="M7.4 14.6L7.8 19.2C8.2 21 10 22.6 12 23.2 14 22.6 15.8 21 16.2 19.2L16.6 14.6C15.4 16.4 14 17 12 17S8.6 16.4 7.4 14.6Z" fill="#2e1c12"${O}/>
-      <path d="M6.6 10C6.4 5 9 3 12 3S17.6 5 17.4 10C16.4 7 14.6 5.6 12 5.6S7.6 7 6.6 10Z" fill="#3b2416"${O}/>
-      <path d="M9.4 16.6Q12 15.4 14.6 16.6 13.4 17.6 12 17.4 10.6 17.6 9.4 16.6Z" fill="#24160e"/>
-      <path d="M10.4 18.6Q12 19.4 13.6 18.6" stroke="#8a5a3a" stroke-width=".6" fill="none" stroke-linecap="round"/>
-      <path d="M7.8 8.6L11 9.2M16.2 8.6L13 9.2" stroke="#24160e" stroke-width="1" fill="none" stroke-linecap="round"/>
-      ${nose(10.8, 14.4)}
-    `,
-  greenlantern: `
-      ${ears()}
-      <path d="${HEAD}" fill="${SKIN}"${O}/>${vol(HEAD)}${JAW}
-      <path d="M6.2 10.8C5.4 4 8.4 .4 12.4 .4S18.8 3.6 17.8 10C17.4 7 15.6 5 12.4 5S7.8 6.8 7.4 10.4Z" fill="#4a3022"${O}/>
-      <path d="M5.4 9C7.6 7 11 8 12 9.4 13 8 16.4 7 18.6 9 18.8 12.6 16.8 14 14.6 13.6 13.6 12.8 10.4 12.8 9.4 13.6 7.2 14 5.2 12.6 5.4 9Z" fill="#16a34a"${O}/>
-      ${nose(13, 15.2)}
-      <path d="M9.8 18.4Q12 20.6 14.4 18Q12 19.1 9.8 18.4Z" fill="#ffffff" stroke="#9a4a3a" stroke-width=".55" stroke-linejoin="round"/>
-      ${shine('M8 3.4C9.4 1.8 11.4 1.2 13 1.4')}
-    `,
-  joker: `
-      <path d="${JOKER_FACE}" fill="#f1f5ee"${O}/>${vol(JOKER_FACE)}
-      <path d="M6 8.8C4.4 5.4 5.4 1.2 8.6 0 8 1.8 8.6 3 9.8 3.6 10 1.4 11.6 -.4 13.4 0 14.2 -1.2 16.2 -.4 16.4 1.6 18.2 .6 19.8 2.8 18.4 4.8 19.6 6.4 19 8.8 18 10.2 17.8 7 16.4 5.4 12 5.4S6.4 7 6.2 10.4Z" fill="#16a34a"${O}/>
-      <path d="M7.6 9.6Q9.6 8.2 11 9.8 10 12.6 7.8 11.8Z M16.4 9.6Q14.4 8.2 13 9.8 14 12.6 16.2 11.8Z" fill="#1e1b2e"/>
-      <path d="M7 8.4Q9 6.4 11.2 8M17 8.4Q15 6.4 12.8 8" stroke="#14532d" stroke-width=".7" fill="none" stroke-linecap="round"/>
-      <path d="M7.4 15.4Q6.6 16.6 7.2 17.6M16.6 15.4Q17.4 16.6 16.8 17.6" stroke="#9aa59a" stroke-width=".45" fill="none" stroke-linecap="round"/>
-      <path d="M12 11.6V14.4Q11.2 15 10.6 14.8" stroke="#c7cdc4" stroke-width=".5" fill="none"/>
-      <path d="M5.6 16.2Q8.4 21.4 12 21.2 15.6 21.4 18.4 16.2 17.4 18.2 12 18.4 6.6 18.2 5.6 16.2Z" fill="#dc2626"${O}/>
-      <path d="M8 18.4L8.6 19.6 M10 18.5L10.4 20 M12 18.5V20.2 M14 18.5L13.6 20 M16 18.4L15.4 19.6" stroke="#f8fafc" stroke-width=".6" fill="none"/>
-    `,
+      <path d="${HEAD}" fill="${paint('sk')}"${OL}/>
+      <path d="M2.6 11C1.8 4.6 6.2.8 12.2.8S22.4 4.8 21.4 10.8C20.6 7.8 18.6 6 15.8 5.6 14 5.4 12.2 6 11 7 9.4 5.8 7.2 5.8 5.4 6.8 3.8 7.8 3 9.4 2.6 11Z" fill="#5a3a22"${OL}/>
+      <path d="M3.4 11.6Q6.6 9.6 10.4 11.4 12 12.2 13.6 11.4 17.4 9.6 20.6 11.6 20.8 15 18 15.8 15.6 16.2 13.6 14.6 12 13.8 10.4 14.6 8.4 16.2 6 15.8 3.2 15 3.4 11.6Z" fill="#16a34a"${OL}/>
+      <ellipse class="eyeball" cx="7.8" cy="13" rx="2" ry="1.3" fill="#ecfdf5" stroke="#4ade80" stroke-width=".6"/>
+      <ellipse class="eyeball" cx="16.2" cy="13" rx="2" ry="1.3" fill="#ecfdf5" stroke="#4ade80" stroke-width=".6"/>
+      ${grin(18)}`,
+  joker: `<defs>${grad('jw', '#ffffff', '#e6ece4', '#b9c4b6')}</defs>
+      <path d="M2.4 12C.6 6 3.4.4 9.6-.4 10.6 1 12 1.6 13.4.4 18.6.4 23 5 21.6 12 20.6 9 19.4 7.4 17.2 7 16 5.2 13.6 4.8 12 6.4 10.4 4.8 8 5.2 6.8 7 4.6 7.4 3.4 9 2.4 12Z" fill="#16a34a"${OL}/>
+      <path d="M12 3C6.6 3 4 7 4 12.6c0 6.2 3.6 10.8 8 10.8s8-4.6 8-10.8C20 7 17.4 3 12 3Z" fill="${paint('jw')}"${OL}/>
+      <path d="M4.2 11Q4.4 5.2 9.4 4.2 8.4 6 8.8 7.4 10.4 5.4 12.4 5.4 11.6 6.8 12 8 14 5.6 17 6.2 16.4 7.2 16.6 8.2 18.6 7.6 19.8 10.4 18.4 8.4 15.6 8.4 12 8.6 8.4 8.6 5.8 8.8 4.2 11Z" fill="#16a34a"${OL}/>
+      <path d="M5.4 12.6Q8 10 10.6 12.4 10 15.6 8 15.6 5.8 15.4 5.4 12.6Z M18.6 12.6Q16 10 13.4 12.4 14 15.6 16 15.6 18.2 15.4 18.6 12.6Z" fill="#4c1d95" opacity=".55"/>
+      ${eyes('#a3e635', { y: 13, rx: 1.8, ry: 1.9 })}
+      <path d="M5.4 10.6Q7.6 8.4 10.4 10.4M18.6 10.6Q16.4 8.4 13.6 10.4" stroke="#14532d" stroke-width=".8" fill="none" stroke-linecap="round"/>
+      <path d="M5.8 17Q12 23.4 18.2 17Q12 19.4 5.8 17Z" fill="#dc2626"${OL}/>
+      <path d="M7.4 18.2Q12 20.6 16.6 18.2Q12 19.4 7.4 18.2Z" fill="#fff"/>
+      <path d="M9.4 18.9V19.8M11 19.2V20.2M12.6 19.2V20.2M14.4 18.9V19.8" stroke="#dc2626" stroke-width=".25"/>`,
   };
 
-  // Where the two eyes go: centers (cx), height of the centers (y), size, color and tilt in degrees.
-  // The notch draws its own animated eyes with the same numbers (see style.css).
-  const EYES = {
-  ironman: {cx: [8.4, 15.6], y: 12.4, w: 5, h: 1.8, color: '#ffffff', tilt: 14 },
-  captain: {cx: [7, 17], y: 9, w: 5, h: 3, color: '#ffffff', tilt: 0 },
-  spiderman: {cx: [7.6, 16.4], y: 10.8, w: 3.4, h: 1.6, color: '#ffffff', tilt: 22 },
-  strange: {cx: [9.1, 14.9], y: 10, w: 2.4, h: 1.4, color: '#2563eb', tilt: 0 },
-  doom: {cx: [8.9, 15.1], y: 10.9, w: 2.6, h: 1.4, color: '#67e8f9', tilt: 0 },
-  blackpanther: {cx: [7, 17], y: 9, w: 5, h: 2.2, color: '#ffffff', tilt: 14 },
-  hulk: {cx: [8.1, 15.9], y: 10.6, w: 2.8, h: 1.6, color: '#ecfccb', tilt: 0 },
-  thor: {cx: [9.1, 14.9], y: 11.8, w: 2.4, h: 1.5, color: '#2563eb', tilt: 0 },
-  wolverine: {cx: [8.2, 15.8], y: 12.6, w: 3.4, h: 1.4, color: '#ffffff', tilt: 18 },  batman: {cx: [8.2, 15.8], y: 11, w: 4.2, h: 1.9, color: '#f8fafc', tilt: 12 },
-  superman: {cx: [9.4, 14.6], y: 10.2, w: 2.2, h: 1.2, color: '#3b82f6', tilt: 0 },
-  wonderwoman: {cx: [9.2, 14.8], y: 10.5, w: 1.9, h: 1.6, color: '#2563eb', tilt: 0 },
-  flash: {cx: [9.4, 14.6], y: 11.4, w: 3.2, h: 1.5, color: '#ffffff', tilt: 8 },
-  aquaman: {cx: [9.6, 14.4], y: 10.8, w: 2.2, h: 1.2, color: '#22d3ee', tilt: 0 },
-  greenlantern: {cx: [8.8, 15.2], y: 10.6, w: 3.2, h: 1.8, color: '#ffffff', tilt: 8 },
-  joker: {cx: [9.2, 14.8], y: 10.6, w: 2, h: 1.2, color: '#bef264', tilt: 0 },
-  };
+  // Character packs bring their own eye spots (lib/packs.js); the built-in bots draw their eyes themselves.
+  const EYES = {};
 
   const ids = Object.keys(DRAWINGS); // the heroes only (Batman too: the plain looks show his face)
   const has = (id) => Object.prototype.hasOwnProperty.call(DRAWINGS, id);
@@ -276,32 +216,73 @@
   }
   const hasPhoto = (id) => Object.prototype.hasOwnProperty.call(photos, id);
 
-  // Traced faces: drawings made from your pictures, checked and rebuilt from plain shapes by lib/faces.js in the main program.
-  let traced = {};
-  function setTraced(map) {
-    traced = {};
-    for (const [id, drawing] of Object.entries(map || {})) if (has(id) && typeof drawing === 'string' && drawing.startsWith('<svg x="0" y="0" width="24" height="24" viewBox="0 0 ')) traced[id] = drawing;
+  // Eyelids, so the bots blink on the notch (style.css ".hero .lid"). Measured on the drawings above in the 24 by 24
+  // face box: eye centers (cx), height (y), eye size (w, h), lid color, tilt in degrees (the right eye mirrors it).
+  const LIDS = {
+    ironman: { cx: [8.1, 15.9], y: 13.4, w: 5.4, h: 2.6, color: '#f2bb34', tilt: 7 },
+    captain: { cx: [8, 16], y: 12, w: 4.6, h: 4.4, color: '#1d4ed8', tilt: 0 },
+    spiderman: { cx: [7.2, 16.8], y: 11.6, w: 8.2, h: 5.4, color: '#d81e1e', tilt: 30 },
+    strange: { cx: [8, 16], y: 13, w: 4.6, h: 5, color: SKIN_MID, tilt: 0 },
+    hulk: { cx: [8, 16], y: 13.4, w: 4.8, h: 4.2, color: '#5fb02c', tilt: 0 },
+    thor: { cx: [8, 16], y: 13.8, w: 4.6, h: 4.4, color: SKIN_MID, tilt: 0 },
+    blackpanther: { cx: [7.8, 16.2], y: 12.8, w: 6, h: 2.8, color: '#17141f', tilt: 12 },
+    doom: { cx: [8.6, 15.4], y: 12.6, w: 4.4, h: 2, color: '#a3afbf', tilt: 0 },
+    wolverine: { cx: [7.5, 16.5], y: 13.4, w: 5, h: 2.4, color: '#1f2937', tilt: 12 },
+    batman: { cx: [7.7, 16.3], y: 12.7, w: 5, h: 2.6, color: '#1f2937', tilt: 14 },
+    superman: { cx: [8, 16], y: 13.2, w: 4.6, h: 5, color: SKIN_MID, tilt: 0 },
+    wonderwoman: { cx: [8, 16], y: 13.2, w: 4.6, h: 5, color: SKIN_MID, tilt: 0 },
+    flash: { cx: [8, 16], y: 11.8, w: 4.6, h: 4.4, color: '#d3191b', tilt: 0 },
+    aquaman: { cx: [8, 16], y: 13.2, w: 4.6, h: 5, color: '#d99a62', tilt: 0 },
+    greenlantern: { cx: [7.8, 16.2], y: 13, w: 4.4, h: 3, color: '#16a34a', tilt: 0 },
+    joker: { cx: [8, 16], y: 13, w: 4, h: 4.2, color: '#e6ece4', tilt: 0 },
+  };
+  function lidsMarkup(id, table = LIDS) {
+    const lid = table[id];
+    if (!lid) return '';
+    return lid.cx.map((cx, i) => {
+      const turn = i === 0 ? lid.tilt : -lid.tilt;
+      return `<ellipse class="lid" cx="${cx}" cy="${lid.y}" rx="${lid.w / 2 + 0.35}" ry="${lid.h / 2 + 0.35}" fill="${lid.color}" transform="rotate(${turn} ${cx} ${lid.y})"/>`;
+    }).join('');
   }
-  const hasTraced = (id) => Object.prototype.hasOwnProperty.call(traced, id);
 
-  // A photo face: round, with a thin dark ring. The picture already has its own eyes.
-  function photoMarkup(id, dimension) {
-    const clip = `pc${pictureCount}`;
-    return `<svg xmlns="${SVG_NS}" viewBox="-2 -2 28 28"${dimension} aria-hidden="true"><defs><clipPath id="${clip}"><circle cx="12" cy="12" r="13"/></clipPath></defs>`
-      + `<image href="${photos[id]}" x="-1" y="-1" width="26" height="26" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clip})"/>`
-      + '<circle cx="12" cy="12" r="13" fill="none" stroke="#14141c" stroke-width=".8"/></svg>';
+  // Eyelids for your face pictures (cut-outs of the reference art, face only, filling the 24 by 24 box), measured on them.
+  const PHOTO_LIDS = {
+    ironman: { cx: [7.3, 15.7], y: 13, w: 3.8, h: 1.4, color: '#e8b630', tilt: 0 },
+    captain: { cx: [8.2, 16.2], y: 12.5, w: 2.4, h: 1, color: '#e9a874', tilt: 0 },
+    spiderman: { cx: [7.3, 15.8], y: 13.4, w: 5.2, h: 6.8, color: '#d81e1e', tilt: -40 },
+    strange: { cx: [8.2, 14.3], y: 12.2, w: 2, h: 0.8, color: '#e5a36c', tilt: 0 },
+    hulk: { cx: [7.6, 15.5], y: 13.3, w: 2.2, h: 0.9, color: '#4a8a1c', tilt: 0 },
+    thor: { cx: [8.8, 14.6], y: 10.8, w: 2, h: 0.8, color: '#e6a265', tilt: 0 },
+    blackpanther: { cx: [7.8, 15.4], y: 12.6, w: 2.4, h: 1, color: '#15141c', tilt: 10 },
+    doom: { cx: [7.6, 16.4], y: 11.7, w: 3.6, h: 1.2, color: '#8a98aa', tilt: 0 },
+    wolverine: { cx: [7.6, 15.4], y: 13.7, w: 2.2, h: 0.9, color: '#123a6b', tilt: 12 },
+    batman: { cx: [8.4, 15.2], y: 13.8, w: 2.2, h: 0.8, color: '#121418', tilt: 12 },
+    superman: { cx: [8.5, 14.75], y: 10.5, w: 2.2, h: 1, color: '#e9a46a', tilt: 0 },
+    wonderwoman: { cx: [8.35, 14.6], y: 10.7, w: 2, h: 1, color: '#ebab78', tilt: 0 },
+    flash: { cx: [7.6, 15.4], y: 13.3, w: 2.6, h: 1.1, color: '#b81414', tilt: 8 },
+    aquaman: { cx: [8.8, 14.3], y: 9.3, w: 2, h: 0.8, color: '#d39158', tilt: 0 },
+    greenlantern: { cx: [7.8, 14.2], y: 11.9, w: 2.4, h: 1, color: '#16a34a', tilt: 0 },
+    joker: { cx: [8.2, 14.4], y: 12.8, w: 2.4, h: 1.2, color: '#e8eef0', tilt: 0 },
+  };
+
+  // A face picture: your cut-out (face only, no background) filling the face box. It has its own eyes.
+  function photoMarkup(id, dimension, withLids) {
+    return `<svg xmlns="${SVG_NS}" viewBox="-2 -2 28 28"${dimension} aria-hidden="true">`
+      + `<image href="${photos[id]}" x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid meet"/>`
+      + `${withLids ? lidsMarkup(id, PHOTO_LIDS) : ''}</svg>`;
   }
 
   // The full picture as SVG text, or null for a look with no drawing. withEyes: false leaves the eyes out (the notch adds its own).
-  function markup(id, { withEyes = true, size = 0 } = {}) {
+  // withLids: add eyelids so the notch can make the bot blink (only the notch animates them; elsewhere they would close the eyes).
+  // photo: false shows the built-in bot even when you have a face picture.
+  function markup(id, { withEyes = true, size = 0, withLids = false, photo = true } = {}) {
     if (!has(id)) return null;
     const dimension = size ? ` width="${size}" height="${size}"` : '';
     pictureCount += 1;
-    if (hasTraced(id)) return `<svg xmlns="${SVG_NS}" viewBox="-2 -2 28 28"${dimension} aria-hidden="true">${traced[id]}</svg>`; // has its own eyes
-    if (hasPhoto(id)) return photoMarkup(id, dimension);
+    if (photo && hasPhoto(id)) return photoMarkup(id, dimension, withLids);
     const body = drawingOf(id).split('__U__').join(String(pictureCount));
     const gradients = body.includes(`hs${pictureCount}`) ? defs(pictureCount) : '';
-    return `<svg xmlns="${SVG_NS}" viewBox="-2 -2 28 28"${dimension} aria-hidden="true">${gradients}${body}${withEyes ? eyesMarkup(id) : ''}</svg>`;
+    return `<svg xmlns="${SVG_NS}" viewBox="-2 -2 28 28"${dimension} aria-hidden="true">${gradients}${body}${withEyes ? eyesMarkup(id) : ''}${withLids ? lidsMarkup(id) : ''}</svg>`;
   }
 
   // In a page: the picture as a ready SVG element (the text above is fixed code in this file, never user data).
@@ -317,7 +298,7 @@
     for (const pack of packs) { DRAWINGS[pack.id] = pack.drawing; if (pack.eyes) EYES[pack.id] = pack.eyes; }
   }
 
-  const api = { ids, has, faceFor, markup, element, setPacks, setPhotos, hasPhoto, setTraced, hasTraced, DRAWINGS, EYES };
+  const api = { ids, has, faceFor, markup, element, setPacks, setPhotos, hasPhoto, LIDS, PHOTO_LIDS, DRAWINGS, EYES };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Heroes = api;
 })(typeof window !== 'undefined' ? window : globalThis);

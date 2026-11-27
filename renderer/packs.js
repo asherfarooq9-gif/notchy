@@ -26,10 +26,5 @@
     try { window.Heroes.setPhotos(await fetchFaces()); } catch { window.Heroes.setPhotos({}); }
   }
 
-  // The traced face drawings, checked by the main program. If they cannot be fetched, the built-in drawings stay.
-  async function loadTraced(fetchTraced) {
-    try { window.Heroes.setTraced(await fetchTraced()); } catch { window.Heroes.setTraced({}); }
-  }
-
-  window.Packs = { paint, refresh, loadPhotos, loadTraced };
+  window.Packs = { paint, refresh, loadPhotos };
 })();

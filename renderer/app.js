@@ -268,21 +268,21 @@ window.notch.onMusic((next) => {
 // A look with its own drawing in heroes.js replaces the Batman face. The notch keeps its own animated eyes.
 function applyHero(theme) {
   const hero = document.querySelector('.hero');
-  const picture = window.Heroes.element(theme, { withEyes: false });
+  // The bots draw their own eyes (pupils look around, lids blink); a character pack's eyes come from its own eye spots.
+  const picture = window.Heroes.element(theme, { withEyes: theme.startsWith('pack-'), withLids: true });
   hero.replaceChildren(...(picture ? [...picture.childNodes] : []));
   body.classList.toggle('has-hero', Boolean(picture));
-  body.classList.toggle('has-traced', window.Heroes.hasTraced(theme)); // a traced face has its own eyes: the animated ones hide
   document.getElementById('peng').setAttribute('aria-label', picture ? 'Click to talk' : 'Batman: click to talk');
 }
 // The notch wears the chosen look. A character pack's colors and drawing come from the main program.
 let lookCall = 0;
-// The notch shows drawings, never your face pictures: the traced drawings made from them when you have them, else the built-in ones.
-const tracedReady = window.Packs.loadTraced(window.notch.traced);
+// The notch shows your face cut-out when you have one (it blinks, bobs and does its moves), else the built-in bot.
+const photosReady = window.Packs.loadPhotos(window.notch.faces);
 async function wearLook(theme) {
   const mine = ++lookCall;
   body.dataset.theme = theme;
   const packs = theme.startsWith('pack-') ? await window.Packs.refresh(window.notch.packs) : [];
-  await tracedReady;
+  await photosReady;
   if (mine !== lookCall) return; // a newer look was chosen while this one loaded
   window.Packs.paint(body, packs.find((p) => p.id === theme) || null, { glow: true });
   applyHero(theme);

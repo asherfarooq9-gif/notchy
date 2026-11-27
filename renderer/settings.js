@@ -288,7 +288,7 @@ fields.theme.addEventListener('change', () => {
   if (chosen) fields.edgeColor.value = chosen.accent;
 });
 
-Promise.all([window.settingsApi.meta(), window.settingsApi.get(), window.Packs.loadPhotos(window.settingsApi.faces), window.Packs.loadTraced(window.settingsApi.traced)]).then(([meta, settings]) => {
+Promise.all([window.settingsApi.meta(), window.settingsApi.get(), window.Packs.loadPhotos(window.settingsApi.faces)]).then(([meta, settings]) => {
   allModules = meta.modules;
   themeInfo = meta.themes;
   window.Heroes.setPacks(themeInfo.filter((t) => t.isPack));

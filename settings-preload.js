@@ -5,7 +5,6 @@ contextBridge.exposeInMainWorld('settingsApi', {
   meta: () => ipcRenderer.invoke('settings:meta'),
   openPacks: () => ipcRenderer.invoke('packs:open'),
   faces: () => ipcRenderer.invoke('faces:list'),
-  traced: () => ipcRenderer.invoke('faces:traced'),
   claude: {
     status: () => ipcRenderer.invoke('claude:status'),
     connect: () => ipcRenderer.invoke('claude:connect'),

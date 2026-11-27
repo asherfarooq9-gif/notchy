@@ -43,7 +43,7 @@
   }
 
   let settingsCall = 0;
-  const photosReady = Promise.all([window.Packs.loadPhotos(window.panel.faces), window.Packs.loadTraced(window.panel.traced)]); // your own faces, fetched once
+  const photosReady = window.Packs.loadPhotos(window.panel.faces); // your own face pictures, fetched once
   const applySettings = async (s) => {
     const mine = ++settingsCall;
     await photosReady;
