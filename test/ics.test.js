@@ -62,3 +62,11 @@ test('skipping ahead gives the same days as counting from the start', () => {
     assert.deepStrictEqual(narrow, wide, rule);
   }
 });
+
+test('a calendar with very many repeating events still keeps its one-off events', () => {
+  const repeating = Array.from({ length: 450 }, (_, i) => `BEGIN:VEVENT\nSUMMARY:daily ${i}\nDTSTART:20260101\nRRULE:FREQ=DAILY\nEND:VEVENT`).join('\n');
+  const text = `BEGIN:VCALENDAR\n${repeating}\nBEGIN:VEVENT\nSUMMARY:Dentist\nDTSTART:20260310T090000\nEND:VEVENT\nEND:VCALENDAR`;
+  const events = parseIcs(text);
+  assert.ok(events.some((e) => e.title === 'Dentist'), 'the single appointment is not thrown away');
+  assert.ok(events.filter((e) => e.rule).length <= 400, 'but the number of repeating events is still limited');
+});

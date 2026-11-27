@@ -51,3 +51,22 @@ test('focus mode commands turn it on and off', () => {
   assert.strictEqual(parseCommand('focus').type, 'unknown');
   assert.strictEqual(parseCommand('open focus mode').type, 'unknown');
 });
+
+test('search keeps capital letters, symbols and non-English words in the query', () => {
+  assert.strictEqual(parseCommand('search C++ tutorial').url, 'https://www.google.com/search?q=C%2B%2B%20tutorial');
+  assert.strictEqual(parseCommand('google node.js v20').url, 'https://www.google.com/search?q=node.js%20v20');
+  assert.strictEqual(parseCommand('search کراچی کا موسم').url, 'https://www.google.com/search?q=' + encodeURIComponent('کراچی کا موسم'));
+});
+
+test('a task keeps the exact file names and capital letters', () => {
+  assert.strictEqual(parseCommand('task rename Report.docx to Final.docx').text, 'rename Report.docx to Final.docx');
+  assert.strictEqual(parseCommand('Task: sort my downloads').text, 'sort my downloads');
+  assert.notStrictEqual(parseCommand('tasks to do').type, 'assistant', 'a word that only starts with "task" is not a task command');
+});
+
+test('words with no English letters are an unknown command, so they can still be asked to Claude', () => {
+  assert.strictEqual(parseCommand('کراچی کا موسم کیسا ہے؟').type, 'unknown');
+  assert.strictEqual(parseCommand('你好').type, 'unknown');
+  assert.strictEqual(parseCommand('😀').type, 'unknown');
+  assert.strictEqual(parseCommand('   '), null, 'blank input is still nothing');
+});
