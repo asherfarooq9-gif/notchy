@@ -82,3 +82,14 @@ test('the clock text rounds up so 0:00 only shows at the end', () => {
   assert.strictEqual(formatClock(3600000 + 5000), '1:00:05');
   assert.strictEqual(formatClock(0), '00:00');
 });
+
+test('a finished countdown cannot be resumed into finishing a second time', () => {
+  const c = clock();
+  const timer = createTimer({ now: c.now });
+  timer.start('countdown', 1);
+  c.advance(2 * MIN);
+  assert.deepStrictEqual(timer.tick(), [{ type: 'finished' }]);
+  timer.resume(); // pressing Resume on a timer that already ended
+  assert.strictEqual(timer.snapshot().isRunning, false);
+  assert.deepStrictEqual(timer.tick(), [], 'no second "finished" alert');
+});

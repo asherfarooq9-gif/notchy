@@ -53,3 +53,13 @@ test('the runner checks again before running, so a changed step can never slip t
   assert.strictEqual(result.done, 1);
   assert.match(result.failed, /not allowed|asks yes or no/);
 });
+
+test('a routine can have a name in any language, and "run <name>" finds it', () => {
+  const { routines, errors } = checkRoutines([{ name: 'صبح بخیر', steps: ['open chrome'] }, { name: '日本語 ルーティン', steps: ['battery'] }]);
+  assert.deepStrictEqual(errors, []);
+  assert.deepStrictEqual(routines.map((r) => r.name), ['صبح بخیر', '日本語 ルーティン']);
+  assert.deepStrictEqual(parseCommand('run صبح بخیر!'), { type: 'routine', name: 'صبح بخیر', label: 'run صبح بخیر' });
+  assert.strictEqual(findRoutine(routines, 'صبح بخیر').steps[0], 'open chrome');
+  assert.strictEqual(findRoutine(routines, '日本語 ルーティン').steps[0], 'battery');
+  assert.strictEqual(normalizeName('Café Étude'), 'café étude');
+});

