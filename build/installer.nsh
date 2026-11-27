@@ -11,7 +11,10 @@
 !macroend
 
 ; Uninstalling also removes the "start with Windows" entry the app wrote, so Windows never tries to start a program that is gone.
-; (The app writes the entry again each time it starts, so an update loses nothing.)
+; An update runs this uninstaller too, so it is skipped then: the app is not always started again after an update,
+; and without the entry it would not start with Windows either.
 !macro customUnInstall
-  DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "WindowsNotch"
+  ${ifNot} ${isUpdated}
+    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "WindowsNotch"
+  ${endIf}
 !macroend
