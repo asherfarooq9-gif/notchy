@@ -1,0 +1,84 @@
+name: Update test
+
+# Installs an older release, then updates it to a newer one the same way the app does (the installer is started with
+# --updated --force-run while the old app is running), and records what happens to the Start menu shortcut and to any
+# error window. Fails if a shortcut error appears, the shortcut disappears, or the app is not running afterwards.
+# Run by hand from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: Release tag installed first (for example v0.2.1)
+        required: true
+      to:
+        description: Release tag to update to (for example v0.2.2)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FROM_TAG: ${{ inputs.from }}
+      TO_TAG: ${{ inputs.to }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download both installers
+        shell: pwsh
+        run: |
+          foreach ($pair in @(@('from', $env:FROM_TAG), @('to', $env:TO_TAG))) {
+            $dir = Join-Path $env:RUNNER_TEMP $pair[0]
+            New-Item -ItemType Directory -Force -Path $dir | Out-Null
+            gh release download $pair[1] --repo "$env:GITHUB_REPOSITORY" --pattern 'Notchy-Setup-*.exe' --dir $dir
+            Write-Host "$($pair[0]): $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
+          }
+
+      - name: Install the old version like a double-click
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem (Join-Path $env:RUNNER_TEMP 'from') -Filter 'Notchy-Setup-*.exe').FullName
+          $p = Start-Process -FilePath $exe -PassThru
+          if (-not $p.WaitForExit(300000)) { throw 'The old installer is still running after 5 minutes.' }
+          if ($p.ExitCode -ne 0) { throw "The old installer failed with exit code $($p.ExitCode)." }
+          Start-Sleep -Seconds 20
+          $count = @(Get-Process -Name Notchy -ErrorAction SilentlyContinue).Count
+          Write-Host "Old version running: $count programs"
+          if ($count -eq 0) { throw 'The old version did not stay running, so an update while it runs cannot be tested.' }
+          $lnk = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Notchy.lnk"
+          if (-not (Test-Path $lnk)) { throw 'The old install has no Start menu shortcut.' }
+
+      - name: Update the way the app does, and watch
+        shell: pwsh
+        run: |
+          $lnk = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Notchy.lnk"
+          $log = Join-Path $env:RUNNER_TEMP 'update-timeline.txt'
+          $watcher = Start-Process pwsh -ArgumentList '-NoProfile', '-File', "$env:GITHUB_WORKSPACE\.github\scripts\watch-update.ps1", '-Shortcut', "`"$lnk`"", '-LogFile', "`"$log`"", '-Seconds', '75' -PassThru -WindowStyle Hidden
+          Start-Sleep -Seconds 3
+          $new = (Get-ChildItem (Join-Path $env:RUNNER_TEMP 'to') -Filter 'Notchy-Setup-*.exe').FullName
+          # What electron-updater runs when "Restart and update" is pressed or the app is quit with an update waiting.
+          $installer = Start-Process -FilePath $new -ArgumentList '--updated', '--force-run' -PassThru
+          Start-Sleep -Seconds 1
+          Get-Process -Name Notchy -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $installer.Id } | Stop-Process -Force # the app quits as the installer starts
+          if (-not $installer.WaitForExit(300000)) { throw 'The new installer is still running after 5 minutes.' }
+          Write-Host "New installer exit code: $($installer.ExitCode)"
+          $watcher.WaitForExit(120000) | Out-Null
+          Write-Host '----- timeline -----'
+          Get-Content $log
+          Write-Host '--------------------'
+          $text = Get-Content $log -Raw
+          $problems = @()
+          if ($text -match 'WINDOW: .*(\.lnk|cannot find)') { $problems += 'A window mentioning the shortcut appeared (the "Windows cannot find" error).' }
+          if ($text -match 'shortcut exists = False') { $problems += 'The Start menu shortcut was missing at some moment.' }
+          if ($installer.ExitCode -ne 0) { $problems += "The new installer exited with code $($installer.ExitCode)." }
+          $running = @(Get-Process -Name Notchy -ErrorAction SilentlyContinue).Count
+          Write-Host "New version running afterwards: $running programs"
+          if ($running -eq 0) { $problems += 'The app was not running after the update (the installer should start it again).' }
+          $shown = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName -like 'Notchy*' }).DisplayVersion
+          Write-Host "Version in the Apps list: $shown"
+          if ($problems.Count -gt 0) { $problems | ForEach-Object { Write-Host "::error::$_" }; throw 'The update test found problems.' }
+          Write-Host 'The update went through with no shortcut problem.'
