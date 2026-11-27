@@ -58,7 +58,7 @@ Still stuck? [Open an issue](../../issues/new) and say your Windows version and 
 - **Type a command.** Press `Control+Alt+J`, type a command like "open downloads" or a question for Claude, press Enter.
 - **Quick note.** Press `Control+Alt+K`. The panel opens on a fresh note, ready to type.
 - **Panel of tools.** Press `Control+Alt+N`. It has notes and checklists, clipboard history, timers (focus, countdown, stopwatch), links, a message line for the notch, system numbers, unit and currency converters, weather, calendar, a file shelf, a music player view and screen time.
-- **Converters.** Pictures to other formats, and Word to PDF and PDF to Word (needs Microsoft Word installed). Join PDFs and keep chosen pages.
+- **Converters.** Pictures to other formats, and Word to PDF and PDF to Word (needs Microsoft Word installed). A Word file (`.docx`, `.rtf` or old `.doc`) that names a template or picture at another address is refused before Word opens it, because Word would contact that address on its own. An old `.doc` with any web or network address in it is refused too: open it in Word, save it as `.docx`, and convert that. `.odt` files are not checked, so convert only ones you trust. Join PDFs and keep chosen pages.
 - **Assistant for file tasks.** Tell Claude a task like "sort my Downloads by type". It shows a plan in plain sentences and does nothing until you press Run. Everything can be undone.
 - **Phone link.** Send files from your phone to this PC over your home Wi-Fi. It is off until you press Start, works for 10 minutes and one phone, and stops when you press Stop.
 - **Screen glow.** Soft light around the screen edges that follows the colors of the video on screen (Settings, Look). Pick Off, Full-screen only or Always.
