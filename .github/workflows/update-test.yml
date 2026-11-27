@@ -6,9 +6,6 @@ name: Update test
 # "to" is a release tag, or "build" to build the installer from the checked-out code and update to that.
 # Fails if a shortcut error appears, the shortcut disappears, or (for "build") the app was not started by the installer.
 on:
-  push: # TEMPORARY: lets the first runs happen from this branch before the file is on main. Remove before merging.
-    branches: [fix/update-launch-error]
-    paths: ['.github/workflows/update-test.yml', '.github/scripts/watch-update.ps1', 'build/installer.nsh']
   workflow_dispatch:
     inputs:
       from:
@@ -23,17 +20,12 @@ permissions:
 
 jobs:
   update:
-    name: update to ${{ matrix.to }}
     runs-on: windows-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        to: ${{ fromJSON(inputs.to && format('["{0}"]', inputs.to) || '["v0.2.2","build"]') }}
     env:
       GH_TOKEN: ${{ github.token }}
-      FROM_TAG: ${{ inputs.from || 'v0.2.1' }}
-      TO_TAG: ${{ matrix.to }}
+      FROM_TAG: ${{ inputs.from }}
+      TO_TAG: ${{ inputs.to }}
     steps:
       - uses: actions/checkout@v4
 
@@ -46,7 +38,7 @@ jobs:
           Write-Host "from: $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
 
       - name: Get the new installer from a release
-        if: ${{ matrix.to != 'build' }}
+        if: ${{ inputs.to != 'build' }}
         shell: pwsh
         run: |
           $dir = Join-Path $env:RUNNER_TEMP 'to'
@@ -55,13 +47,13 @@ jobs:
           Write-Host "to: $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
 
       - uses: actions/setup-node@v4
-        if: ${{ matrix.to == 'build' }}
+        if: ${{ inputs.to == 'build' }}
         with:
           node-version: 22
           cache: npm
 
       - name: Build the new installer from this code
-        if: ${{ matrix.to == 'build' }}
+        if: ${{ inputs.to == 'build' }}
         shell: pwsh
         run: |
           npm ci
