@@ -47,6 +47,7 @@ Windows SmartScreen warns about any installer that does not carry a paid code-si
 - **Edge or Chrome says the file "isn't commonly downloaded".** Choose **Keep**, then open the file.
 - **Antivirus blocks the installer.** The installer is unsigned. Check the SHA-256 checksum against `SHA256SUMS.txt`, then allow it, or build it yourself.
 - **Nothing appears after installing.** Look for the tray icon (click the `^` arrow). Press `Control+Alt+N`. If a hotkey does nothing, another program may be using it: change it in Settings.
+- **Notchy did not start by itself after an update, or Windows says it cannot find `Notchy.lnk`.** Start it yourself: press the Windows key, type **Notchy**, press Enter. If that fails too, run `%LOCALAPPDATA%\Programs\Notchy\Notchy.exe`, or run the installer again (it puts the Start menu entry back). Since version 0.2.3 the installer starts the program file directly, so this should not happen; if it does, please [open an issue](../../issues/new).
 - **The installer says Notchy is running.** Right-click the tray icon, choose **Quit Notchy**, then run the installer again.
 - **The screen glow is dark on Netflix or Prime in a browser.** Windows hides protected video from screen capture, so the glow turns off there. YouTube, VLC and local files work.
 - **"Ask Claude" or file tasks do nothing.** They need [Claude Code](https://claude.com/claude-code) installed and signed in. Nothing else in the app needs it.
