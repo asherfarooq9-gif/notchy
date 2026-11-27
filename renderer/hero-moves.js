@@ -37,7 +37,7 @@
     doomglow: '<circle cx="12" cy="12" r="11" fill="none" stroke="#4ade80" stroke-width="1.4"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="#86efac" stroke-width="1" opacity=".7"/>',
     claws: '<path d="M5 22L7 2M12 22V1M19 22L17 2" stroke="#e2e8f0" stroke-width="1.6" stroke-linecap="round"/>',
     bat: '<path d="M12 8.5c.6 1 1 1.6 1.6 1.6.6-1 .9-2 1.3-2.6.3 1 .3 2 .7 2.4 2.6-1.4 5.4-1.6 8.4-.4-2 1-3 2.8-3 5-1.8-1.2-3.6-.8-4.6.6-.8-1.2-2.2-1.6-3.4-.6-.4-.8-.8-1.4-1-1.4s-.6.6-1 1.4c-1.2-1-2.6-.6-3.4.6-1-1.4-2.8-1.8-4.6-.6 0-2.2-1-4-3-5 3-1.2 5.8-1 8.4.4.4-.4.4-1.4.7-2.4.4.6.7 1.6 1.3 2.6.6 0 1-.6 1.6-1.6z" fill="#facc15" stroke="#000000" stroke-width=".5"/>', // a yellow bat signal, so it shows on the black notch
-    lasso: '<ellipse cx="12" cy="12" rx="11" ry="5" fill="none" stroke="#facc15" stroke-width="1.6"/>',
+    lasso: '<circle cx="12" cy="12" r="11" fill="none" stroke="#f5c518" stroke-width="1.8"/><circle cx="12" cy="12" r="11" fill="none" stroke="#fff3b0" stroke-width=".7" stroke-dasharray="2 2.4"/><path d="M21.6 17.6Q24.6 21 26.4 25" stroke="#f5c518" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
     bolt: '<path d="M14 1L4 13h6l-2 10 10-13h-6z" fill="#facc15" stroke="#dc2626" stroke-width=".8" stroke-linejoin="round"/>',
     bubbles: '<circle cx="6" cy="18" r="2.5" fill="none" stroke="#67e8f9" stroke-width="1"/><circle cx="14" cy="12" r="1.8" fill="none" stroke="#67e8f9" stroke-width="1"/><circle cx="10" cy="5" r="1.4" fill="none" stroke="#a5f3fc" stroke-width="1"/><circle cx="19" cy="7" r="2" fill="none" stroke="#67e8f9" stroke-width="1"/>',
     ring: '<circle cx="12" cy="12" r="9" fill="none" stroke="#4ade80" stroke-width="2.4"/>',
