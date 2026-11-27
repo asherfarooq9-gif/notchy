@@ -1,20 +1,21 @@
 name: Update test
 
-# Installs an older release, then updates it to a newer one the same way the app does (the installer is started with
-# --updated --force-run while the old app is running), and records what happens to the Start menu shortcut and to any
-# error window. Fails if a shortcut error appears, the shortcut disappears, or the app is not running afterwards.
-# Run by hand from the Actions tab.
+# Installs an older release, then updates it the way the app does (the installer is started with --updated --force-run while the
+# old app is running), and records what happens to the Start menu shortcut and to any error window. It also checks how the app
+# was started afterwards: the installer starts it with an --updated flag when its launch worked.
+# "to" is a release tag, or "build" to build the installer from the checked-out code and update to that.
+# Fails if a shortcut error appears, the shortcut disappears, or (for "build") the app was not started by the installer.
 on:
-  push: # TEMPORARY: lets the first run happen from this branch before the file is on main. Remove before merging.
+  push: # TEMPORARY: lets the first runs happen from this branch before the file is on main. Remove before merging.
     branches: [fix/update-launch-error]
-    paths: ['.github/workflows/update-test.yml', '.github/scripts/watch-update.ps1']
+    paths: ['.github/workflows/update-test.yml', '.github/scripts/watch-update.ps1', 'build/installer.nsh']
   workflow_dispatch:
     inputs:
       from:
         description: Release tag installed first (for example v0.2.1)
         required: true
       to:
-        description: Release tag to update to (for example v0.2.2)
+        description: Release tag to update to (for example v0.2.2), or "build" for this checkout
         required: true
 
 permissions:
@@ -22,24 +23,53 @@ permissions:
 
 jobs:
   update:
+    name: update to ${{ matrix.to }}
     runs-on: windows-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        to: ${{ fromJSON(inputs.to && format('["{0}"]', inputs.to) || '["v0.2.2","build"]') }}
     env:
       GH_TOKEN: ${{ github.token }}
       FROM_TAG: ${{ inputs.from || 'v0.2.1' }}
-      TO_TAG: ${{ inputs.to || 'v0.2.2' }}
+      TO_TAG: ${{ matrix.to }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download both installers
+      - name: Get the old installer
         shell: pwsh
         run: |
-          foreach ($pair in @(@('from', $env:FROM_TAG), @('to', $env:TO_TAG))) {
-            $dir = Join-Path $env:RUNNER_TEMP $pair[0]
-            New-Item -ItemType Directory -Force -Path $dir | Out-Null
-            gh release download $pair[1] --repo "$env:GITHUB_REPOSITORY" --pattern 'Notchy-Setup-*.exe' --dir $dir
-            Write-Host "$($pair[0]): $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
-          }
+          $dir = Join-Path $env:RUNNER_TEMP 'from'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          gh release download $env:FROM_TAG --repo "$env:GITHUB_REPOSITORY" --pattern 'Notchy-Setup-*.exe' --dir $dir
+          Write-Host "from: $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
+
+      - name: Get the new installer from a release
+        if: ${{ matrix.to != 'build' }}
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'to'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          gh release download $env:TO_TAG --repo "$env:GITHUB_REPOSITORY" --pattern 'Notchy-Setup-*.exe' --dir $dir
+          Write-Host "to: $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name)"
+
+      - uses: actions/setup-node@v4
+        if: ${{ matrix.to == 'build' }}
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build the new installer from this code
+        if: ${{ matrix.to == 'build' }}
+        shell: pwsh
+        run: |
+          npm ci
+          npm run dist
+          $dir = Join-Path $env:RUNNER_TEMP 'to'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          Copy-Item release\Notchy-Setup-*.exe $dir
+          Write-Host "to: $((Get-ChildItem $dir -Filter 'Notchy-Setup-*.exe').Name) (built here)"
 
       - name: Install the old version like a double-click
         shell: pwsh
@@ -52,8 +82,7 @@ jobs:
           $count = @(Get-Process -Name Notchy -ErrorAction SilentlyContinue).Count
           Write-Host "Old version running: $count programs"
           if ($count -eq 0) { throw 'The old version did not stay running, so an update while it runs cannot be tested.' }
-          $lnk = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Notchy.lnk"
-          if (-not (Test-Path $lnk)) { throw 'The old install has no Start menu shortcut.' }
+          if (-not (Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Notchy.lnk")) { throw 'The old install has no Start menu shortcut.' }
 
       - name: Update the way the app does, and watch
         shell: pwsh
@@ -63,10 +92,10 @@ jobs:
           $watcher = Start-Process pwsh -ArgumentList '-NoProfile', '-File', "$env:GITHUB_WORKSPACE\.github\scripts\watch-update.ps1", '-Shortcut', "`"$lnk`"", '-LogFile', "`"$log`"", '-Seconds', '75' -PassThru -WindowStyle Hidden
           Start-Sleep -Seconds 3
           $new = (Get-ChildItem (Join-Path $env:RUNNER_TEMP 'to') -Filter 'Notchy-Setup-*.exe').FullName
-          # What electron-updater runs when "Restart and update" is pressed or the app is quit with an update waiting.
+          # What electron-updater runs when "Restart and update" is pressed.
           $installer = Start-Process -FilePath $new -ArgumentList '--updated', '--force-run' -PassThru
           Start-Sleep -Seconds 1
-          Get-Process -Name Notchy -ErrorAction SilentlyContinue | Where-Object { $_.Id -ne $installer.Id } | Stop-Process -Force # the app quits as the installer starts
+          Get-Process -Name Notchy -ErrorAction SilentlyContinue | Stop-Process -Force # the app quits as the installer starts
           if (-not $installer.WaitForExit(300000)) { throw 'The new installer is still running after 5 minutes.' }
           Write-Host "New installer exit code: $($installer.ExitCode)"
           $watcher.WaitForExit(120000) | Out-Null
@@ -74,13 +103,15 @@ jobs:
           Get-Content $log
           Write-Host '--------------------'
           $text = Get-Content $log -Raw
+          $main = Get-CimInstance Win32_Process -Filter "Name='Notchy.exe'" | Where-Object { $_.CommandLine -notmatch '--type=' } | Select-Object -First 1
+          $startedWith = if ($main) { ($main.CommandLine -replace '^"[^"]+"\s*', '').Trim() } else { '(not running)' }
+          Write-Host "How the running app was started - arguments: [$startedWith]"
           $problems = @()
           if ($text -match 'WINDOW: .*(\.lnk|cannot find)') { $problems += 'A window mentioning the shortcut appeared (the "Windows cannot find" error).' }
           if ($text -match 'shortcut exists = False') { $problems += 'The Start menu shortcut was missing at some moment.' }
           if ($installer.ExitCode -ne 0) { $problems += "The new installer exited with code $($installer.ExitCode)." }
-          $running = @(Get-Process -Name Notchy -ErrorAction SilentlyContinue).Count
-          Write-Host "New version running afterwards: $running programs"
-          if ($running -eq 0) { $problems += 'The app was not running after the update (the installer should start it again).' }
+          if (-not $main) { $problems += 'The app was not running after the update (the installer should start it again).' }
+          elseif ($env:TO_TAG -eq 'build' -and $startedWith -notmatch '--updated') { $problems += 'The app was running, but the installer did not start it (no --updated flag).' }
           $shown = (Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName -like 'Notchy*' }).DisplayVersion
           Write-Host "Version in the Apps list: $shown"
           if ($problems.Count -gt 0) { $problems | ForEach-Object { Write-Host "::error::$_" }; throw 'The update test found problems.' }
