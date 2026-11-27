@@ -39,14 +39,20 @@ test('the welcome screen is remembered once it has been finished, and kept if it
 });
 
 test('finishing the welcome screen saves the four choices and marks setup as done', () => {
-  const next = applyWelcomeChoices(sanitize({ theme: 'classic' }), { autostart: true, autoUpdate: false, askClaude: true, assistantTasks: false });
+  const next = applyWelcomeChoices(sanitize({ theme: 'batman' }), { autostart: true, autoUpdate: false, askClaude: true, assistantTasks: false });
   assert.deepStrictEqual(CHOICES, ['autostart', 'autoUpdate', 'askClaude', 'assistantTasks']);
   assert.strictEqual(next.autostart, true);
   assert.strictEqual(next.autoUpdate, false);
   assert.strictEqual(next.askClaude, true);
   assert.strictEqual(next.assistantTasks, false);
   assert.strictEqual(next.setupDone, true);
-  assert.strictEqual(next.theme, 'classic', 'other settings are untouched');
+  assert.strictEqual(next.theme, 'batman', 'a look that was not picked is untouched');
+});
+
+test('the look picked on the welcome screen is saved, and an unknown look is ignored', () => {
+  assert.strictEqual(applyWelcomeChoices(sanitize(), { theme: 'thor' }).theme, 'thor');
+  assert.strictEqual(applyWelcomeChoices(sanitize(), { theme: 'galactus' }).theme, 'batman');
+  assert.strictEqual(applyWelcomeChoices(sanitize(), { theme: '__proto__' }).theme, 'batman');
 });
 
 test('anything that is not exactly true counts as no, and unknown fields are ignored', () => {
@@ -67,5 +73,7 @@ test('the welcome page has one switch for each choice, a finish button, and a st
   assert.match(html, /default-src 'none'; script-src 'self'; style-src 'self'/);
   for (const id of CHOICES) assert.match(html, new RegExp(`<input type="checkbox" id="${id}"`), id);
   assert.match(html, /<button[^>]*id="finish"/);
+  assert.match(html, /id="looks"/, 'a look picker');
+  assert.match(html, /src="heroes\.js"/, 'the faces shown in the picker');
   assert.ok(!/\bchecked\b/.test(html), 'switches start unticked in the page; the script sets them from the saved settings');
 });

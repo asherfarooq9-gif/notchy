@@ -11,9 +11,6 @@
   --ease: cubic-bezier(.2, .9, .3, 1.2);
 }
 /* The look you pick in settings. The notch stays black, but its face, edge line and glow wear the look's colors (palettes only). */
-body[data-theme="classic"] { --accent: #3c85e9; --ring: #0b66e4; }
-body[data-theme="ember"] { --accent: #fb923c; --ring: #fb923c; }
-body[data-theme="vivid"] { --accent: #a78bfa; --ring: #a78bfa; }
 body[data-theme="ironman"] { --cowl: #b91c1c; --jaw: #f5b301; --glove: #f5b301; --eye: #fff3b0; --accent: #f5b301; --ring: #f5b301; }
 body[data-theme="captain"] { --cowl: #1d4ed8; --jaw: #e5e7eb; --glove: #dc2626; --eye: #ffffff; --accent: #4f8cff; --ring: #4f8cff; }
 body[data-theme="spiderman"] { --cowl: #dc2626; --jaw: #1d4ed8; --glove: #1d4ed8; --eye: #ffffff; --accent: #ff2d3d; --ring: #ff2d3d; }

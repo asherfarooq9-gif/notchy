@@ -24,12 +24,13 @@ test('every look has a unique id, a unique name and valid colors', () => {
   assert.strictEqual(new Set(THEME_INFO.map((t) => t.label)).size, THEME_INFO.length);
   for (const t of THEME_INFO) for (const key of ['a', 'b', 'ink', 'textLight', 'textDark']) assert.match(t[key], /^#[0-9a-f]{6}$/i, `${t.id} ${key}`);
 });
-test('Classic is the default look, light is the default mode, and unknown values fall back to them', () => {
-  assert.strictEqual(DEFAULTS.theme, 'classic');
+test('Batman is the default look, light is the default mode, and unknown values fall back to them', () => {
+  assert.strictEqual(DEFAULTS.theme, 'batman');
   assert.strictEqual(DEFAULTS.colorMode, 'light');
   assert.deepStrictEqual(COLOR_MODES, ['light', 'dark']);
-  assert.strictEqual(sanitize({ theme: 'galactus' }).theme, 'classic');
-  assert.strictEqual(sanitize({ theme: 'marvel' }).theme, 'classic', 'the old Marvel look maps to the default');
+  assert.strictEqual(sanitize({ theme: 'galactus' }).theme, 'batman');
+  assert.strictEqual(sanitize({ theme: 'marvel' }).theme, 'batman', 'the old Marvel look maps to the default');
+  for (const gone of ['classic', 'ember', 'vivid']) assert.strictEqual(sanitize({ theme: gone }).theme, 'batman', `the removed ${gone} look maps to the default`);
   assert.strictEqual(sanitize({ colorMode: 'sepia' }).colorMode, 'light');
   assert.strictEqual(sanitize({ colorMode: 'dark' }).colorMode, 'dark');
 });
@@ -72,7 +73,7 @@ test('every look also dresses the notch itself with an edge line', () => {
     assert.ok(line.includes('--ring:'), `${t.id} has no edge line`);
   }
 });
-test('every hero look has its own drawing, the plain looks keep the Batman face', () => {
+test('every look is a hero look with its own drawing', () => {
   assert.deepStrictEqual([...Heroes.ids].sort(), THEME_INFO.filter((t) => t.isHero).map((t) => t.id).sort());
 });
 test('both windows load the shared colors and drawings', () => {

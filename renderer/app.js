@@ -280,14 +280,14 @@ async function wearLook(theme) {
   window.Packs.paint(body, packs.find((p) => p.id === theme) || null, { glow: true });
   applyHero(theme);
 }
-function fallBackToClassic() { // the pack could not be loaded: colors and face both go back to the plain look
-  body.dataset.theme = 'classic';
+function fallBackToDefaultLook() { // the pack could not be loaded: colors and face both go back to the default look
+  body.dataset.theme = 'batman';
   window.Packs.paint(body, null, { glow: true });
-  applyHero('classic');
+  applyHero('batman');
 }
 window.notch.onSettings((settings) => {
   settingsNow = settings;
-  wearLook(settings.theme || 'pure-black').catch(fallBackToClassic);
+  wearLook(settings.theme || 'pure-black').catch(fallBackToDefaultLook);
   sleepAfterMs = settings.sleepMinutes * MS_PER_MINUTE;
   isDanceEnabled = settings.danceOnMusic;
   applyEdge();

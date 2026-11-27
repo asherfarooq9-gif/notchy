@@ -29,7 +29,7 @@
   }
 
   // The chosen character's face: small in the dock, large and faint in the corner (Batman for the plain looks).
-  let currentLook = 'classic';
+  let currentLook = 'batman';
   function faceBadge() {
     return h('span', { class: 'tab-face', 'aria-hidden': 'true' }, window.Heroes.element(window.Heroes.faceFor(currentLook)));
   }
@@ -49,7 +49,7 @@
     let theme = s.theme;
     let packs = [];
     if (theme.startsWith('pack-')) {
-      try { packs = await window.Packs.refresh(window.panel.packs); } catch { theme = 'classic'; } // the pack could not be loaded: plain look
+      try { packs = await window.Packs.refresh(window.panel.packs); } catch { theme = 'batman'; } // the pack could not be loaded: default look
       if (mine !== settingsCall) return; // newer settings arrived while this one loaded
     }
     document.body.dataset.theme = theme;
