@@ -5,6 +5,9 @@ name: Update test
 # error window. Fails if a shortcut error appears, the shortcut disappears, or the app is not running afterwards.
 # Run by hand from the Actions tab.
 on:
+  push: # TEMPORARY: lets the first run happen from this branch before the file is on main. Remove before merging.
+    branches: [fix/update-launch-error]
+    paths: ['.github/workflows/update-test.yml', '.github/scripts/watch-update.ps1']
   workflow_dispatch:
     inputs:
       from:
@@ -23,8 +26,8 @@ jobs:
     timeout-minutes: 25
     env:
       GH_TOKEN: ${{ github.token }}
-      FROM_TAG: ${{ inputs.from }}
-      TO_TAG: ${{ inputs.to }}
+      FROM_TAG: ${{ inputs.from || 'v0.2.1' }}
+      TO_TAG: ${{ inputs.to || 'v0.2.2' }}
     steps:
       - uses: actions/checkout@v4
 
