@@ -11,7 +11,8 @@ You do not need Node.js, an account, or administrator rights.
 1. Go to the [Releases page](../../releases/latest) and download **`Notchy-Setup-<version>.exe`** (under "Assets").
 2. Double-click the file you downloaded.
 3. Windows may show a blue box, **"Windows protected your PC"**. This is expected: the installer is not signed with a paid certificate (see [Why does Windows warn me?](#why-does-windows-warn-me)). Click **More info**, then **Run anyway**.
-4. Wait a few seconds. There are no questions to answer. Notchy installs and starts by itself. If you do not see it, open the Start menu, type **Notchy** and press Enter.
+4. Wait a few seconds. The installer asks nothing. Notchy installs and starts by itself. If you do not see it, open the Start menu, type **Notchy** and press Enter.
+5. A **Welcome** window opens the first time. It asks four things, each a switch that starts off except updates: start with Windows, check for updates, ask Claude, and Claude file tasks. Pick what you want and press **Start using Notchy**. Nothing runs before you do. You can change every choice later in Settings.
 
 That is all. Notchy installs for your own account only, into `%LOCALAPPDATA%\Programs\Notchy`, and adds a **Notchy** entry to your Start menu.
 
