@@ -65,7 +65,7 @@ function fill(settings) {
   previewLook(settings.theme);
   fields.colorMode.value = settings.colorMode;
   previewMode(settings.colorMode);
-  fields.hoverOpen.checked = settings.hoverOpen;
+  fields.hoverOpen.value = settings.hoverOpen ? 'hover' : 'click'; // the old on/off setting keeps its meaning: on is hovering
   fields.showTimerInNotch.checked = settings.showTimerInNotch;
   fields.panelHotkey.value = settings.panelHotkey;
   fields.captureHotkey.value = settings.captureHotkey;
@@ -163,7 +163,7 @@ form.addEventListener('submit', async (event) => {
     ambientIntensity: Number(fields.ambientIntensity.value),
     theme: fields.theme.value,
     colorMode: fields.colorMode.value,
-    hoverOpen: fields.hoverOpen.checked,
+    hoverOpen: fields.hoverOpen.value === 'hover',
     showTimerInNotch: fields.showTimerInNotch.checked,
     panelHotkey: fields.panelHotkey.value.trim(),
     captureHotkey: fields.captureHotkey.value.trim(),

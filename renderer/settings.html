@@ -211,10 +211,14 @@
         </section>
 
         <section class="pane" id="pane-panel" data-title="Panel" data-sub="The drop-down panel of tools." hidden>
-          <label class="toggle">
-            <span><b>Open the panel by hovering</b><small>Rest the mouse at the top-center edge of the screen and the panel of tools slides down.</small></span>
-            <input type="checkbox" id="hoverOpen">
-          </label>
+          <div class="field">
+            <b>How the panel opens</b>
+            <small>By hovering: rest the mouse at the top-center edge of the screen and the panel of tools slides down. By clicking: it opens only when you click the notch (or use the hotkey below).</small>
+            <select id="hoverOpen" aria-label="How the panel opens">
+              <option value="hover">By hovering (rest the mouse at the top)</option>
+              <option value="click">By clicking (click the notch)</option>
+            </select>
+          </div>
           <label class="field">
             <b>Panel hotkey</b>
             <small>Opens and closes the panel of tools. Example: Control+Alt+N</small>
