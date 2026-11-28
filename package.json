@@ -1,6 +1,6 @@
 {
   "name": "windows-notch",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Notchy: a Dynamic-Island style notch for Windows with a tool panel, timers, music, screen glow and character looks (Electron)",
   "main": "main.js",
   "author": "asherfarooq9-gif",
@@ -54,7 +54,7 @@
           ]
         }
       ],
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
