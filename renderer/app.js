@@ -250,7 +250,10 @@ peng.addEventListener('click', () => {
 });
 document.getElementById('cancel').addEventListener('click', () => window.notch.cancelAsk());
 
-window.notch.onState(({ state, text }) => setState(state, text));
+window.notch.onState(({ state, text }) => {
+  setState(state, text);
+  if (state === 'done' && text === 'Timer done') setTimeout(() => react('timerDone'), 300); // after the cheer starts, a comic burst
+});
 window.notch.onNotify(showCard);
 window.notch.onActivity(showActivity);
 // A running timer's countdown replaces the idle text ("Focus 24:10"). An empty text clears it.
@@ -334,20 +337,39 @@ function speakLine(entry) {
   }
 }
 
+// Plays one move: its drawing, its animation, its line on the notch, and the line spoken. move is the animation name (style.css).
+function perform({ move, effect, line, voice }) {
+  endMove();
+  if (effect) fxEl.append(svgIcon(effect)); // fixed drawings from hero-moves.js and hero-reactions.js
+  void fxEl.offsetWidth; // restart the animations even when the same move plays twice in a row
+  body.dataset.move = move;
+  showActivity({ kind: 'hero', text: line, ms: window.HeroMoves.MOVE_MS });
+  speakLine({ line, voice });
+  moveTimer = setTimeout(endMove, window.HeroMoves.MOVE_MS);
+}
+
 function playMove() {
   const entry = window.HeroMoves.moveFor(body.dataset.theme);
   const isPlaying = window.HeroMoves.shouldPlay({ state: body.dataset.state, isFocus, isDormant: body.classList.contains('dormant'), isOn: settingsNow.heroMoves === true });
   if (!entry || !isPlaying) return;
-  endMove();
-  const effect = window.HeroMoves.FX[entry.move];
-  if (effect) fxEl.append(svgIcon(effect)); // fixed drawings from hero-moves.js
-  void fxEl.offsetWidth; // restart the animations even when the same move plays twice in a row
-  body.dataset.move = entry.move;
-  showActivity({ kind: 'hero', text: entry.line, ms: window.HeroMoves.MOVE_MS });
-  speakLine(entry);
-  moveTimer = setTimeout(endMove, window.HeroMoves.MOVE_MS);
+  perform({ move: entry.move, effect: window.HeroMoves.FX[entry.move], line: entry.line, voice: entry.voice });
 }
 setInterval(playMove, window.HeroMoves.MOVE_EVERY_MS);
+
+// ---- the hero reacts to real life: timer ends, battery low, plugged in, time for a break (renderer/hero-reactions.js) ----
+let lastNudge = Date.now();
+function react(name) {
+  const reaction = window.HeroReactions.REACTIONS[name];
+  const entry = window.HeroMoves.moveFor(body.dataset.theme);
+  if (!reaction || !entry || settingsNow.reactiveHero === false || isFocus || body.classList.contains('dormant')) return;
+  perform({ move: reaction.fx, effect: window.HeroReactions.FX[reaction.fx], line: reaction.line, voice: entry.voice });
+}
+setInterval(() => {
+  const isDue = window.HeroReactions.shouldNudge({ now: Date.now(), lastNudge, isFocus, isDormant: body.classList.contains('dormant'), isOn: settingsNow.reactiveHero !== false, state: body.dataset.state });
+  if (!isDue) return;
+  lastNudge = Date.now();
+  react('breakTime');
+}, 60 * 1000);
 
 // The time left on the song counts down while it shows.
 setInterval(() => {
@@ -363,6 +385,7 @@ batteryIcon.classList.add('battery-icon');
 document.getElementById('batteryIcon').append(batteryIcon);
 const batteryFill = batteryIcon.querySelector('.battery-fill');
 let battery = null; // stays null on a PC with no battery
+let lastReading = null; // the battery level and charging state last time, to notice a change
 let lastClock = '';
 
 function updateClock() {
@@ -382,6 +405,10 @@ function drawBattery() {
   batteryEl.classList.toggle('low', isLow);
   body.classList.toggle('worried', isLow && settingsNow.reactiveHero !== false); // the character looks worried while idle
   batteryEl.classList.toggle('charging', battery.charging);
+  const reading = { percent, charging: battery.charging };
+  const reaction = window.HeroReactions.batteryReaction(lastReading, reading);
+  lastReading = reading;
+  if (reaction) react(reaction); // low on battery, or just plugged in
 }
 
 function applyChips() {

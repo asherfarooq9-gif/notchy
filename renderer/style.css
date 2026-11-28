@@ -279,6 +279,10 @@ body.worried[data-state="idle"] .eye { scale: 1.25 1.9; }
 body[data-move] .fx { display: block; animation: 3.2s ease-in-out forwards; }
 body[data-move] .pill .peng { animation-duration: 3.2s; animation-timing-function: ease-in-out; animation-fill-mode: forwards; animation-iteration-count: 1; }
 
+body[data-move="pow"] .pill .peng, body[data-move="low"] .pill .peng { animation-name: mvRecoil; }
+body[data-move="spark"] .pill .peng { animation-name: mvGlowGreen; }
+body[data-move="stretch"] .pill .peng { animation-name: mvThrow; }
+body[data-move="pow"] .fx, body[data-move="low"] .fx, body[data-move="spark"] .fx, body[data-move="stretch"] .fx { animation-name: fxPulse; filter: drop-shadow(0 0 3px #fde047); }
 body[data-move="blast"] .pill .peng { animation-name: mvRecoil; }
 body[data-move="blast"] .fx { transform-origin: left center; animation-name: fxBeam; filter: drop-shadow(0 0 3px #fde047); }
 body[data-move="shield"] .pill .peng { animation-name: mvThrow; }
