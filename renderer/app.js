@@ -271,6 +271,13 @@ pill.addEventListener('mouseleave', () => {
   body.classList.remove('wave');
   if (body.classList.contains('card')) cardTimer = setTimeout(hideCard, 1500);
 });
+// Clicking anywhere on the notch opens the panel (the face and the music buttons keep their own clicks).
+pill.addEventListener('click', (event) => {
+  if (event.target.closest('.media-btn, #cancel, .peng')) return;
+  if (body.dataset.state === 'asking') return;
+  flash('hop', 700);
+  window.notch.openPanel();
+});
 // Clicking the face opens the panel, or cancels while he waits for an answer.
 peng.addEventListener('click', () => {
   if (body.dataset.state === 'asking') {

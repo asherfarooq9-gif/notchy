@@ -51,3 +51,10 @@ test('a tucked notch can never stay hidden: it listens to both kinds of mouse mo
   assert.ok(app.includes("'mousemove'") && app.includes("'pointermove'"), 'forwarded mouse movement may arrive as either');
   assert.ok(app.includes('TUCK_MAX_MS'));
 });
+
+test('clicking anywhere on the notch opens the panel, except on a music button or while he waits for an answer', () => {
+  const app = read('renderer/app.js');
+  assert.match(app, /pill\.addEventListener\('click'/);
+  assert.ok(app.includes("closest('.media-btn, #cancel, .peng')"), 'buttons and the face keep their own click');
+  assert.ok(Tuck.TUCK_AFTER_MS >= 500, 'long enough to aim and click before the notch moves away');
+});

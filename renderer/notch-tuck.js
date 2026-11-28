@@ -2,7 +2,7 @@
 // so the click goes to what is underneath. It comes back when the cursor leaves the place where the notch was.
 // Loads in the page (as window.NotchTuck) and in Node (require), so the tests can check it.
 (function (root) {
-  const TUCK_AFTER_MS = 350; // the cursor must rest this long: passing over the notch does not make it jump
+  const TUCK_AFTER_MS = 600; // the cursor must rest this long: passing over the notch, or aiming to click it, does not make it jump
   const TUCK_MAX_MS = 6000; // a safety net: if no mouse movement ever arrives to bring it back, it returns by itself after this long
   const RETURN_MARGIN_PX = 16; // the cursor must go this far past the notch's old edge before it comes back
 
