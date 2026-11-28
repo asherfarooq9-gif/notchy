@@ -4,19 +4,17 @@ const { buildTrayHtml, createTrayIcons } = require('../lib/tray-icon');
 const Heroes = require('../renderer/heroes.js');
 const { THEMES } = require('../lib/themes');
 
-test('every hero look makes a tray picture from the shared drawing, with two eyes', () => {
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+Heroes.setPhotos(Object.fromEntries(Heroes.ids.map((id) => [id, 'data:image/png;base64,' + PNG.toString('base64')])));
+
+test('every hero look makes a tray picture from the shared face picture', () => {
   assert.strictEqual(Heroes.ids.length, 16); // 9 Marvel looks and 7 DC looks
   for (const id of Heroes.ids) {
     assert.ok(THEMES.includes(id), `${id} is not a look`);
     const html = buildTrayHtml(id);
     assert.ok(html && html.includes('<svg') && html.includes('viewBox="-2 -2 28 28"'), id);
-    assert.ok((html.match(/class="eyeball"/g) || []).length >= 2, `${id} eyes`);
+    assert.ok(html.includes('<image'), `${id} shows its face picture`);
   }
-});
-test('the picture really contains that hero (a color unique to its drawing)', () => {
-  assert.ok(buildTrayHtml('ironman').includes('#f2bb34'));
-  assert.ok(buildTrayHtml('hulk').includes('#5fb02c'));
-  assert.ok(buildTrayHtml('doom').includes('#166534'));
 });
 test('plain looks and unknown looks have no tray picture, so they keep the Batman icon', () => {
   for (const id of ['classic', 'ember', 'vivid', 'marvel', 'nobody', '__proto__']) assert.strictEqual(buildTrayHtml(id), null, id);
@@ -58,12 +56,10 @@ test('a painting that never finishes is given up on, the window is closed, and t
   assert.strictEqual(await icons.imageFor('hulk'), fallback);
   assert.strictEqual(destroyed, 1);
 });
-test('the shared drawings file gives every hero a bot that draws its own eyes', () => {
-  for (const id of Heroes.ids) {
-    assert.ok(Heroes.DRAWINGS[id].includes('<path'), id);
-    assert.ok((Heroes.DRAWINGS[id].match(/class="eyeball"/g) || []).length >= 2, `${id} has two eyes`);
-    assert.ok(!Heroes.DRAWINGS[id].includes('<g'), `${id}: the notch hides <g> inside the face (style.css ".hero g")`);
-  }
+test('every hero has a face picture file shipped with the app', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  for (const id of Heroes.ids) assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'faces', id + '.png')), id + '.png is shipped');
   assert.deepStrictEqual(Object.keys(Heroes.EYES), [], 'only character packs bring separate eye spots');
   assert.strictEqual(Heroes.markup('nobody'), null);
 });
