@@ -14,6 +14,8 @@ test('the glow page has one canvas that fills the whole window', () => {
 
 test('the glow script asks for a fast, tiny screen video', () => {
   const js = read('ambient.js');
-  assert.match(js, /maxFrameRate:\s*30\s*\}/); // a higher minimum rate made the screen watcher use about twice the processor for no real gain
-  assert.match(js, /MIN_FRAME_MS\s*=\s*30/);
+  // Measured on a real PC with the picture moving all the time: without a minimum rate the screen video arrived about 6 times a second
+  // (a 160 ms wait for each new color). Asking for at least 30 raised that to about 14 a second (70 ms), for about 40 percent more processor time.
+  assert.match(js, /minFrameRate:\s*30,\s*maxFrameRate:\s*60\s*\}/);
+  assert.match(js, /MIN_FRAME_MS\s*=\s*16/);
 });

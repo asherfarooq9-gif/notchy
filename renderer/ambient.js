@@ -9,7 +9,7 @@ canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
 const SIDES = ['top', 'right', 'bottom', 'left'];
-const MIN_FRAME_MS = 30; // at most about thirty pictures a second
+const MIN_FRAME_MS = 16; // take every picture the screen video delivers (about 14 a second when the picture moves)
 const STREAM_W = 160; // the live screen video is asked for at this tiny size, so it costs almost nothing
 const STREAM_H = 90;
 const FOLLOW_MS = 25; // how fast the shown colors chase the new ones (smaller = snappier)
@@ -95,7 +95,7 @@ function step(time) {
 async function watchScreen({ sourceId, width, height }) {
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
-    video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: sourceId, maxWidth: STREAM_W, maxHeight: STREAM_H, maxFrameRate: 30 } },
+    video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: sourceId, maxWidth: STREAM_W, maxHeight: STREAM_H, minFrameRate: 30, maxFrameRate: 60 } },
   });
   const video = document.createElement('video');
   video.srcObject = stream;
