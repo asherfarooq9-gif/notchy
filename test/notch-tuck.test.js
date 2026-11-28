@@ -39,8 +39,30 @@ test('the setting is on by default, can be switched off, and ignores junk', () =
 test('the notch page loads the tuck rules, the style hides the tucked notch, and Settings has the switch', () => {
   assert.ok(read('renderer/index.html').includes('notch-tuck.js'));
   const app = read('renderer/app.js');
-  for (const piece of ['NotchTuck', 'tucked', 'TUCK_AFTER_MS', 'isOutside']) assert.ok(app.includes(piece), `app.js uses ${piece}`);
+  for (const piece of ['NotchTuck', 'tucked', 'tuckDelay', 'isOutside']) assert.ok(app.includes(piece), `app.js uses ${piece}`);
   assert.match(read('renderer/style.css'), /body\.tucked \.pill\s*\{[^}]*translateY\(-1\d\d%\)/);
   assert.ok(read('renderer/settings.html').includes('id="tuckOnHover"'));
   assert.ok(read('renderer/settings.js').includes('tuckOnHover'));
+});
+
+test('a tucked notch can never stay hidden: it listens to both kinds of mouse movement and has a time limit', () => {
+  assert.ok(Tuck.TUCK_MAX_MS >= 3000 && Tuck.TUCK_MAX_MS <= 15000, 'it comes back by itself after a few seconds at most');
+  const app = read('renderer/app.js');
+  assert.ok(app.includes("'mousemove'") && app.includes("'pointermove'"), 'forwarded mouse movement may arrive as either');
+  assert.ok(app.includes('TUCK_MAX_MS'));
+});
+
+test('clicking anywhere on the notch opens the panel, except on a music button or while he waits for an answer', () => {
+  const app = read('renderer/app.js');
+  assert.match(app, /pill\.addEventListener\('click'/);
+  assert.ok(app.includes("closest('.media-btn, #cancel, .peng')"), 'buttons and the face keep their own click');
+  assert.ok(Tuck.TUCK_AFTER_MS >= 500, 'long enough to aim and click before the notch moves away');
+});
+
+test('when the panel opens by clicking, the notch waits much longer before stepping aside, so you can aim and click it', () => {
+  assert.strictEqual(Tuck.tuckDelay({ isClickMode: false }), Tuck.TUCK_AFTER_MS);
+  assert.ok(Tuck.tuckDelay({ isClickMode: true }) >= 1500, 'at least a second and a half to click');
+  assert.ok(Tuck.tuckDelay({ isClickMode: true }) > Tuck.tuckDelay({ isClickMode: false }));
+  const app = read('renderer/app.js');
+  assert.ok(app.includes('tuckDelay(') && app.includes('settingsNow.hoverOpen === false'), 'the notch page picks the delay from the panel setting');
 });

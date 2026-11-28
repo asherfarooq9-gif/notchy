@@ -232,6 +232,7 @@ for (const [command, label] of [['prev', 'Previous song'], ['playpause', 'Play o
 // It comes back when the cursor leaves the place where it was. Not while the cursor is on his face or a music button.
 let tuckTimer = 0;
 let tuckedRect = null;
+let untuckTimer = 0;
 function tuckNow() {
   tuckTimer = 0;
   const isOverControl = pill.querySelector('.media-btn:hover, .peng:hover, #cancel:hover');
@@ -240,23 +241,28 @@ function tuckNow() {
   tuckedRect = pill.getBoundingClientRect();
   body.classList.add('tucked');
   body.classList.remove('wave');
+  clearTimeout(untuckTimer);
+  untuckTimer = setTimeout(untuck, window.NotchTuck.TUCK_MAX_MS); // never stays hidden, even if no mouse movement reaches the page
   isHovering = false;
   window.notch.setMouseIgnore(true); // clicks now reach the window underneath
 }
 function untuck() {
+  clearTimeout(untuckTimer);
   tuckedRect = null;
   body.classList.remove('tucked');
 }
-document.addEventListener('pointermove', (event) => {
-  if (tuckedRect && window.NotchTuck.isOutside({ x: event.clientX, y: event.clientY }, tuckedRect)) untuck();
-});
+for (const kind of ['pointermove', 'mousemove']) { // the mouse movement passed through the see-through window may arrive as either
+  document.addEventListener(kind, (event) => {
+    if (tuckedRect && window.NotchTuck.isOutside({ x: event.clientX, y: event.clientY }, tuckedRect)) untuck();
+  });
+}
 
 pill.addEventListener('mouseenter', () => {
   isHovering = true;
   window.notch.setMouseIgnore(false);
   body.classList.add('wave');
   clearTimeout(tuckTimer);
-  tuckTimer = setTimeout(tuckNow, window.NotchTuck.TUCK_AFTER_MS);
+  tuckTimer = setTimeout(tuckNow, window.NotchTuck.tuckDelay({ isClickMode: settingsNow.hoverOpen === false }));
 });
 pill.addEventListener('mouseleave', () => {
   isHovering = false;
@@ -264,6 +270,13 @@ pill.addEventListener('mouseleave', () => {
   window.notch.setMouseIgnore(true);
   body.classList.remove('wave');
   if (body.classList.contains('card')) cardTimer = setTimeout(hideCard, 1500);
+});
+// Clicking anywhere on the notch opens the panel (the face and the music buttons keep their own clicks).
+pill.addEventListener('click', (event) => {
+  if (event.target.closest('.media-btn, #cancel, .peng')) return;
+  if (body.dataset.state === 'asking') return;
+  flash('hop', 700);
+  window.notch.openPanel();
 });
 // Clicking the face opens the panel, or cancels while he waits for an answer.
 peng.addEventListener('click', () => {
