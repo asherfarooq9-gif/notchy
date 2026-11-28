@@ -71,6 +71,10 @@
             <input type="checkbox" id="reactiveHero">
           </label>
           <label class="toggle">
+            <span><b>Move out of the way when I rest the cursor on it</b><small>The notch slides up so you can click what is behind it, like a browser tab. It comes back when you move the cursor away.</small></span>
+            <input type="checkbox" id="tuckOnHover">
+          </label>
+          <label class="toggle">
             <span><b>Character moves every minute</b><small>Your hero does its special move and shows its famous line in the notch, once a minute, while nothing else is on.</small></span>
             <input type="checkbox" id="heroMoves">
           </label>
@@ -207,10 +211,14 @@
         </section>
 
         <section class="pane" id="pane-panel" data-title="Panel" data-sub="The drop-down panel of tools." hidden>
-          <label class="toggle">
-            <span><b>Open the panel by hovering</b><small>Rest the mouse at the top-center edge of the screen and the panel of tools slides down.</small></span>
-            <input type="checkbox" id="hoverOpen">
-          </label>
+          <div class="field">
+            <b>How the panel opens</b>
+            <small>By hovering: rest the mouse at the top-center edge of the screen and the panel of tools slides down. By clicking: it opens only when you click the notch (or use the hotkey below).</small>
+            <select id="hoverOpen" aria-label="How the panel opens">
+              <option value="hover">By hovering (rest the mouse at the top)</option>
+              <option value="click">By clicking (click the notch)</option>
+            </select>
+          </div>
           <label class="field">
             <b>Panel hotkey</b>
             <small>Opens and closes the panel of tools. Example: Control+Alt+N</small>

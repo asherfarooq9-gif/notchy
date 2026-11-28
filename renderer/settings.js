@@ -6,6 +6,7 @@ const fields = {
   hideUntilCalled: document.getElementById('hideUntilCalled'),
   reactiveHero: document.getElementById('reactiveHero'),
   heroMoves: document.getElementById('heroMoves'),
+  tuckOnHover: document.getElementById('tuckOnHover'),
   heroVoice: document.getElementById('heroVoice'),
   routines: document.getElementById('routines'),
   alertsWhileHidden: document.getElementById('alertsWhileHidden'),
@@ -40,6 +41,7 @@ function fill(settings) {
   fields.hideUntilCalled.checked = settings.hideUntilCalled;
   fields.reactiveHero.checked = settings.reactiveHero;
   fields.heroMoves.checked = settings.heroMoves;
+  fields.tuckOnHover.checked = settings.tuckOnHover;
   fields.heroVoice.checked = settings.heroVoice;
   fields.routines.value = settings.routines.map((r) => `${r.name}: ${r.steps.join('; ')}`).join('\n');
   fields.alertsWhileHidden.checked = settings.alertsWhileHidden;
@@ -63,7 +65,7 @@ function fill(settings) {
   previewLook(settings.theme);
   fields.colorMode.value = settings.colorMode;
   previewMode(settings.colorMode);
-  fields.hoverOpen.checked = settings.hoverOpen;
+  fields.hoverOpen.value = settings.hoverOpen ? 'hover' : 'click'; // the old on/off setting keeps its meaning: on is hovering
   fields.showTimerInNotch.checked = settings.showTimerInNotch;
   fields.panelHotkey.value = settings.panelHotkey;
   fields.captureHotkey.value = settings.captureHotkey;
@@ -141,6 +143,7 @@ form.addEventListener('submit', async (event) => {
     hideUntilCalled: fields.hideUntilCalled.checked,
     reactiveHero: fields.reactiveHero.checked,
     heroMoves: fields.heroMoves.checked,
+    tuckOnHover: fields.tuckOnHover.checked,
     heroVoice: fields.heroVoice.checked,
     routines: parseRoutineLines(fields.routines.value),
     alertsWhileHidden: fields.alertsWhileHidden.checked,
@@ -160,7 +163,7 @@ form.addEventListener('submit', async (event) => {
     ambientIntensity: Number(fields.ambientIntensity.value),
     theme: fields.theme.value,
     colorMode: fields.colorMode.value,
-    hoverOpen: fields.hoverOpen.checked,
+    hoverOpen: fields.hoverOpen.value === 'hover',
     showTimerInNotch: fields.showTimerInNotch.checked,
     panelHotkey: fields.panelHotkey.value.trim(),
     captureHotkey: fields.captureHotkey.value.trim(),

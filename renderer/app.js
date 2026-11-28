@@ -228,13 +228,39 @@ for (const [command, label] of [['prev', 'Previous song'], ['playpause', 'Play o
   controls.append(button);
 }
 
+// Step out of the way: rest the cursor on the notch and it slides up, so a click goes to what is behind it (a browser tab).
+// It comes back when the cursor leaves the place where it was. Not while the cursor is on his face or a music button.
+let tuckTimer = 0;
+let tuckedRect = null;
+function tuckNow() {
+  tuckTimer = 0;
+  const isOverControl = pill.querySelector('.media-btn:hover, .peng:hover, #cancel:hover');
+  const isAllowed = window.NotchTuck.canTuck({ isOn: settingsNow.tuckOnHover !== false, state: body.dataset.state, isFocus, isDormant: body.classList.contains('dormant'), hasCard: body.classList.contains('card') });
+  if (!isHovering || isOverControl || !isAllowed) return;
+  tuckedRect = pill.getBoundingClientRect();
+  body.classList.add('tucked');
+  body.classList.remove('wave');
+  isHovering = false;
+  window.notch.setMouseIgnore(true); // clicks now reach the window underneath
+}
+function untuck() {
+  tuckedRect = null;
+  body.classList.remove('tucked');
+}
+document.addEventListener('pointermove', (event) => {
+  if (tuckedRect && window.NotchTuck.isOutside({ x: event.clientX, y: event.clientY }, tuckedRect)) untuck();
+});
+
 pill.addEventListener('mouseenter', () => {
   isHovering = true;
   window.notch.setMouseIgnore(false);
   body.classList.add('wave');
+  clearTimeout(tuckTimer);
+  tuckTimer = setTimeout(tuckNow, window.NotchTuck.TUCK_AFTER_MS);
 });
 pill.addEventListener('mouseleave', () => {
   isHovering = false;
+  clearTimeout(tuckTimer);
   window.notch.setMouseIgnore(true);
   body.classList.remove('wave');
   if (body.classList.contains('card')) cardTimer = setTimeout(hideCard, 1500);
