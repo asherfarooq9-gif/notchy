@@ -487,8 +487,10 @@ function readPacks() {
 
 // Your own face pictures: <hero>.png files in the "faces" folder, checked by lib/faces.js. Read again each time, like packs.
 const facesDir = () => path.join(app.getPath('userData'), 'faces');
+const bundledFacesDir = () => path.join(__dirname, 'assets', 'faces'); // the pictures that ship with the app
 function readFaces() {
-  const { faces } = loadFaces(facesDir(), Heroes.ids);
+  // your own file of the same name in the faces folder replaces the shipped one
+  const faces = { ...loadFaces(bundledFacesDir(), Heroes.ids).faces, ...loadFaces(facesDir(), Heroes.ids).faces };
   Heroes.setPhotos(faces); // the tray icon draws from the same pictures
   return faces;
 }

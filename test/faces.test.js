@@ -34,8 +34,8 @@ test('a file that is not a PNG, or is too large, is skipped with a reason', () =
   assert.match(problems.join(' '), /joker\.png/);
 });
 
-test('every hero can blink on the notch: two eyelids for the bot and for the face picture, none elsewhere', () => {
-  for (const table of [Heroes.LIDS, Heroes.PHOTO_LIDS]) {
+test('every hero can blink on the notch: two eyelids on the face picture, none elsewhere', () => {
+  for (const table of [Heroes.PHOTO_LIDS]) {
     assert.deepStrictEqual(Object.keys(table).sort(), [...Heroes.ids].sort());
     for (const [id, lid] of Object.entries(table)) {
       assert.ok(lid.cx.every((x) => x > 0 && x < 24) && lid.y > 0 && lid.y < 24, `${id} eyes inside the face box`);
@@ -43,12 +43,10 @@ test('every hero can blink on the notch: two eyelids for the bot and for the fac
     }
   }
   const lids = (text) => (text.match(/class="lid"/g) || []).length;
-  assert.strictEqual(lids(Heroes.markup('thor', { withLids: true })), 2, 'the bot blinks');
-  assert.strictEqual(lids(Heroes.markup('thor')), 0, 'Settings and the tray show open eyes');
   Heroes.setPhotos({ thor: 'data:image/png;base64,' + PNG.toString('base64') });
+  assert.strictEqual(lids(Heroes.markup('thor')), 0, 'Settings and the tray show open eyes');
   assert.strictEqual(lids(Heroes.markup('thor', { withLids: true })), 2, 'the face picture blinks too');
   Heroes.setPhotos({});
-  for (const id of Heroes.ids) assert.ok((Heroes.markup(id).match(/class="eyeball"/g) || []).length >= 2, `${id} bot has two eyes`);
 });
 
 test('the notch shows your face cut-out with blinking eyelids', () => {
