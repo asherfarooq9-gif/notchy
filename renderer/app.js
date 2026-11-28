@@ -262,7 +262,7 @@ pill.addEventListener('mouseenter', () => {
   window.notch.setMouseIgnore(false);
   body.classList.add('wave');
   clearTimeout(tuckTimer);
-  tuckTimer = setTimeout(tuckNow, window.NotchTuck.TUCK_AFTER_MS);
+  tuckTimer = setTimeout(tuckNow, window.NotchTuck.tuckDelay({ isClickMode: settingsNow.hoverOpen === false }));
 });
 pill.addEventListener('mouseleave', () => {
   isHovering = false;
