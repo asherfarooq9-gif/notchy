@@ -232,6 +232,7 @@ for (const [command, label] of [['prev', 'Previous song'], ['playpause', 'Play o
 // It comes back when the cursor leaves the place where it was. Not while the cursor is on his face or a music button.
 let tuckTimer = 0;
 let tuckedRect = null;
+let untuckTimer = 0;
 function tuckNow() {
   tuckTimer = 0;
   const isOverControl = pill.querySelector('.media-btn:hover, .peng:hover, #cancel:hover');
@@ -240,16 +241,21 @@ function tuckNow() {
   tuckedRect = pill.getBoundingClientRect();
   body.classList.add('tucked');
   body.classList.remove('wave');
+  clearTimeout(untuckTimer);
+  untuckTimer = setTimeout(untuck, window.NotchTuck.TUCK_MAX_MS); // never stays hidden, even if no mouse movement reaches the page
   isHovering = false;
   window.notch.setMouseIgnore(true); // clicks now reach the window underneath
 }
 function untuck() {
+  clearTimeout(untuckTimer);
   tuckedRect = null;
   body.classList.remove('tucked');
 }
-document.addEventListener('pointermove', (event) => {
-  if (tuckedRect && window.NotchTuck.isOutside({ x: event.clientX, y: event.clientY }, tuckedRect)) untuck();
-});
+for (const kind of ['pointermove', 'mousemove']) { // the mouse movement passed through the see-through window may arrive as either
+  document.addEventListener(kind, (event) => {
+    if (tuckedRect && window.NotchTuck.isOutside({ x: event.clientX, y: event.clientY }, tuckedRect)) untuck();
+  });
+}
 
 pill.addEventListener('mouseenter', () => {
   isHovering = true;

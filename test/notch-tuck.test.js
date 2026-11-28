@@ -44,3 +44,10 @@ test('the notch page loads the tuck rules, the style hides the tucked notch, and
   assert.ok(read('renderer/settings.html').includes('id="tuckOnHover"'));
   assert.ok(read('renderer/settings.js').includes('tuckOnHover'));
 });
+
+test('a tucked notch can never stay hidden: it listens to both kinds of mouse movement and has a time limit', () => {
+  assert.ok(Tuck.TUCK_MAX_MS >= 3000 && Tuck.TUCK_MAX_MS <= 15000, 'it comes back by itself after a few seconds at most');
+  const app = read('renderer/app.js');
+  assert.ok(app.includes("'mousemove'") && app.includes("'pointermove'"), 'forwarded mouse movement may arrive as either');
+  assert.ok(app.includes('TUCK_MAX_MS'));
+});
